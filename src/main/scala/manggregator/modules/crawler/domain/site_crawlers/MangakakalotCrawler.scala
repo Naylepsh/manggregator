@@ -1,8 +1,8 @@
 package manggregator.modules.crawler.domain.site_crawlers
 
 import cats.effect._
-import manggregator.modules.crawler.domain._
-import manggregator.modules.crawler.domain.CrawlJob._
+import manggregator.modules.crawler.domain.Crawl.CrawlJob._
+import manggregator.modules.crawler.domain.Asset._
 
 trait MangakakalotCrawler extends SiteCrawler:
   def getContent(url: Url): IO[String]
