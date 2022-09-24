@@ -36,4 +36,4 @@ class Crawler(
     } yield ()
 
   def enqueue(jobs: List[SiteCrawlJob]): IO[Unit] =
-    jobs.foldLeft(IO.unit)((_, job) => crawlQueue.offer(job))
+    jobs.traverse(crawlQueue.offer).as(())

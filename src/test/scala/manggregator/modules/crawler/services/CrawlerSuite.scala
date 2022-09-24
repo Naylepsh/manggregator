@@ -37,6 +37,27 @@ class CrawlerSuite extends CatsEffectSuite:
     } yield assertEquals(resultsOnResultsQueue, jobs.length)
   }
 
+  test("enqueing puts jobs on crawl queue") {
+    val jobs = List(
+      SiteCrawlJob(
+        testCrawlerLabel,
+        ScrapeChaptersCrawlJob("http://localhost:3000/assets/title-1")
+      ),
+      SiteCrawlJob(
+        testCrawlerLabel,
+        DiscoverTitlesCrawlJob("http://localhost:3000/assets", "Title 2")
+      )
+    )
+
+    for {
+      resultsQueue <- Queue.bounded[IO, CrawlResult.Result](capacity = 10)
+      crawlQueue <- Queue.bounded[IO, SiteCrawlJob](capacity = 10)
+      crawler = Crawler(Map[String, SiteCrawler](), crawlQueue, resultsQueue)
+      _ <- crawler.enqueue(jobs)
+      resultsOnCrawlQueue <- crawlQueue.size
+    } yield assertEquals(resultsOnCrawlQueue, jobs.length)
+  }
+
 object CrawlerSuite:
   val testTitles =
     List(
