@@ -1,4 +1,4 @@
-package manggregator.modules.crawler.domain.site_crawlers
+package manggregator.modules.crawler.domain
 
 import cats.effect._
 import manggregator.modules.crawler.domain.Crawl.CrawlJob._

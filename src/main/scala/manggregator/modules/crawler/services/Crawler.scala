@@ -9,7 +9,7 @@ import scala.language.postfixOps
 import manggregator.modules.crawler.domain._
 import manggregator.modules.crawler.domain.Crawl._
 import manggregator.modules.crawler.domain.Crawl.CrawlResult._
-import manggregator.modules.crawler.domain.site_crawlers.SiteCrawler
+import manggregator.modules.crawler.domain.SiteCrawler
 
 class Crawler(
     siteCrawlersMappings: Map[String, SiteCrawler],
