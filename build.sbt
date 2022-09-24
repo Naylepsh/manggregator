@@ -10,3 +10,8 @@ lazy val root = project
     libraryDependencies += "org.typelevel" %% "munit-cats-effect-3" % "1.0.7" % Test,
     libraryDependencies += "org.scalameta" %% "munit" % "0.7.29" % Test
   )
+
+addCommandAlias(
+  "codeCoverage",
+  "coverage ; test ; coverageReport"
+)
