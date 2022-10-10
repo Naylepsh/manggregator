@@ -4,12 +4,12 @@ import munit.CatsEffectSuite
 import manggregator.modules.crawler.domain.Asset._
 import manggregator.modules.crawler.domain.Crawl.CrawlJob._
 import manggregator.modules.crawler.domain.Crawl.SiteCrawlJob
-import manggregator.modules.crawler.domain.site_crawlers.SiteCrawler
+import manggregator.modules.crawler.domain.Crawl.CrawlResult
+import manggregator.modules.crawler.domain.SiteCrawler
 import cats.effect._
 import cats.effect.std._
 import cats.implicits._
 import java.util.Date
-import manggregator.modules.crawler.domain.Crawl.CrawlResult
 
 class CrawlerSuite extends CatsEffectSuite:
   import CrawlerSuite._
@@ -87,10 +87,14 @@ object CrawlerSuite:
     )
   val testCrawlerLabel = "test"
   val testCrawler = new SiteCrawler:
-    def discoverTitles(job: DiscoverTitlesCrawlJob): IO[List[AssetSource]] = IO(
-      testTitles
+    def discoverTitles(
+        job: DiscoverTitlesCrawlJob
+    ): IO[Either[Throwable, List[AssetSource]]] = IO(
+      Right(testTitles)
     )
 
-    def scrapeChapters(job: ScrapeChaptersCrawlJob): IO[List[Chapter]] = IO(
-      testChapters
+    def scrapeChapters(
+        job: ScrapeChaptersCrawlJob
+    ): IO[Either[Throwable, List[Chapter]]] = IO(
+      Right(testChapters)
     )

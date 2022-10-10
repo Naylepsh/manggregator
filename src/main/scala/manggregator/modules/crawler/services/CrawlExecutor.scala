@@ -3,9 +3,8 @@ package manggregator.modules.crawler.services
 import cats._
 import cats.implicits._
 import cats.effect._
-import manggregator.modules.crawler.domain._
-import manggregator.modules.crawler.domain.site_crawlers._
-import manggregator.modules.crawler.domain.Crawl._
+import manggregator.modules.crawler.domain.SiteCrawler
+import manggregator.modules.crawler.domain.Crawl.SiteCrawlJob
 import manggregator.modules.crawler.domain.Crawl.CrawlJob._
 
 object CrawlExecutor:

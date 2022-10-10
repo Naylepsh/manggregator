@@ -29,8 +29,9 @@ class Crawler(
         case None => IO.unit
         case Some(job) =>
           executor(job) match {
-            case Left(reason)   => IO.println(reason)
-            case Right(results) => results.flatMap(resultQueue.offer)
+            case Left(reason) => IO.println(reason)
+            case Right(results) =>
+              results.flatMap(_.map(resultQueue.offer).sequence)
           } flatMap (_ => crawl())
       }
     } yield ()

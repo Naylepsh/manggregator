@@ -72,10 +72,15 @@ object MangakakalotCrawler extends SiteCrawler:
     }
 
   def parseTitles(content: String): List[AssetSource] = ???
-  def discoverTitles(job: DiscoverTitlesCrawlJob): IO[List[AssetSource]] =
-    getContent(job.url).map(parseTitles)
-  def scrapeChapters(job: ScrapeChaptersCrawlJob): IO[List[Chapter]] =
-    getContent(job.url).map(parseChapters)
+  def discoverTitles(
+      job: DiscoverTitlesCrawlJob
+  ): IO[Either[Throwable, List[AssetSource]]] =
+    getContent(job.url).map(_.map(parseTitles))
+
+  def scrapeChapters(
+      job: ScrapeChaptersCrawlJob
+  ): IO[Either[Throwable, List[Chapter]]] =
+    getContent(job.url).map(_.flatMap(parseChapters))
 
   private def monthWordToNumeric(monthWord: String): Option[Int] =
     List(
