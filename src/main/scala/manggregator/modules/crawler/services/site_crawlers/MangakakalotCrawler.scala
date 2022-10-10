@@ -39,7 +39,7 @@ object MangakakalotCrawler extends SiteCrawler:
         }
     }.toEither
 
-  private val chapterNoPattern = ".*Chapter ([0-9]+.?[0-9]?).*".r
+  private val chapterNoPattern = ".*Chapter ([0-9]+[.]?[0-9]?).*".r
   def parseChapterNoFromName(chapterName: String): Option[String] =
     chapterName match {
       case chapterNoPattern(no) => Some(no)

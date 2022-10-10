@@ -62,6 +62,23 @@ class MangakakalotCrawlerSuite extends CatsEffectSuite:
     assertEquals(result, None)
   }
 
+  test("parsing chapter names extracts chapter number") {
+    val inputs = List(
+      ("Chapter 1", "1"),
+      ("Chapter 1.5", "1.5"),
+      ("Chapter 2: Hello, world!", "2")
+    )
+
+    inputs.foreach { case (chapterName, expectedChapterNo) =>
+      val no = MangakakalotCrawler.parseChapterNoFromName(chapterName)
+      assertEquals(no, Some(expectedChapterNo))
+    }
+  }
+
+  test("parsing chapter name from gibberish data returns None") {
+    assertEquals(MangakakalotCrawler.parseChapterNoFromName("gibberish"), None)
+  }
+
   private def assertDateReleasedParsingWorks(
       timeUploaded: String,
       expectedDate: Date
