@@ -48,11 +48,18 @@ class MangakakalotCrawlerSuite extends CatsEffectSuite:
   test(
     "parsing release date of chapter released on specified date in manganato format should return matching date"
   ) {
-
     assertDateReleasedParsingWorks(
       "Aug 25,22",
       (DateTime.parse("2022-08-25T00:00:00.959Z").date)
     )
+  }
+
+  test("parsing release date of gibberish returns None") {
+    val result = MangakakalotCrawler.parseDateReleasedFromTimeUploaded(
+      "gibberish-stuff here"
+    )
+
+    assertEquals(result, None)
   }
 
   private def assertDateReleasedParsingWorks(
