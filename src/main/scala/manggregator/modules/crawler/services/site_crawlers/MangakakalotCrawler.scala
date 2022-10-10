@@ -46,30 +46,47 @@ object MangakakalotCrawler extends SiteCrawler:
       case _                    => None
     }
 
+  private val minutesAgoPattern = ".*([0-9]+) mins ago.*".r
   private val hoursAgoPattern = ".*([0-9]+) hour ago.*".r
   private val daysAgoPattern = ".*([0-9]+) day ago.*".r
-  private val datePattern = ".*([A-Za-z]{3})-([0-9]{2})-([0-9]{2}).*".r
+  private val mangakakalotDatePattern =
+    ".*([A-Za-z]{3})-([0-9]{2})-([0-9]{2}).*".r
+  private val manganatoDatePattern =
+    ".*([A-Za-z]{3}) ([0-9]{2}),([0-9]{2}).*".r
   def parseDateReleasedFromTimeUploaded(timeUploaded: String): Option[Date] =
     timeUploaded match {
+      case minutesAgoPattern(minutes) =>
+        Some((DateTime.now() - minutes.toInt.minutes).date)
+
       case hoursAgoPattern(hours) =>
-        Some((DateTime.now() + hours.toInt.hours).date)
+        Some((DateTime.now() - hours.toInt.hours).date)
 
       case daysAgoPattern(days) =>
-        Some((DateTime.now() + days.toInt.days).date)
+        Some((DateTime.now() - days.toInt.days).date)
 
-      case datePattern(month, day, year) =>
-        for {
-          m <- monthWordToNumeric(month)
-          d <- day.toIntOption
-          y <- year.toIntOption.map(_ + 2000)
-        } yield (new DateTime())
-          .withYear(y)
-          .withMonthOfYear(m)
-          .withDayOfMonth(d)
-          .date
+      case mangakakalotDatePattern(month, day, year) =>
+        composeDate(year, month, day)
+
+      case manganatoDatePattern(month, day, year) =>
+        composeDate(year, month, day)
 
       case _ => None
     }
+
+  private def composeDate(
+      year: String,
+      month: String,
+      day: String
+  ): Option[Date] =
+    for {
+      m <- monthWordToNumeric(month)
+      d <- day.toIntOption
+      y <- year.toIntOption.map(_ + 2000)
+    } yield (new DateTime())
+      .withYear(y)
+      .withMonthOfYear(m)
+      .withDayOfMonth(d)
+      .date
 
   def parseTitles(content: String): List[AssetSource] = ???
   def discoverTitles(
