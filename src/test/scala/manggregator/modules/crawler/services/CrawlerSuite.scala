@@ -19,7 +19,7 @@ class CrawlerSuite extends CatsEffectSuite:
     val jobs = List(
       SiteCrawlJob(
         testCrawlerLabel,
-        ScrapeChaptersCrawlJob("http://localhost:3000/assets/title-1")
+        ScrapeChaptersCrawlJob("http://localhost:3000/assets/title-1", "Title 1")
       ),
       SiteCrawlJob(
         testCrawlerLabel,
@@ -41,7 +41,7 @@ class CrawlerSuite extends CatsEffectSuite:
     val jobs = List(
       SiteCrawlJob(
         testCrawlerLabel,
-        ScrapeChaptersCrawlJob("http://localhost:3000/assets/title-1")
+        ScrapeChaptersCrawlJob("http://localhost:3000/assets/title-1", "Title 1")
       ),
       SiteCrawlJob(
         testCrawlerLabel,

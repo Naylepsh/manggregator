@@ -21,7 +21,9 @@ object MangakakalotCrawler extends SiteCrawler:
     Try(browser.get(url).toHtml).toEither
   }
 
-  def parseChapters(content: String): Either[Throwable, List[Chapter]] =
+  def parseChapters(url: Url, title: String)(
+      content: String
+  ): Either[Throwable, List[Chapter]] =
     Try {
       (browser.parseString(content) >> elementList(".chapter-list .row"))
         .flatMap { chapterElement =>
@@ -31,9 +33,9 @@ object MangakakalotCrawler extends SiteCrawler:
             timeUploaded <- chapterElement >?> allText("span:nth-of-type(3)")
             dateReleased <- parseDateReleasedFromTimeUploaded(timeUploaded)
           } yield Chapter(
-            assetTitle = "TODO",
+            assetTitle = title,
             no = no,
-            url = "TODO",
+            url = url,
             dateReleased = dateReleased
           )
         }
@@ -97,7 +99,7 @@ object MangakakalotCrawler extends SiteCrawler:
   def scrapeChapters(
       job: ScrapeChaptersCrawlJob
   ): IO[Either[Throwable, List[Chapter]]] =
-    getContent(job.url).map(_.flatMap(parseChapters))
+    getContent(job.url).map(_.flatMap(parseChapters(job.url, job.assetTitle)))
 
   private def monthWordToNumeric(monthWord: String): Option[Int] =
     List(

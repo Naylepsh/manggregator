@@ -7,7 +7,8 @@ object Crawl:
     val url: String
 
   object CrawlJob:
-    case class ScrapeChaptersCrawlJob(url: String) extends CrawlJob
+    case class ScrapeChaptersCrawlJob(url: String, assetTitle: String)
+        extends CrawlJob
     case class DiscoverTitlesCrawlJob(url: String, keyword: String)
         extends CrawlJob
 
