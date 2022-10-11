@@ -75,6 +75,21 @@ class MangakakalotCrawlerSuite extends CatsEffectSuite:
     }
   }
 
+  test("parse chapters extracts chapters from HTML") {
+    import MangakakalotCrawlerSuite._
+
+    MangakakalotCrawler
+      .parseChapters(
+        url = "https://mangakakalot.com/manga/ot927321",
+        title = "Karami Zakari",
+        selectors = Selectors.mangakakalotSelectors
+      )(html)
+      .foreach { chapters =>
+        assertEquals(chapters.length, 4)
+      }
+
+  }
+
   test("parsing chapter name from gibberish data returns None") {
     assertEquals(MangakakalotCrawler.parseChapterNoFromName("gibberish"), None)
   }
@@ -96,3 +111,30 @@ class MangakakalotCrawlerSuite extends CatsEffectSuite:
         .compare(actualDate.get, expectedDate),
       0
     )
+
+object MangakakalotCrawlerSuite:
+  val html =
+    """
+    | <div class="chapter-list">
+    |   <div class="row">
+    |     <span><a href="https://mangakakalot.com/chapter/ot927321/chapter_2" title="Karami Zakari: Boku no Honto to Kimi no Uso Vol.5 Chapter 28">Vol.5 Chapter 28</a></span>
+    |     <span>0</span>
+    |     <span title="1 hour ago ">1 hour ago </span>
+    |   </div>
+    |   <div class="row">
+    |     <span><a href="https://mangakakalot.com/chapter/ot927321/chapter_1.1" title="Karami Zakari: Boku no Honto to Kimi no Uso Vol.5 Chapter 27">Vol.5 Chapter 27</a></span>
+    |     <span>4,065</span>
+    |     <span title="Sep-25-2022 05:25">Sep-25-22</span>
+    |   </div>
+    |   <div class="row">
+    |     <span><a href="https://mangakakalot.com/chapter/ot927321/chapter_1" title="Karami Zakari: Boku no Honto to Kimi no Uso Vol.1 Chapter 2">Vol.1 Chapter 2</a></span>
+    |     <span>17,852</span>
+    |     <span title="Nov-29-2021 11:01">Nov-29-21</span>
+    |   </div>
+    |   <div class="row">
+    |     <span><a href="https://mangakakalot.com/chapter/ot927321/chapter_0" title="Karami Zakari: Boku no Honto to Kimi no Uso Chapter 1">Chapter 1</a></span>
+    |     <span>30,958</span>
+    |     <span title="Oct-14-2021 12:38">Oct-14-21</span>
+    |   </div>
+    | </div>
+    """.stripMargin

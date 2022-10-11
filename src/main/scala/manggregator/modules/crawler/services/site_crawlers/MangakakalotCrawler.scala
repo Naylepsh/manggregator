@@ -15,22 +15,46 @@ import org.joda.time.DateTime
 import com.github.nscala_time.time.Imports._
 
 object MangakakalotCrawler extends SiteCrawler:
-  private val browser = JsoupBrowser()
+  /** Crawler for the following family of sites:
+    *   - mangakakalot.com
+    *   - readmangato.com
+    */
+
+  def parseTitles(content: String): List[AssetSource] = ???
+  def discoverTitles(
+      job: DiscoverTitlesCrawlJob
+  ): IO[Either[Throwable, List[AssetSource]]] =
+    getContent(job.url).map(_.map(parseTitles))
+
+  def scrapeChapters(
+      job: ScrapeChaptersCrawlJob
+  ): IO[Either[Throwable, List[Chapter]]] =
+    Selectors.inferSelectors(job.url) match {
+      case None =>
+        IO(Left(RuntimeException(s"${job.url} has no registered selectors")))
+
+      case Some(selectors) =>
+        getContent(job.url).map(
+          _.flatMap(parseChapters(job.url, job.assetTitle, selectors))
+        )
+    }
 
   def getContent(url: Url): IO[Either[Throwable, String]] = IO {
     Try(browser.get(url).toHtml).toEither
   }
 
-  def parseChapters(url: Url, title: String)(
+  def parseChapters(url: Url, title: String, selectors: Selectors)(
       content: String
   ): Either[Throwable, List[Chapter]] =
     Try {
-      (browser.parseString(content) >> elementList(".chapter-list .row"))
+      (browser.parseString(content) >> elementList(selectors.chapterList))
         .flatMap { chapterElement =>
           for {
-            name <- chapterElement >?> allText("span:nth-of-type(1)")
+            name <- chapterElement >?> allText(selectors.chapterName)
             no <- parseChapterNoFromName(name)
-            timeUploaded <- chapterElement >?> allText("span:nth-of-type(3)")
+            timeUploaded <- chapterElement >?> allText(
+              selectors.timeUploaded
+            )
             dateReleased <- parseDateReleasedFromTimeUploaded(timeUploaded)
           } yield Chapter(
             assetTitle = title,
@@ -90,17 +114,6 @@ object MangakakalotCrawler extends SiteCrawler:
       .withDayOfMonth(d)
       .date
 
-  def parseTitles(content: String): List[AssetSource] = ???
-  def discoverTitles(
-      job: DiscoverTitlesCrawlJob
-  ): IO[Either[Throwable, List[AssetSource]]] =
-    getContent(job.url).map(_.map(parseTitles))
-
-  def scrapeChapters(
-      job: ScrapeChaptersCrawlJob
-  ): IO[Either[Throwable, List[Chapter]]] =
-    getContent(job.url).map(_.flatMap(parseChapters(job.url, job.assetTitle)))
-
   private def monthWordToNumeric(monthWord: String): Option[Int] =
     List(
       "jan",
@@ -118,4 +131,29 @@ object MangakakalotCrawler extends SiteCrawler:
     ).indexOf(monthWord.toLowerCase) match {
       case -1 => None
       case i  => Some(i + 1)
+    }
+
+  private val browser = JsoupBrowser()
+
+  case class Selectors(
+      chapterList: String,
+      chapterName: String,
+      timeUploaded: String
+  )
+  object Selectors:
+    val mangakakalotSelectors = Selectors(
+      chapterList = ".chapter-list .row",
+      chapterName = "span:nth-of-type(1)",
+      timeUploaded = "span:nth-of-type(3)"
+    )
+    val manganatoSelectors = Selectors(
+      chapterList = ".panel-story-chapter-list .row-content-chapter",
+      chapterName = "span:nth-of-type(1)",
+      timeUploaded = "span:nth-of-type(3)"
+    )
+
+    def inferSelectors(url: Url): Option[Selectors] = url match {
+      case ".*mangakakalot.*" => Some(mangakakalotSelectors)
+      case ".*manganato.*"    => Some(manganatoSelectors)
+      case _                  => None
     }
