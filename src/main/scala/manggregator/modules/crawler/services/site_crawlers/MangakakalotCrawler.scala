@@ -147,13 +147,15 @@ object MangakakalotCrawler extends SiteCrawler:
       timeUploaded = "span:nth-of-type(3)"
     )
     val manganatoSelectors = Selectors(
-      chapterList = ".panel-story-chapter-list .row-content-chapter",
-      chapterName = "span:nth-of-type(1)",
-      timeUploaded = "span:nth-of-type(3)"
+      chapterList = ".panel-story-chapter-list li",
+      chapterName = "a",
+      timeUploaded = "span:nth-of-type(2)"
     )
 
+    private val mangakakalotUrlPattern = ".*mangakakalot.*".r
+    private val manganatoUrlPattern = ".*manganato.*".r
     def inferSelectors(url: Url): Option[Selectors] = url match {
-      case ".*mangakakalot.*" => Some(mangakakalotSelectors)
-      case ".*manganato.*"    => Some(manganatoSelectors)
-      case _                  => None
+      case mangakakalotUrlPattern() => Some(mangakakalotSelectors)
+      case manganatoUrlPattern()    => Some(manganatoSelectors)
+      case _                        => None
     }
