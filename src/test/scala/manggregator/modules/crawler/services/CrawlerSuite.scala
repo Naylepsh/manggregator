@@ -19,7 +19,10 @@ class CrawlerSuite extends CatsEffectSuite:
     val jobs = List(
       SiteCrawlJob(
         testCrawlerLabel,
-        ScrapeChaptersCrawlJob("http://localhost:3000/assets/title-1", "Title 1")
+        ScrapeChaptersCrawlJob(
+          "http://localhost:3000/assets/title-1",
+          "Title 1"
+        )
       ),
       SiteCrawlJob(
         testCrawlerLabel,
@@ -31,7 +34,7 @@ class CrawlerSuite extends CatsEffectSuite:
       resultsQueue <- Queue.bounded[IO, CrawlResult.Result](capacity = 10)
       crawlQueue <- Queue.bounded[IO, SiteCrawlJob](capacity = 10)
       _ <- jobs.traverse(crawlQueue.offer)
-      crawler = Crawler(mapping, crawlQueue, resultsQueue)
+      crawler = new Crawler(mapping, crawlQueue, resultsQueue)
       _ <- crawler.crawl()
       resultsOnResultsQueue <- resultsQueue.size
     } yield assertEquals(resultsOnResultsQueue, jobs.length)
@@ -41,7 +44,10 @@ class CrawlerSuite extends CatsEffectSuite:
     val jobs = List(
       SiteCrawlJob(
         testCrawlerLabel,
-        ScrapeChaptersCrawlJob("http://localhost:3000/assets/title-1", "Title 1")
+        ScrapeChaptersCrawlJob(
+          "http://localhost:3000/assets/title-1",
+          "Title 1"
+        )
       ),
       SiteCrawlJob(
         testCrawlerLabel,
@@ -52,7 +58,11 @@ class CrawlerSuite extends CatsEffectSuite:
     for {
       resultsQueue <- Queue.bounded[IO, CrawlResult.Result](capacity = 10)
       crawlQueue <- Queue.bounded[IO, SiteCrawlJob](capacity = 10)
-      crawler = Crawler(Map[String, SiteCrawler](), crawlQueue, resultsQueue)
+      crawler = new Crawler(
+        Map[String, SiteCrawler](),
+        crawlQueue,
+        resultsQueue
+      )
       _ <- crawler.enqueue(jobs)
       resultsOnCrawlQueue <- crawlQueue.size
     } yield assertEquals(resultsOnCrawlQueue, jobs.length)

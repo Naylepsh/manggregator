@@ -10,6 +10,7 @@ import manggregator.modules.crawler.domain._
 import manggregator.modules.crawler.domain.Crawl._
 import manggregator.modules.crawler.domain.Crawl.CrawlResult._
 import manggregator.modules.crawler.domain.SiteCrawler
+import manggregator.modules.crawler.services.site_crawlers.MangakakalotCrawler
 
 class Crawler(
     siteCrawlersMappings: Map[String, SiteCrawler],
@@ -38,3 +39,11 @@ class Crawler(
 
   def enqueue(jobs: List[SiteCrawlJob]): IO[Unit] =
     jobs.traverse(crawlQueue.offer).as(())
+
+object Crawler:
+  def apply(resultQueue: Queue[IO, Result]): IO[Crawler] = for {
+    crawlQueue <- Queue.bounded[IO, SiteCrawlJob](capacity = 10)
+    siteCrawlersMappings = Map(
+      "mangakakalot" -> MangakakalotCrawler
+    )
+  } yield new Crawler(siteCrawlersMappings, crawlQueue, resultQueue)
