@@ -6,7 +6,7 @@ import manggregator.modules.crawler.domain.Crawl._
 import manggregator.modules.crawler.domain.Crawl.CrawlResult._
 import manggregator.modules.crawler.domain.Crawl.CrawlJob._
 import manggregator.modules.crawler.domain.Library
-import manggregator.modules.crawler.domain.ChapterCrawl
+import manggregator.modules.shared.domain.ChapterCrawl
 
 class CrawlingService(val library: Library):
   /** WARNING: The queue handling is currently synchronous. First the stuff is
@@ -30,7 +30,10 @@ class CrawlingService(val library: Library):
     _ <- handleResults(resultsQueue, assetsToCrawl.length)
   } yield ()
 
-  def handleResults(queue: Queue[IO, Result], resultsToExpect: Int): IO[Unit] =
+  private def handleResults(
+      queue: Queue[IO, Result],
+      resultsToExpect: Int
+  ): IO[Unit] =
     for {
       potentialResult <- queue.tryTake
       _ <- potentialResult match {
