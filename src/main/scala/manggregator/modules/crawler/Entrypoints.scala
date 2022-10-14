@@ -18,5 +18,5 @@ object Entrypoints:
       def handleResult(result: Result): IO[Unit] = IO.println(result)
     }
 
-    CrawlingService(library).crawl()
+    CrawlingService.crawl().run(library)
   }

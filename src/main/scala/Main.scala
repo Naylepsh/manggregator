@@ -66,9 +66,7 @@ object Main extends IOApp:
       def handleResult(result: Result): IO[Unit] = IO.println(result)
     }
 
-    val service = CrawlingService(library)
-
-    service.crawl().as(ExitCode.Success)
+    CrawlingService.crawl().run(library).as(ExitCode.Success)
 
   def testScraper: IO[ExitCode] =
     // val results = MangakakalotCrawler.scrapeChapters(
