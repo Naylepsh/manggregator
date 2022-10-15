@@ -26,7 +26,13 @@ object Entrypoints:
       def handleResult(result: Result): IO[Unit] = result match {
         case ChapterResult(chapters) =>
           val data = chapters.map(chapter =>
-            Chapter(randomUUID, chapter.no, chapter.assetTitle, chapter.url)
+            Chapter(
+              randomUUID,
+              chapter.no,
+              chapter.assetTitle,
+              chapter.url,
+              chapter.dateReleased
+            )
           )
           assetRepository.save(data).flatMap(_ => IO.println(result))
 
