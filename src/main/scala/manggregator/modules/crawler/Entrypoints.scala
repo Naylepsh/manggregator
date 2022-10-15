@@ -34,7 +34,7 @@ object Entrypoints:
               chapter.dateReleased
             )
           )
-          assetRepository.save(data).flatMap(_ => IO.println(result))
+          assetRepository.save(data)
 
       }
 

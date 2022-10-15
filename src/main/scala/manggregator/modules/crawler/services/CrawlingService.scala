@@ -47,6 +47,7 @@ object CrawlingService:
               library,
               resultsToExpect - 1
             )
+
           case None =>
             IO.sleep(5 seconds) *> handleResults(
               queue,
