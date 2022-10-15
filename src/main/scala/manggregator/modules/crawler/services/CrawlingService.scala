@@ -3,6 +3,9 @@ package manggregator.modules.crawler.services
 import cats.effect._
 import cats.effect.std._
 import cats.data._
+import cats.implicits._
+import scala.concurrent.duration._
+import scala.language.postfixOps
 import manggregator.modules.crawler.domain.Crawl._
 import manggregator.modules.crawler.domain.Crawl.CrawlResult._
 import manggregator.modules.crawler.domain.Crawl.CrawlJob._
@@ -10,12 +13,6 @@ import manggregator.modules.crawler.domain.Library
 import manggregator.modules.crawler.domain.Library.AssetToCrawl
 
 object CrawlingService:
-  /** WARNING: The queue handling is currently synchronous. First the stuff is
-    * being put on result queue until crawler.queue finishes. Once that process
-    * finishes, this service's results queue handling takes effect.
-    *
-    * TODO: Make handling of these asynchronous
-    */
   def crawl(): Reader[Library, IO[Unit]] = Reader { library =>
     for {
       resultsQueue <- Queue.bounded[IO, Result](capacity = 10)
@@ -28,8 +25,10 @@ object CrawlingService:
         )
       }
       _ <- crawler.enqueue(jobs)
-      _ <- crawler.crawl()
-      _ <- handleResults(resultsQueue, library, assetsToCrawl.length)
+      _ <- (
+        crawler.crawl(),
+        handleResults(resultsQueue, library, assetsToCrawl.length)
+      ).parTupled.void
     } yield ()
   }
 
@@ -38,14 +37,22 @@ object CrawlingService:
       library: Library,
       resultsToExpect: Int
   ): IO[Unit] =
-    for {
-      potentialResult <- queue.tryTake
-      _ <- potentialResult match {
-        case Some(result) => library.handleResult(result)
-        case None         => IO.unit
-      }
-      _ <-
-        if (resultsToExpect > 1)
-          handleResults(queue, library, resultsToExpect - 1)
-        else IO.unit
-    } yield ()
+    if (resultsToExpect > 1)
+      for {
+        potentialResult <- queue.tryTake
+        _ <- potentialResult match {
+          case Some(result) =>
+            library.handleResult(result) *> handleResults(
+              queue,
+              library,
+              resultsToExpect - 1
+            )
+          case None =>
+            IO.sleep(5 seconds) *> handleResults(
+              queue,
+              library,
+              resultsToExpect
+            )
+        }
+      } yield ()
+    else IO.unit
