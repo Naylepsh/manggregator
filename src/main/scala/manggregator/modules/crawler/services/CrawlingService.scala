@@ -37,23 +37,18 @@ object CrawlingService:
       library: Library,
       resultsToExpect: Int
   ): IO[Unit] =
-    if (resultsToExpect > 1)
-      for {
-        potentialResult <- queue.tryTake
-        _ <- potentialResult match {
-          case Some(result) =>
-            library.handleResult(result) *> handleResults(
-              queue,
-              library,
-              resultsToExpect - 1
-            )
+    def handle(resultsLeft: Int): IO[Unit] =
+      if (resultsLeft > 1)
+        for {
+          potentialResult <- queue.tryTake
+          _ <- potentialResult match {
+            case Some(result) =>
+              library.handleResult(result) *> handle(resultsLeft - 1)
 
-          case None =>
-            IO.sleep(5 seconds) *> handleResults(
-              queue,
-              library,
-              resultsToExpect
-            )
-        }
-      } yield ()
-    else IO.unit
+            case None =>
+              IO.sleep(5 seconds) *> handle(resultsLeft)
+          }
+        } yield ()
+      else IO.unit
+
+    handle(resultsToExpect)
