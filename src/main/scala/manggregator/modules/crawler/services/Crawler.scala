@@ -18,9 +18,9 @@ class Crawler(
     resultQueue: Queue[IO, Result]
 ):
   // TODO: Allow more executors + round robin or whatever
-  val executor = CrawlExecutor.crawl(siteCrawlersMappings)
+  val execute = CrawlExecutor.crawl(siteCrawlersMappings)
 
-  def keepCrawling() = crawl().map(_ => IO.sleep(5 seconds)).foreverM
+  def keepCrawling() = (crawl() *> IO.sleep(5 seconds)).foreverM
 
   // Picks up crawl jobs until the queue is empty
   def crawl(): IO[Unit] =
@@ -28,10 +28,12 @@ class Crawler(
       potentialJob <- crawlQueue.tryTake
       _ <- potentialJob
         .map(job =>
-          (executor(job) match {
-            case Left(reason) => IO.println(reason)
+          (execute(job) match {
+            case Left(reason) =>
+              IO.println(reason)
+
             case Right(results) =>
-              results.flatMap(_.map(resultQueue.offer).sequence)
+              results.flatMap(_.traverse(resultQueue.offer))
           }) *> crawl()
         )
         .getOrElse(IO.unit)
@@ -41,9 +43,13 @@ class Crawler(
     jobs.traverse(crawlQueue.offer).as(())
 
 object Crawler:
-  def apply(resultQueue: Queue[IO, Result]): IO[Crawler] = for {
-    crawlQueue <- Queue.bounded[IO, SiteCrawlJob](capacity = 10)
-    siteCrawlersMappings = Map(
+  def apply(resultQueue: Queue[IO, Result]): IO[Crawler] =
+    val siteCrawlersMappings = Map(
       "mangakakalot" -> MangakakalotCrawler
     )
-  } yield new Crawler(siteCrawlersMappings, crawlQueue, resultQueue)
+
+    Queue
+      .bounded[IO, SiteCrawlJob](capacity = 10)
+      .map(crawlQueue =>
+        new Crawler(siteCrawlersMappings, crawlQueue, resultQueue)
+      )
