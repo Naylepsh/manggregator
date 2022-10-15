@@ -26,15 +26,15 @@ class Crawler(
   def crawl(): IO[Unit] =
     for {
       potentialJob <- crawlQueue.tryTake
-      resultsE <- potentialJob match {
-        case None => IO.unit
-        case Some(job) =>
-          executor(job) match {
+      _ <- potentialJob
+        .map(job =>
+          (executor(job) match {
             case Left(reason) => IO.println(reason)
             case Right(results) =>
               results.flatMap(_.map(resultQueue.offer).sequence)
-          } flatMap (_ => crawl())
-      }
+          }) *> crawl()
+        )
+        .getOrElse(IO.unit)
     } yield ()
 
   def enqueue(jobs: List[SiteCrawlJob]): IO[Unit] =
