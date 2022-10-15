@@ -7,7 +7,7 @@ import manggregator.modules.crawler.domain.Crawl._
 import manggregator.modules.crawler.domain.Crawl.CrawlResult._
 import manggregator.modules.crawler.domain.Crawl.CrawlJob._
 import manggregator.modules.crawler.domain.Library
-import manggregator.modules.shared.domain.ChapterCrawl
+import manggregator.modules.crawler.domain.Library.AssetToCrawl
 
 object CrawlingService:
   /** WARNING: The queue handling is currently synchronous. First the stuff is
@@ -21,7 +21,7 @@ object CrawlingService:
       resultsQueue <- Queue.bounded[IO, Result](capacity = 10)
       crawler <- Crawler(resultsQueue)
       assetsToCrawl <- library.getAssetsToCrawl()
-      jobs = assetsToCrawl.map { case ChapterCrawl(site, assetTitle, url) =>
+      jobs = assetsToCrawl.map { case AssetToCrawl(site, assetTitle, url) =>
         SiteCrawlJob(
           site,
           ScrapeChaptersCrawlJob(url, assetTitle)
