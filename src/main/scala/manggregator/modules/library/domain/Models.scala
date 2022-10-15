@@ -14,4 +14,4 @@ object Models:
   case class SearchPage(id: UUID, site: String, url: String)
   case class AssetPage(id: UUID, assetId: UUID, site: String, url: String)
 
-  case class Chapter(id: UUID, no: String, title: String, url: String)
+  case class Chapter(id: UUID, no: String, assetTitle: String, url: String)

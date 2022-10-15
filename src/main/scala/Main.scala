@@ -45,6 +45,14 @@ object Main extends IOApp:
       _ <- repo.save(saisa)
       _ <- repo.save(saisaPage)
       _ <- Entrypoints.crawler.run(repo)
+      assetsChapters <- repo.findAssetsChapters(List(eliteKnight, saisa))
+      _ <- assetsChapters
+        .flatMap(
+          _.chapters.map(chapter =>
+            IO.println(s"${chapter.no} @ ${chapter.url}")
+          )
+        )
+        .sequence
     } yield ExitCode.Success
 
   def testCrawler: IO[ExitCode] =
