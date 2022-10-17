@@ -1,11 +1,11 @@
-package manggregator.modules.library.services
+package library.services
 
 import cats._
 import cats.data._
 import cats.implicits._
 import cats.effect._
-import manggregator.modules.library.domain.AssetRepository
-import manggregator.modules.library.domain.Models._
+import library.domain.AssetRepository
+import library.domain.Models._
 
 object AssetService:
   case class AssetToCrawl(site: String, url: String, title: String)

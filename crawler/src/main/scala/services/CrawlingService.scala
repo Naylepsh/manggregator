@@ -1,4 +1,4 @@
-package manggregator.modules.crawler.services
+package crawler.services
 
 import cats.effect._
 import cats.effect.std._
@@ -6,11 +6,11 @@ import cats.data._
 import cats.implicits._
 import scala.concurrent.duration._
 import scala.language.postfixOps
-import manggregator.modules.crawler.domain.Crawl._
-import manggregator.modules.crawler.domain.Crawl.CrawlResult._
-import manggregator.modules.crawler.domain.Crawl.CrawlJob._
-import manggregator.modules.crawler.domain.Library
-import manggregator.modules.crawler.domain.Library.AssetToCrawl
+import crawler.domain.Crawl._
+import crawler.domain.Crawl.CrawlResult._
+import crawler.domain.Crawl.CrawlJob._
+import crawler.domain.Library
+import crawler.domain.Library.AssetToCrawl
 
 object CrawlingService:
   def crawl(): Reader[Library, IO[Unit]] = Reader { library =>

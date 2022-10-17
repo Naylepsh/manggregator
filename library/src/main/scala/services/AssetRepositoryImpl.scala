@@ -1,7 +1,7 @@
-package manggregator.modules.library.services
+package library.services
 
-import manggregator.modules.library.domain.AssetRepository
-import manggregator.modules.library.domain.Models._
+import library.domain.AssetRepository
+import library.domain.Models._
 import cats.effect.IO
 import scala.collection.mutable.Map as MutableMap
 import scala.collection.mutable.ListBuffer

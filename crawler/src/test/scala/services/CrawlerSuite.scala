@@ -1,11 +1,11 @@
-package manggregator.modules.crawler.services
+package crawler.services
 
 import munit.CatsEffectSuite
-import manggregator.modules.crawler.domain.Asset._
-import manggregator.modules.crawler.domain.Crawl.CrawlJob._
-import manggregator.modules.crawler.domain.Crawl.SiteCrawlJob
-import manggregator.modules.crawler.domain.Crawl.CrawlResult
-import manggregator.modules.crawler.domain.SiteCrawler
+import crawler.domain.Asset._
+import crawler.domain.Crawl.CrawlJob._
+import crawler.domain.Crawl.SiteCrawlJob
+import crawler.domain.Crawl.CrawlResult
+import crawler.domain.SiteCrawler
 import cats.effect._
 import cats.effect.std._
 import cats.implicits._

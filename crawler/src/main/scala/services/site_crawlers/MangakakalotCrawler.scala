@@ -1,11 +1,11 @@
-package manggregator.modules.crawler.services.site_crawlers
+package crawler.services.site_crawlers
 
 import cats.effect._
 import scala.util.Try
 import scala.util.matching.Regex
-import manggregator.modules.crawler.domain.Crawl.CrawlJob._
-import manggregator.modules.crawler.domain.Asset._
-import manggregator.modules.crawler.domain.SiteCrawler
+import crawler.domain.Crawl.CrawlJob._
+import crawler.domain.Asset._
+import crawler.domain.SiteCrawler
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import net.ruippeixotog.scalascraper.dsl.DSL._
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._

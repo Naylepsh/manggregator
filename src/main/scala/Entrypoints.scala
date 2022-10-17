@@ -1,15 +1,15 @@
-package manggregator.modules.crawler
+package manggregator
 
 import cats.data._
 import cats.effect._
-import manggregator.modules.crawler.domain.Library
-import manggregator.modules.crawler.domain.Library.AssetToCrawl
-import manggregator.modules.crawler.domain.Crawl.CrawlResult._
-import manggregator.modules.crawler.domain.Asset.AssetSource
-import manggregator.modules.crawler.services.CrawlingService
-import manggregator.modules.library.domain.AssetRepository
-import manggregator.modules.library.domain.Models.Chapter
-import manggregator.modules.library.services.AssetService
+import crawler.domain.Library
+import crawler.domain.Library.AssetToCrawl
+import crawler.domain.Crawl.CrawlResult._
+import crawler.domain.Asset.AssetSource
+import crawler.services.CrawlingService
+import library.domain.AssetRepository
+import library.domain.Models.Chapter
+import library.services.AssetService
 import java.util.UUID.randomUUID
 
 object Entrypoints:

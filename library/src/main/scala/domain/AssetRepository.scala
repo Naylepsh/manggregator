@@ -1,7 +1,7 @@
-package manggregator.modules.library.domain
+package library.domain
 
 import cats.effect._
-import manggregator.modules.library.domain.Models._
+import library.domain.Models._
 
 trait AssetRepository:
   case class AssetChapters(asset: Asset, chapters: List[Chapter])

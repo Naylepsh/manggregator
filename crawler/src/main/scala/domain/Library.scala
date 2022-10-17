@@ -1,8 +1,8 @@
-package manggregator.modules.crawler.domain
+package crawler.domain
 
 import cats.effect._
-import manggregator.modules.crawler.domain.Crawl.CrawlResult._
-import manggregator.modules.crawler.domain.Library.AssetToCrawl
+import crawler.domain.Crawl.CrawlResult._
+import crawler.domain.Library.AssetToCrawl
 
 trait Library:
   def getAssetsToCrawl(): IO[List[AssetToCrawl]]

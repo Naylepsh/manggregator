@@ -1,4 +1,4 @@
-package manggregator.modules.crawler.domain
+package crawler.domain
 
 import java.util.Date
 

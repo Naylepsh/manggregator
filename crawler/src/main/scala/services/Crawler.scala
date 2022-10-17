@@ -1,4 +1,4 @@
-package manggregator.modules.crawler.services
+package crawler.services
 
 import cats._
 import cats.implicits._
@@ -6,11 +6,11 @@ import cats.effect._
 import cats.effect.std.Queue
 import scala.concurrent.duration._
 import scala.language.postfixOps
-import manggregator.modules.crawler.domain._
-import manggregator.modules.crawler.domain.Crawl._
-import manggregator.modules.crawler.domain.Crawl.CrawlResult._
-import manggregator.modules.crawler.domain.SiteCrawler
-import manggregator.modules.crawler.services.site_crawlers.MangakakalotCrawler
+import crawler.domain._
+import crawler.domain.Crawl._
+import crawler.domain.Crawl.CrawlResult._
+import crawler.domain.SiteCrawler
+import crawler.services.site_crawlers.MangakakalotCrawler
 
 class Crawler(
     siteCrawlersMappings: Map[String, SiteCrawler],

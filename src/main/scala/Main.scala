@@ -1,20 +1,19 @@
-import manggregator.modules.crawler.services.site_crawlers.MangakakalotCrawler
-import manggregator.modules.crawler.domain.Crawl.CrawlJob
 import cats.effect.IOApp
 import cats.effect.ExitCode
 import cats.effect._
 import cats._
 import cats.implicits._
-import manggregator.modules.crawler.domain.Asset.Chapter
-import manggregator.modules.crawler.services.CrawlingService
-import manggregator.modules.crawler.domain.Crawl.CrawlResult.Result
-import manggregator.modules.crawler.domain.Library
-import manggregator.modules.crawler.Entrypoints._
-import manggregator.modules.crawler.Entrypoints
-import manggregator.modules.crawler.domain.Library.AssetToCrawl
-import manggregator.modules.library.services.AssetRepositoryImpl.AssetInMemoryRepository
-import manggregator.modules.library.domain.Models._
+import crawler.domain.Asset.Chapter
+import crawler.domain.Crawl.CrawlJob
+import crawler.domain.Crawl.CrawlResult.Result
+import crawler.domain.Library
+import crawler.domain.Library.AssetToCrawl
+import crawler.services.CrawlingService
+import crawler.services.site_crawlers.MangakakalotCrawler
+import library.domain.Models._
+import library.services.AssetRepositoryImpl.AssetInMemoryRepository
 import java.util.UUID.randomUUID
+import manggregator.Entrypoints
 
 object Main extends IOApp:
   def run(args: List[String]): IO[ExitCode] = crawlEntrypoint

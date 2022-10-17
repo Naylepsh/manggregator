@@ -1,4 +1,4 @@
-package manggregator.modules.crawler.services.site_crawlers
+package crawler.services.site_crawlers
 
 import munit.CatsEffectSuite
 import java.util.Date
