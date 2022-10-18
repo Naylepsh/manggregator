@@ -1,4 +1,4 @@
-package manggregator.modules.crawler.domain
+package crawler.domain
 
 import Asset._
 
@@ -15,6 +15,6 @@ object Crawl:
   case class SiteCrawlJob(label: String, job: CrawlJob)
 
   object CrawlResult:
-    type TitlesResult = List[AssetSource]
-    type ChapterResult = List[Chapter]
-    type Result = TitlesResult | ChapterResult
+    sealed trait Result
+    case class ChapterResult(chapters: List[Chapter]) extends Result
+    case class TitlesResult(titles: List[AssetSource]) extends Result

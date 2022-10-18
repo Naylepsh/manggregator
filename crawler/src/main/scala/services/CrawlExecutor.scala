@@ -1,11 +1,12 @@
-package manggregator.modules.crawler.services
+package crawler.services
 
 import cats._
 import cats.implicits._
 import cats.effect._
-import manggregator.modules.crawler.domain.SiteCrawler
-import manggregator.modules.crawler.domain.Crawl.SiteCrawlJob
-import manggregator.modules.crawler.domain.Crawl.CrawlJob._
+import crawler.domain.SiteCrawler
+import crawler.domain.Crawl.SiteCrawlJob
+import crawler.domain.Crawl.CrawlJob._
+import crawler.domain.Crawl.CrawlResult._
 
 object CrawlExecutor:
   def crawl(siteCrawlersMappings: Map[String, SiteCrawler])(job: SiteCrawlJob) =
@@ -15,9 +16,9 @@ object CrawlExecutor:
       .map(crawler =>
         job.job match {
           case chapterJob @ ScrapeChaptersCrawlJob(url, title) =>
-            crawler.scrapeChapters(chapterJob)
+            crawler.scrapeChapters(chapterJob).map(_.map(ChapterResult(_)))
 
           case titleJob @ DiscoverTitlesCrawlJob(_, _) =>
-            crawler.discoverTitles(titleJob)
+            crawler.discoverTitles(titleJob).map(_.map(TitlesResult(_)))
         }
       )
