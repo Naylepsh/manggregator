@@ -14,9 +14,43 @@ import library.domain.Models._
 import library.services.AssetRepositoryImpl.AssetInMemoryRepository
 import java.util.UUID.randomUUID
 import manggregator.Entrypoints
+import http.Server
 
 object Main extends IOApp:
-  def run(args: List[String]): IO[ExitCode] = crawlEntrypoint
+  def run(args: List[String]): IO[ExitCode] = httpServer
+
+  def httpServer: IO[ExitCode] =
+    val repo = AssetInMemoryRepository
+    val server = Server.server(repo)
+
+    server.as(ExitCode.Success)
+
+  def seedAssetRepository() =
+    val repo = AssetInMemoryRepository
+
+    val eliteKnight = Asset(randomUUID, "Elite Knight", true, List())
+    val eliteKnightPage =
+      AssetPage(
+        randomUUID,
+        eliteKnight.id,
+        "mangakakalot",
+        "https://readmanganato.com/manga-gx984006"
+      )
+    val saisa = Asset(randomUUID, "Saisa", true, List())
+    val saisaPage =
+      AssetPage(
+        randomUUID,
+        saisa.id,
+        "mangakakalot",
+        "https://mangakakalot.com/manga/2_saisa_no_osananajimi"
+      )
+
+    for {
+      _ <- repo.save(eliteKnight)
+      _ <- repo.save(eliteKnightPage)
+      _ <- repo.save(saisa)
+      _ <- repo.save(saisaPage)
+    } yield repo
 
   def crawlEntrypoint: IO[ExitCode] =
     val repo = AssetInMemoryRepository
