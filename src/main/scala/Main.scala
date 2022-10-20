@@ -14,14 +14,17 @@ import library.domain.Models._
 import library.services.AssetRepositoryImpl.AssetInMemoryRepository
 import java.util.UUID.randomUUID
 import manggregator.Entrypoints
-import http.Server
+import api.Http
 
 object Main extends IOApp:
   def run(args: List[String]): IO[ExitCode] = httpServer
 
   def httpServer: IO[ExitCode] =
     val repo = AssetInMemoryRepository
-    val server = Server.server(repo)
+    val library = Entrypoints.library(repo)
+
+    val docs = Http.Docs(title = "MANGgregator", version = "0.0.1")
+    val server = api.Http(Http.Props(docs, library))
 
     server.as(ExitCode.Success)
 

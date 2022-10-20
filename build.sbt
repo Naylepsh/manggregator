@@ -6,8 +6,8 @@ ThisBuild / organization := "io.naylepsh"
 lazy val root = project
   .in(file("."))
   .settings(libraryDependencies ++= commonDependencies)
-  .aggregate(crawler, library)
-  .dependsOn(crawler, library)
+  .aggregate(crawler, library, api)
+  .dependsOn(crawler, library, api)
 
 lazy val crawler = project.settings(
   name := "crawler",
@@ -16,6 +16,21 @@ lazy val crawler = project.settings(
     dependencies.scalaTime
   )
 )
+
+lazy val api = project
+  .settings(
+    name := "api",
+    libraryDependencies ++= commonDependencies ++ Seq(
+      dependencies.http4sEmberClient,
+      dependencies.http4sEmberServer,
+      dependencies.http4sCirce,
+      dependencies.http4sDsl,
+      dependencies.tapirHttp4s,
+      dependencies.tapirSwagger
+    )
+  )
+  .aggregate(crawler, library)
+  .dependsOn(crawler, library)
 
 lazy val library = project.settings(
   name := "library",
@@ -41,8 +56,6 @@ lazy val dependencies =
     val http4sDsl = "org.http4s" %% "http4s-dsl" % Http4sVersion
     val tapirHttp4s =
       "com.softwaremill.sttp.tapir" %% "tapir-http4s-server" % TapirVersion
-    // val tapirSwagger =
-    // "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui" % TapirVersion
     val tapirSwagger =
       "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % TapirVersion
     val slf4j = "org.slf4j" % "slf4j-simple" % "1.7.36"
@@ -50,12 +63,6 @@ lazy val dependencies =
 
 lazy val commonDependencies = Seq(
   dependencies.catsEffect,
-  dependencies.http4sEmberClient,
-  dependencies.http4sEmberServer,
-  dependencies.http4sCirce,
-  dependencies.http4sDsl,
-  dependencies.tapirHttp4s,
-  dependencies.tapirSwagger,
   dependencies.slf4j,
   dependencies.munit,
   dependencies.munitCatsEffect

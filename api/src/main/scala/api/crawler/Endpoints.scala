@@ -1,4 +1,4 @@
-package crawler.http
+package api.crawler
 
 import sttp.tapir._
 
