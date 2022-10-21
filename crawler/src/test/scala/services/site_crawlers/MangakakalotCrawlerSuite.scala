@@ -5,6 +5,7 @@ import java.util.Date
 import org.joda.time.DateTime
 import com.github.nscala_time.time.Imports._
 import org.joda.time.DateTimeComparator
+import java.util.UUID.randomUUID
 
 class MangakakalotCrawlerSuite extends CatsEffectSuite:
   import MangakakalotCrawler._
@@ -81,7 +82,7 @@ class MangakakalotCrawlerSuite extends CatsEffectSuite:
     MangakakalotCrawler
       .parseChapters(
         url = "https://mangakakalot.com/manga/ot927321",
-        title = "Karami Zakari",
+        id = randomUUID,
         selectors = Selectors.mangakakalotSelectors
       )(html)
       .foreach { chapters =>

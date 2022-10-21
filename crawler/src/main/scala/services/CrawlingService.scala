@@ -18,10 +18,10 @@ object CrawlingService:
       resultsQueue <- Queue.bounded[IO, Result](capacity = 10)
       crawler <- Crawler(resultsQueue)
       assetsToCrawl <- library.getAssetsToCrawl()
-      jobs = assetsToCrawl.map { case AssetToCrawl(site, assetTitle, url) =>
+      jobs = assetsToCrawl.map { case AssetToCrawl(site, assetId, url) =>
         SiteCrawlJob(
           site,
-          ScrapeChaptersCrawlJob(url, assetTitle)
+          ScrapeChaptersCrawlJob(url, assetId)
         )
       }
       _ <- crawler.enqueue(jobs)

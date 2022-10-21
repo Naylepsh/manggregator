@@ -11,7 +11,6 @@ object AssetRepositoryImpl:
   object AssetInMemoryRepository extends AssetRepository:
     val assetsStore: MutableMap[UUID, Asset] = MutableMap()
     val assetPagesStore: ListBuffer[AssetPage] = ListBuffer()
-    val chapterStore: ListBuffer[Chapter] = ListBuffer()
 
     def findByName(name: String): IO[Option[Asset]] = IO(
       assetsStore
@@ -25,23 +24,16 @@ object AssetRepositoryImpl:
       assetPagesStore.addOne(assetPage)
     )
 
-    def save(chapters: List[Chapter]): IO[Unit] = IO(
-      chapterStore.addAll(chapters)
-    )
-
     def findEnabledAssets(): IO[List[Asset]] = IO(
       assetsStore.values.filter(_.enabled == true).toList
+    )
+
+    def findManyByIds(ids: List[UUID]): IO[List[Asset]] = IO(
+      assetsStore.values.filter(asset => ids.contains(asset.id)).toList
     )
 
     def findAssetsPages(assets: List[Asset]): IO[List[AssetPage]] = IO {
       val assetIds = assets.map(_.id)
 
       assetPagesStore.filter(page => assetIds.contains(page.assetId)).toList
-    }
-
-    def findAssetsChapters(assets: List[Asset]): IO[List[AssetChapters]] = IO {
-      assets.map { asset =>
-        val chapters = chapterStore.filter(_.assetTitle == asset.name).toList
-        AssetChapters(asset, chapters)
-      }
     }

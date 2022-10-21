@@ -26,6 +26,7 @@ lazy val api = project
       dependencies.http4sCirce,
       dependencies.http4sDsl,
       dependencies.tapirHttp4s,
+      dependencies.tapirJsonCirce,
       dependencies.tapirSwagger
     )
   )
@@ -58,6 +59,8 @@ lazy val dependencies =
       "com.softwaremill.sttp.tapir" %% "tapir-http4s-server" % TapirVersion
     val tapirSwagger =
       "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % TapirVersion
+    val tapirJsonCirce =
+      "com.softwaremill.sttp.tapir" %% "tapir-json-circe" % "1.1.3"
     val slf4j = "org.slf4j" % "slf4j-simple" % "1.7.36"
   }
 

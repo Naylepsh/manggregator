@@ -10,6 +10,7 @@ import cats.effect._
 import cats.effect.std._
 import cats.implicits._
 import java.util.Date
+import java.util.UUID.randomUUID
 
 class CrawlerSuite extends CatsEffectSuite:
   import CrawlerSuite._
@@ -21,7 +22,7 @@ class CrawlerSuite extends CatsEffectSuite:
         testCrawlerLabel,
         ScrapeChaptersCrawlJob(
           "http://localhost:3000/assets/title-1",
-          "Title 1"
+          randomUUID
         )
       ),
       SiteCrawlJob(
@@ -46,7 +47,7 @@ class CrawlerSuite extends CatsEffectSuite:
         testCrawlerLabel,
         ScrapeChaptersCrawlJob(
           "http://localhost:3000/assets/title-1",
-          "Title 1"
+          randomUUID
         )
       ),
       SiteCrawlJob(
@@ -77,19 +78,19 @@ object CrawlerSuite:
   val testChapters =
     List(
       Chapter(
-        "Title 1",
+        randomUUID,
         "1",
         "http://localhost:3000/assets/title-1/chapters/1",
         Date()
       ),
       Chapter(
-        "Title 1",
+        randomUUID,
         "2",
         "http://localhost:3000/assets/title-1/chapters/2",
         Date()
       ),
       Chapter(
-        "Title 2",
+        randomUUID,
         "1",
         "http://localhost:3000/assets/title-2/chapters/1",
         Date()

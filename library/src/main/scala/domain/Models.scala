@@ -18,7 +18,9 @@ object Models:
   case class Chapter(
       id: UUID,
       no: String,
-      assetTitle: String,
       url: String,
-      dateReleased: Date
+      dateReleased: Date,
+      assetId: UUID
   )
+
+  case class AssetChapters(asset: Asset, chapters: List[Chapter])

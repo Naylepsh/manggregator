@@ -1,6 +1,7 @@
 package crawler.domain
 
 import java.util.Date
+import java.util.UUID
 
 object Asset:
   type Url = String
@@ -9,7 +10,7 @@ object Asset:
 
   // asset can be a manga, manhwa, light novel, web novel, etc.
   case class Chapter(
-      assetTitle: String,
+      assetId: UUID,
       no: String,
       url: Url,
       dateReleased: Date

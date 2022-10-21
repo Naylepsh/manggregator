@@ -1,13 +1,14 @@
 package crawler.domain
 
 import Asset._
+import java.util.UUID
 
 object Crawl:
   sealed trait CrawlJob:
     val url: String
 
   object CrawlJob:
-    case class ScrapeChaptersCrawlJob(url: String, assetTitle: String)
+    case class ScrapeChaptersCrawlJob(url: String, assetId: UUID)
         extends CrawlJob
     case class DiscoverTitlesCrawlJob(url: String, keyword: String)
         extends CrawlJob

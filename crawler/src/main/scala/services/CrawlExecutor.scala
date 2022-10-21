@@ -15,7 +15,7 @@ object CrawlExecutor:
       .toRight(s"Unregistered site crawler for label:${job.label}")
       .map(crawler =>
         job.job match {
-          case chapterJob @ ScrapeChaptersCrawlJob(url, title) =>
+          case chapterJob @ ScrapeChaptersCrawlJob(_, _) =>
             crawler.scrapeChapters(chapterJob).map(_.map(ChapterResult(_)))
 
           case titleJob @ DiscoverTitlesCrawlJob(_, _) =>

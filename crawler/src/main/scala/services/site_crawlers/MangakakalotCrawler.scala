@@ -13,6 +13,7 @@ import net.ruippeixotog.scalascraper.dsl.DSL.Parse._
 import java.util.Date
 import org.joda.time.DateTime
 import com.github.nscala_time.time.Imports._
+import java.util.UUID
 
 object MangakakalotCrawler extends SiteCrawler:
   /** Crawler for the following family of sites:
@@ -35,7 +36,7 @@ object MangakakalotCrawler extends SiteCrawler:
 
       case Some(selectors) =>
         getContent(job.url).map(
-          _.flatMap(parseChapters(job.url, job.assetTitle, selectors))
+          _.flatMap(parseChapters(job.url, job.assetId, selectors))
         )
     }
 
@@ -43,7 +44,7 @@ object MangakakalotCrawler extends SiteCrawler:
     Try(browser.get(url).toHtml).toEither
   }
 
-  def parseChapters(url: Url, title: String, selectors: Selectors)(
+  def parseChapters(url: Url, id: UUID, selectors: Selectors)(
       content: String
   ): Either[Throwable, List[Chapter]] =
     Try {
@@ -57,7 +58,7 @@ object MangakakalotCrawler extends SiteCrawler:
             )
             dateReleased <- parseDateReleasedFromTimeUploaded(timeUploaded)
           } yield Chapter(
-            assetTitle = title,
+            assetId = id,
             no = no,
             url = url,
             dateReleased = dateReleased
