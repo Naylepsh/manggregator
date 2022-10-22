@@ -9,10 +9,46 @@ import library.domain.ChapterRepository
 import library.domain.Models._
 import scala.collection.mutable.Map as MutableMap
 import java.util.UUID
+import java.util.UUID.randomUUID
 
 object LibraryService:
   case class AssetToCrawl(site: String, url: String, assetId: UUID)
   case class Storage(assets: AssetRepository, chapters: ChapterRepository)
+  case class AliasDTO(name: String)
+  case class AssetDTO(
+      name: String,
+      enabled: Boolean,
+      aliases: List[AliasDTO]
+  )
+  object AssetDTO:
+    def toDomainModel(id: UUID, asset: AssetDTO): Asset =
+      Asset(
+        id,
+        asset.name,
+        asset.enabled,
+        asset.aliases.map(alias =>
+          Alias(id = randomUUID, assetId = id, name = alias.name)
+        )
+      )
+
+  def createAsset(
+      asset: AssetDTO
+  ): Reader[AssetRepository, IO[Either[String, Asset]]] =
+    Reader { repository =>
+      val id = randomUUID
+      val domainModel = AssetDTO.toDomainModel(id, asset)
+
+      repository.findByName(domainModel.name).flatMap {
+        case Some(_) =>
+          IO.pure(
+            s"Asset with name ${domainModel.name} already exists".asLeft[Asset]
+          )
+
+        case None =>
+          repository.save(domainModel).as(domainModel.asRight[String])
+      }
+
+    }
 
   def getAssetsToCrawl(): Reader[AssetRepository, IO[List[AssetToCrawl]]] =
     Reader { repository =>
