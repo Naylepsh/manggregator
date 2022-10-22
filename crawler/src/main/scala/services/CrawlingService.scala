@@ -24,6 +24,7 @@ object CrawlingService:
           ScrapeChaptersCrawlJob(url, assetId)
         )
       }
+      _ <- IO.println(s"[Crawling Service] Enqueuing $jobs")
       _ <- crawler.enqueue(jobs)
       _ <- (
         crawler.crawl(),
@@ -38,7 +39,9 @@ object CrawlingService:
       resultsToExpect: Int
   ): IO[Unit] =
     def handle(resultsLeft: Int): IO[Unit] =
-      if (resultsLeft > 1)
+      println(s"[Crawling Service] resultsLeft: $resultsLeft")
+
+      if (resultsLeft > 0)
         for {
           potentialResult <- queue.tryTake
           _ <- potentialResult match {

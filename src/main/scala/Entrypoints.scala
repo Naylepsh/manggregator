@@ -19,7 +19,7 @@ object Entrypoints:
       def getAssetsToCrawl(): IO[List[AssetToCrawl]] =
         LibraryService
           .getAssetsToCrawl()
-          .run(storage.assets)
+          .run(storage)
           .map(_.map { case LibraryService.AssetToCrawl(site, url, title) =>
             AssetToCrawl(site, title, url)
           })
@@ -48,7 +48,7 @@ object Entrypoints:
     def getAssetsToCrawl(): IO[List[AssetToCrawl]] =
       LibraryService
         .getAssetsToCrawl()
-        .run(storage.assets)
+        .run(storage)
         .map(_.map { case LibraryService.AssetToCrawl(site, url, title) =>
           AssetToCrawl(site, title, url)
         })

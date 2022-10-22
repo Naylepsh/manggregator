@@ -1,28 +1,38 @@
 package api.library
 
-import library.services.LibraryService.Storage
-import org.http4s.HttpRoutes
 import cats.effect.IO
 import cats.implicits._
 import cats.syntax._
 import scala.util.Try
 import java.util.UUID
+import org.http4s.HttpRoutes
 import sttp.tapir.server.http4s.Http4sServerInterpreter
-import library.domain.Models.AssetChapters
-import library.domain.Models.Asset
+import library.domain.Models._
 import library.services.LibraryService
-import library.services.LibraryService.AssetDTO
+import library.services.LibraryService._
 
 object Routes:
   case class Props(storage: Storage)
 
   def routes(props: Props): HttpRoutes[IO] =
-    getAssetChaptersRouter(props) <+> createAssetRouter(props)
+    getAssetChaptersRouter(props)
+      <+> createAssetRouter(props)
+      <+> createAssetPageRouter(props)
 
   def createAssetRouter(props: Props): HttpRoutes[IO] =
     Http4sServerInterpreter[IO]().toRoutes(
       Endpoints.createAssetEndpoint.serverLogic(createAsset(props))
     )
+
+  def createAssetPageRouter(props: Props): HttpRoutes[IO] =
+    Http4sServerInterpreter[IO]().toRoutes(
+      Endpoints.createAssetPageEndpoint.serverLogic(createAssetPage(props))
+    )
+
+  def createAssetPage(
+      props: Props
+  )(assetId: UUID, page: AssetPageDTO): IO[Either[String, AssetPage]] =
+    LibraryService.createAssetPage(page, assetId).run(props.storage.pages)
 
   def getAssetChaptersRouter(props: Props): HttpRoutes[IO] =
     Http4sServerInterpreter[IO]().toRoutes(

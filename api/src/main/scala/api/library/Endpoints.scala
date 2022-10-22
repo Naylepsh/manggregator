@@ -8,6 +8,9 @@ import library.domain.Models.AssetChapters
 import library.domain.Models.Asset
 import api.utils.DateCodec.{encodeDate, decodeDate}
 import library.services.LibraryService.AssetDTO
+import library.services.LibraryService.AssetPageDTO
+import library.domain.Models.AssetPage
+import java.util.UUID
 
 object Endpoints:
   val pathPrefix = "library"
@@ -29,4 +32,22 @@ object Endpoints:
       .errorOut(stringBody)
       .description("Create an asset (manga, mahwa, etc.)")
 
-  val endpoints = List(getAssetsChaptersEndpoint, createAssetEndpoint)
+  val createAssetPageEndpoint: PublicEndpoint[
+    (UUID, AssetPageDTO),
+    String,
+    AssetPage,
+    Any
+  ] = endpoint.post
+    .in(pathPrefix / "assets" / path[UUID]("assetId") / "pages")
+    .in(jsonBody[AssetPageDTO])
+    .out(jsonBody[AssetPage])
+    .errorOut(stringBody)
+    .description(
+      "Add an asset page (a page where all chapters of given asset are available) to a related asset"
+    )
+
+  val endpoints = List(
+    getAssetsChaptersEndpoint,
+    createAssetEndpoint,
+    createAssetPageEndpoint
+  )

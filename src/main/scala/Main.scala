@@ -18,12 +18,14 @@ import java.util.UUID.randomUUID
 import manggregator.Entrypoints
 import api.Http
 import library.domain.AssetRepository
+import services.PageRepositoryImpl.PageInMemoryRepositoryImpl
 
 object Main extends IOApp:
   def run(args: List[String]): IO[ExitCode] =
     val assetRepo = AssetInMemoryRepository
     val chapterRepo = ChapterInMemoryRepository
-    val storage = Storage(assetRepo, chapterRepo)
+    val pagesRepo = PageInMemoryRepositoryImpl
+    val storage = Storage(assetRepo, pagesRepo, chapterRepo)
     val library = Entrypoints.library(storage)
 
     seedAssetRepository(assetRepo) *> httpServer(storage, library)
@@ -52,14 +54,12 @@ object Main extends IOApp:
         "mangakakalot",
         "https://mangakakalot.com/manga/2_saisa_no_osananajimi"
       )
-    
+
     println(s"${eliteKnight.id} :: ${saisa.id}")
 
     for {
       _ <- repo.save(eliteKnight)
-      _ <- repo.save(eliteKnightPage)
       _ <- repo.save(saisa)
-      _ <- repo.save(saisaPage)
     } yield repo
 
   // def crawlEntrypoint: IO[ExitCode] =
