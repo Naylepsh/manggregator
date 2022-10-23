@@ -18,12 +18,13 @@ object CrawlingService:
       resultsQueue <- Queue.bounded[IO, Result](capacity = 10)
       crawler <- Crawler(resultsQueue)
       assetsToCrawl <- library.getAssetsToCrawl()
-      jobs = assetsToCrawl.map { case AssetToCrawl(site, assetTitle, url) =>
+      jobs = assetsToCrawl.map { case AssetToCrawl(site, assetId, url) =>
         SiteCrawlJob(
           site,
-          ScrapeChaptersCrawlJob(url, assetTitle)
+          ScrapeChaptersCrawlJob(url, assetId)
         )
       }
+      _ <- IO.println(s"[Crawling Service] Enqueuing $jobs")
       _ <- crawler.enqueue(jobs)
       _ <- (
         crawler.crawl(),
@@ -38,7 +39,9 @@ object CrawlingService:
       resultsToExpect: Int
   ): IO[Unit] =
     def handle(resultsLeft: Int): IO[Unit] =
-      if (resultsLeft > 1)
+      println(s"[Crawling Service] resultsLeft: $resultsLeft")
+
+      if (resultsLeft > 0)
         for {
           potentialResult <- queue.tryTake
           _ <- potentialResult match {

@@ -2,15 +2,12 @@ package library.domain
 
 import cats.effect._
 import library.domain.Models._
+import java.util.UUID
 
 trait AssetRepository:
-  case class AssetChapters(asset: Asset, chapters: List[Chapter])
 
   def save(asset: Asset): IO[Unit]
-  def save(assetPage: AssetPage): IO[Unit]
-  def save(chapters: List[Chapter]): IO[Unit]
 
   def findByName(name: String): IO[Option[Asset]]
+  def findManyByIds(ids: List[UUID]): IO[List[Asset]]
   def findEnabledAssets(): IO[List[Asset]]
-  def findAssetsPages(assets: List[Asset]): IO[List[AssetPage]]
-  def findAssetsChapters(assets: List[Asset]): IO[List[AssetChapters]]

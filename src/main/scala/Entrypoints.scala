@@ -9,17 +9,18 @@ import crawler.domain.Asset.AssetSource
 import crawler.services.CrawlingService
 import library.domain.AssetRepository
 import library.domain.Models.Chapter
-import library.services.AssetService
+import library.services.LibraryService
 import java.util.UUID.randomUUID
+import library.services.LibraryService.Storage
 
 object Entrypoints:
-  val crawler: Reader[AssetRepository, IO[Unit]] = Reader { assetRepository =>
+  val crawler: Reader[Storage, IO[Unit]] = Reader { storage =>
     val library = new Library {
       def getAssetsToCrawl(): IO[List[AssetToCrawl]] =
-        AssetService
+        LibraryService
           .getAssetsToCrawl()
-          .run(assetRepository)
-          .map(_.map { case AssetService.AssetToCrawl(site, url, title) =>
+          .run(storage)
+          .map(_.map { case LibraryService.AssetToCrawl(site, url, title) =>
             AssetToCrawl(site, title, url)
           })
 
@@ -29,16 +30,40 @@ object Entrypoints:
             Chapter(
               randomUUID,
               chapter.no,
-              chapter.assetTitle,
               chapter.url,
-              chapter.dateReleased
+              chapter.dateReleased,
+              chapter.assetId
             )
           )
-          assetRepository.save(data)
+          storage.chapters.save(data)
 
       }
 
     }
 
     CrawlingService.crawl().run(library)
+  }
+
+  def library(storage: Storage): Library = new Library {
+    def getAssetsToCrawl(): IO[List[AssetToCrawl]] =
+      LibraryService
+        .getAssetsToCrawl()
+        .run(storage)
+        .map(_.map { case LibraryService.AssetToCrawl(site, url, title) =>
+          AssetToCrawl(site, title, url)
+        })
+
+    def handleResult(result: Result): IO[Unit] = result match {
+      case ChapterResult(chapters) =>
+        val data = chapters.map(chapter =>
+          Chapter(
+            randomUUID,
+            chapter.no,
+            chapter.url,
+            chapter.dateReleased,
+            chapter.assetId
+          )
+        )
+        storage.chapters.save(data)
+    }
   }
