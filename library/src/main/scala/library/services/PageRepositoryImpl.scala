@@ -7,7 +7,7 @@ import scala.collection.mutable.ListBuffer
 import java.util.UUID
 
 object PageRepositoryImpl:
-  object PageInMemoryRepositoryImpl extends PageRepository:
+  val inMemoryRepository = new PageRepository:
     val store: ListBuffer[AssetPage] = ListBuffer()
 
     def save(page: AssetPage): IO[Unit] =

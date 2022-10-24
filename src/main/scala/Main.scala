@@ -11,20 +11,20 @@ import crawler.domain.Library.AssetToCrawl
 import crawler.services.CrawlingService
 import crawler.services.site_crawlers.MangakakalotCrawler
 import library.domain.Models._
-import library.services.AssetRepositoryImpl.AssetInMemoryRepository
-import library.services.ChapterRepositoryImpl.ChapterInMemoryRepository
 import library.services.LibraryService.Storage
 import java.util.UUID.randomUUID
 import manggregator.Entrypoints
 import api.Http
 import library.domain.AssetRepository
-import services.PageRepositoryImpl.PageInMemoryRepositoryImpl
+import library.services.AssetRepositoryImpl
+import library.services.ChapterRepositoryImpl
+import services.PageRepositoryImpl
 
 object Main extends IOApp:
   def run(args: List[String]): IO[ExitCode] =
-    val assetRepo = AssetInMemoryRepository
-    val chapterRepo = ChapterInMemoryRepository
-    val pagesRepo = PageInMemoryRepositoryImpl
+    val assetRepo = AssetRepositoryImpl.inMemoryRepository
+    val chapterRepo = ChapterRepositoryImpl.inMemoryRepository
+    val pagesRepo = PageRepositoryImpl.inMemoryRepository
     val storage = Storage(assetRepo, pagesRepo, chapterRepo)
     val library = Entrypoints.library(storage)
 

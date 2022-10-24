@@ -32,7 +32,7 @@ object Routes:
   def createAssetPage(
       props: Props
   )(assetId: UUID, page: AssetPageDTO): IO[Either[String, AssetPage]] =
-    LibraryService.createAssetPage(page, assetId).run(props.storage.pages)
+    LibraryService.createAssetPage(page, assetId).run(props.storage)
 
   def getAssetChaptersRouter(props: Props): HttpRoutes[IO] =
     Http4sServerInterpreter[IO]().toRoutes(
@@ -44,7 +44,7 @@ object Routes:
   )(asset: AssetDTO): IO[Either[String, Asset]] =
     LibraryService
       .createAsset(asset)
-      .run(props.storage.assets)
+      .run(props.storage)
 
   private def getAssetsChapters(
       props: Props

@@ -7,7 +7,7 @@ import java.{util => ju}
 import scala.collection.mutable.ListBuffer
 
 object ChapterRepositoryImpl:
-  object ChapterInMemoryRepository extends ChapterRepository:
+  val inMemoryRepository = new ChapterRepository:
     val store: ListBuffer[Chapter] = ListBuffer()
 
     override def save(chapters: List[Chapter]): IO[Unit] =
