@@ -40,7 +40,7 @@ class Crawler(
     } yield ()
 
   def enqueue(jobs: List[SiteCrawlJob]): IO[Unit] =
-    jobs.traverse(crawlQueue.offer).as(())
+    jobs.traverse(crawlQueue.offer).void
 
 object Crawler:
   def apply(resultQueue: Queue[IO, Result]): IO[Crawler] =
