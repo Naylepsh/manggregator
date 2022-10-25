@@ -11,6 +11,7 @@ import library.domain.Models._
 import scala.collection.mutable.Map as MutableMap
 import java.util.UUID
 import java.util.UUID.randomUUID
+import java.util.Date
 
 object LibraryService:
   case class Storage(
@@ -43,6 +44,31 @@ object LibraryService:
           Alias(id = randomUUID, assetId = id, name = alias.name)
         )
       )
+
+  case class ChapterDTO(
+      no: String,
+      url: String,
+      dateReleased: Date,
+      assetId: UUID
+  ):
+    def ==(chapter: Chapter): Boolean =
+      chapter.assetId == assetId && chapter.no == no
+
+  object ChapterDTO:
+    def toDomainModel(id: UUID, chapter: ChapterDTO): Chapter =
+      Chapter(
+        id,
+        chapter.no,
+        chapter.url,
+        chapter.dateReleased,
+        chapter.assetId
+      )
+
+    def filterNotContainedWithin(
+        dtos: List[ChapterDTO],
+        chapters: List[Chapter]
+    ): List[ChapterDTO] =
+      dtos.filter(chapter => chapters.find(chapter == _).isEmpty)
 
   def createAsset(
       asset: AssetDTO
@@ -100,6 +126,23 @@ object LibraryService:
       assets <- storage.assets.findManyByIds(assetIds)
       chapters <- storage.chapters.findByAssetId(assets.map(_.id))
     } yield bindChaptersToAssets(assets, chapters)
+  }
+
+  def saveChapters(
+      chapters: List[ChapterDTO]
+  ): Kleisli[IO, Storage, Either[String, List[Chapter]]] = Kleisli { storage =>
+    val assetIds = chapters.map(_.assetId)
+
+    for {
+      chaptersInStore <- storage.chapters.findByAssetId(assetIds)
+      chaptersToSave = ChapterDTO
+        .filterNotContainedWithin(
+          chapters,
+          chaptersInStore
+        )
+        .map(ChapterDTO.toDomainModel(randomUUID, _))
+      _ <- storage.chapters.save(chaptersToSave)
+    } yield chaptersToSave.asRight[String]
   }
 
   private def bindChaptersToAssets(

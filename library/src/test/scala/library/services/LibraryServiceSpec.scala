@@ -9,6 +9,7 @@ import cats.implicits._
 import cats.syntax._
 import cats.data.Kleisli
 import services.PageRepositoryImpl
+import java.util.Date
 
 class LibraryServiceSpec extends munit.FunSuite:
   import LibraryServiceSpec._
@@ -63,8 +64,30 @@ class LibraryServiceSpec extends munit.FunSuite:
   }
 
   // Chapters tests
-  // TODO:
-  // test("Cant add the same chapter twice") {}
+  test("Cant add the same chapter twice") {
+    val assetId = randomUUID
+
+    val chapterDtos = (1 to 3)
+      .map(i =>
+        ChapterDTO(
+          no = i.toString,
+          url = s"http://foo.bar/asset/${randomUUID.toString}",
+          dateReleased = new Date(),
+          assetId = assetId
+        )
+      )
+      .toList
+
+    val execute = for {
+      _ <- saveChapters(List(chapterDtos.head, chapterDtos.last))
+      _ <- saveChapters(chapterDtos)
+    } yield ()
+
+    for {
+      _ <- execute(storage)
+      chapters <- storage.chapters.findByAssetId(List(assetId))
+    } yield assertEquals(chapters.length, chapterDtos.length)
+  }
 
   // Misc. tests
   test("Pages added to a given asset appear when getting the assets to crawl") {
