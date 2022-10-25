@@ -12,6 +12,8 @@ import library.domain.Models.Chapter
 import library.services.LibraryService
 import java.util.UUID.randomUUID
 import library.services.LibraryService.Storage
+import library.services.LibraryService.ChapterDTO.apply
+import library.services.LibraryService.ChapterDTO
 
 object Entrypoints:
   val crawler: Reader[Storage, IO[Unit]] = Reader { storage =>
@@ -26,17 +28,19 @@ object Entrypoints:
 
       def handleResult(result: Result): IO[Unit] = result match {
         case ChapterResult(chapters) =>
-          val data = chapters.map(chapter =>
-            Chapter(
-              randomUUID,
-              chapter.no,
-              chapter.url,
-              chapter.dateReleased,
-              chapter.assetId
+          LibraryService
+            .saveChapters(
+              chapters.map(chapter =>
+                ChapterDTO(
+                  chapter.no,
+                  chapter.url,
+                  chapter.dateReleased,
+                  chapter.assetId
+                )
+              )
             )
-          )
-          storage.chapters.save(data)
-
+            .run(storage)
+            .void
       }
 
     }

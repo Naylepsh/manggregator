@@ -8,7 +8,7 @@ import scala.collection.mutable.ListBuffer
 import java.util.UUID
 
 object AssetRepositoryImpl:
-  object AssetInMemoryRepository extends AssetRepository:
+  val inMemoryRepository = new AssetRepository:
     val assetsStore: MutableMap[UUID, Asset] = MutableMap()
 
     def findByName(name: String): IO[Option[Asset]] = IO(

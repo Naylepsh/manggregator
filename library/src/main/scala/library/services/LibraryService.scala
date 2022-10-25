@@ -11,6 +11,7 @@ import library.domain.Models._
 import scala.collection.mutable.Map as MutableMap
 import java.util.UUID
 import java.util.UUID.randomUUID
+import java.util.Date
 
 object LibraryService:
   case class Storage(
@@ -44,14 +45,39 @@ object LibraryService:
         )
       )
 
+  case class ChapterDTO(
+      no: String,
+      url: String,
+      dateReleased: Date,
+      assetId: UUID
+  ):
+    def ==(chapter: Chapter): Boolean =
+      chapter.assetId == assetId && chapter.no == no
+
+  object ChapterDTO:
+    def toDomainModel(id: UUID, chapter: ChapterDTO): Chapter =
+      Chapter(
+        id,
+        chapter.no,
+        chapter.url,
+        chapter.dateReleased,
+        chapter.assetId
+      )
+
+    def filterNotContainedWithin(
+        dtos: List[ChapterDTO],
+        chapters: List[Chapter]
+    ): List[ChapterDTO] =
+      dtos.filter(chapter => chapters.find(chapter == _).isEmpty)
+
   def createAsset(
       asset: AssetDTO
-  ): Reader[AssetRepository, IO[Either[String, Asset]]] =
-    Reader { repository =>
+  ): Kleisli[IO, Storage, Either[String, Asset]] =
+    Kleisli { storage =>
       val id = randomUUID
       val domainModel = AssetDTO.toDomainModel(id, asset)
 
-      repository.findByName(domainModel.name).flatMap {
+      storage.assets.findByName(domainModel.name).flatMap {
         case Some(_) =>
           IO.pure(
             s"Asset with name ${domainModel.name} already exists".asLeft[Asset]
@@ -60,32 +86,31 @@ object LibraryService:
         case None =>
           val pages = asset.titlePages
             .map(page => AssetPageDTO.toDomainModel(randomUUID, id, page))
-          repository.save(domainModel).as(domainModel.asRight[String])
+          storage.assets.save(domainModel).as(domainModel.asRight[String])
       }
     }
 
   def createAssetPage(
       page: AssetPageDTO,
       assetId: UUID
-  ): Reader[PageRepository, IO[Either[String, AssetPage]]] = Reader {
-    repository =>
-      val id = randomUUID
-      val domainModel = AssetPageDTO.toDomainModel(id, assetId, page)
+  ): Kleisli[IO, Storage, Either[String, AssetPage]] = Kleisli { storage =>
+    val id = randomUUID
+    val domainModel = AssetPageDTO.toDomainModel(id, assetId, page)
 
-      repository.findByUrl(domainModel.url).flatMap {
-        case Some(_) =>
-          IO.pure(
-            s"Asset page with url ${domainModel.url} already exists"
-              .asLeft[AssetPage]
-          )
+    storage.pages.findByUrl(domainModel.url).flatMap {
+      case Some(_) =>
+        IO.pure(
+          s"Asset page with url ${domainModel.url} already exists"
+            .asLeft[AssetPage]
+        )
 
-        case None =>
-          repository.save(domainModel).as(domainModel.asRight[String])
-      }
+      case None =>
+        storage.pages.save(domainModel).as(domainModel.asRight[String])
+    }
   }
 
-  def getAssetsToCrawl(): Reader[Storage, IO[List[AssetToCrawl]]] =
-    Reader { storage =>
+  def getAssetsToCrawl(): Kleisli[IO, Storage, List[AssetToCrawl]] =
+    Kleisli { storage =>
       for {
         assets <- storage.assets.findEnabledAssets()
         pages <- storage.pages.findManyByAssetIds(assets.map(_.id))
@@ -96,11 +121,28 @@ object LibraryService:
 
   def getAssetsChapters(
       assetIds: List[UUID]
-  ): Reader[Storage, IO[List[AssetChapters]]] = Reader { storage =>
+  ): Kleisli[IO, Storage, List[AssetChapters]] = Kleisli { storage =>
     for {
       assets <- storage.assets.findManyByIds(assetIds)
       chapters <- storage.chapters.findByAssetId(assets.map(_.id))
     } yield bindChaptersToAssets(assets, chapters)
+  }
+
+  def saveChapters(
+      chapters: List[ChapterDTO]
+  ): Kleisli[IO, Storage, Either[String, List[Chapter]]] = Kleisli { storage =>
+    val assetIds = chapters.map(_.assetId)
+
+    for {
+      chaptersInStore <- storage.chapters.findByAssetId(assetIds)
+      chaptersToSave = ChapterDTO
+        .filterNotContainedWithin(
+          chapters,
+          chaptersInStore
+        )
+        .map(ChapterDTO.toDomainModel(randomUUID, _))
+      _ <- storage.chapters.save(chaptersToSave)
+    } yield chaptersToSave.asRight[String]
   }
 
   private def bindChaptersToAssets(
