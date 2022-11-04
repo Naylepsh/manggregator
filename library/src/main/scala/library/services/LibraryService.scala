@@ -10,8 +10,8 @@ import library.domain.PageRepository
 import library.domain.Models._
 import scala.collection.mutable.Map as MutableMap
 import java.util.UUID
-import java.util.UUID.randomUUID
 import java.util.Date
+import cats.effect.std.UUIDGen.randomUUID
 
 object LibraryService:
   case class Storage(
@@ -35,14 +35,14 @@ object LibraryService:
       titlePages: List[AssetPageDTO] = List()
   )
   object AssetDTO:
-    def toDomainModel(id: UUID, asset: AssetDTO): Asset =
+    def toDomainModel(id: UUID, assetIds: List[UUID], asset: AssetDTO): Asset =
       Asset(
         id,
         asset.name,
         asset.enabled,
-        asset.aliases.map(alias =>
-          Alias(id = randomUUID, assetId = id, name = alias.name)
-        )
+        asset.aliases.zip(assetIds).map { case (alias, aliasId) =>
+          Alias(id = aliasId, assetId = id, name = alias.name)
+        }
       )
 
   case class ChapterDTO(
@@ -74,19 +74,17 @@ object LibraryService:
       asset: AssetDTO
   ): Kleisli[IO, Storage, Either[String, Asset]] =
     Kleisli { storage =>
-      val id = randomUUID
-      val domainModel = AssetDTO.toDomainModel(id, asset)
-
-      storage.assets.findByName(domainModel.name).flatMap {
+      storage.assets.findByName(asset.name).flatMap {
         case Some(_) =>
-          IO.pure(
-            s"Asset with name ${domainModel.name} already exists".asLeft[Asset]
-          )
+          s"Asset with name ${asset.name} already exists".asLeft[Asset].pure
 
         case None =>
-          val pages = asset.titlePages
-            .map(page => AssetPageDTO.toDomainModel(randomUUID, id, page))
-          storage.assets.save(domainModel).as(domainModel.asRight[String])
+          for {
+            assetId <- randomUUID[IO]
+            aliasIds <- asset.aliases.map(_ => randomUUID[IO]).sequence
+            model = AssetDTO.toDomainModel(assetId, aliasIds, asset)
+            _ <- storage.assets.save(model)
+          } yield model.asRight[String]
       }
     }
 
@@ -94,18 +92,18 @@ object LibraryService:
       page: AssetPageDTO,
       assetId: UUID
   ): Kleisli[IO, Storage, Either[String, AssetPage]] = Kleisli { storage =>
-    val id = randomUUID
-    val domainModel = AssetPageDTO.toDomainModel(id, assetId, page)
-
-    storage.pages.findByUrl(domainModel.url).flatMap {
+    storage.pages.findByUrl(page.url).flatMap {
       case Some(_) =>
-        IO.pure(
-          s"Asset page with url ${domainModel.url} already exists"
-            .asLeft[AssetPage]
-        )
+        s"Asset page with url ${page.url} already exists"
+          .asLeft[AssetPage]
+          .pure
 
       case None =>
-        storage.pages.save(domainModel).as(domainModel.asRight[String])
+        for {
+          pageId <- randomUUID[IO]
+          model = AssetPageDTO.toDomainModel(pageId, assetId, page)
+          _ <- storage.pages.save(model)
+        } yield model.asRight[String]
     }
   }
 
@@ -135,12 +133,15 @@ object LibraryService:
 
     for {
       chaptersInStore <- storage.chapters.findByAssetId(assetIds)
-      chaptersToSave = ChapterDTO
+      chaptersToSave <- ChapterDTO
         .filterNotContainedWithin(
           chapters,
           chaptersInStore
         )
-        .map(ChapterDTO.toDomainModel(randomUUID, _))
+        .map(chapter =>
+          randomUUID[IO].map(id => ChapterDTO.toDomainModel(id, chapter))
+        )
+        .sequence
       _ <- storage.chapters.save(chaptersToSave)
     } yield chaptersToSave.asRight[String]
   }
