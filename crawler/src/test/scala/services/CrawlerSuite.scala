@@ -16,7 +16,8 @@ class CrawlerSuite extends CatsEffectSuite:
   import CrawlerSuite._
 
   test("crawler processes all the jobs from queue") {
-    val mapping: Map[String, SiteCrawler] = Map(testCrawlerLabel -> testCrawler)
+    val mapping: Map[String, SiteCrawler[IO]] =
+      Map(testCrawlerLabel -> testCrawler)
     val jobs = List(
       SiteCrawlJob(
         testCrawlerLabel,
@@ -33,40 +34,11 @@ class CrawlerSuite extends CatsEffectSuite:
 
     for {
       resultsQueue <- Queue.bounded[IO, CrawlResult.Result](capacity = 10)
-      crawlQueue <- Queue.bounded[IO, SiteCrawlJob](capacity = 10)
-      _ <- jobs.traverse(crawlQueue.offer)
-      crawler = new Crawler(mapping, crawlQueue, resultsQueue)
+      crawler <- Crawler.make[IO](resultsQueue, mapping)
+      _ <- crawler.enqueue(jobs)
       _ <- crawler.crawl()
       resultsOnResultsQueue <- resultsQueue.size
     } yield assertEquals(resultsOnResultsQueue, jobs.length)
-  }
-
-  test("enqueing puts jobs on crawl queue") {
-    val jobs = List(
-      SiteCrawlJob(
-        testCrawlerLabel,
-        ScrapeChaptersCrawlJob(
-          "http://localhost:3000/assets/title-1",
-          randomUUID
-        )
-      ),
-      SiteCrawlJob(
-        testCrawlerLabel,
-        DiscoverTitlesCrawlJob("http://localhost:3000/assets", "Title 2")
-      )
-    )
-
-    for {
-      resultsQueue <- Queue.bounded[IO, CrawlResult.Result](capacity = 10)
-      crawlQueue <- Queue.bounded[IO, SiteCrawlJob](capacity = 10)
-      crawler = new Crawler(
-        Map[String, SiteCrawler](),
-        crawlQueue,
-        resultsQueue
-      )
-      _ <- crawler.enqueue(jobs)
-      resultsOnCrawlQueue <- crawlQueue.size
-    } yield assertEquals(resultsOnCrawlQueue, jobs.length)
   }
 
 object CrawlerSuite:
@@ -97,7 +69,7 @@ object CrawlerSuite:
       )
     )
   val testCrawlerLabel = "test"
-  val testCrawler = new SiteCrawler:
+  val testCrawler = new SiteCrawler[IO]:
     def discoverTitles(
         job: DiscoverTitlesCrawlJob
     ): IO[Either[Throwable, List[AssetSource]]] = IO(

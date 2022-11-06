@@ -6,39 +6,53 @@ import crawler.domain.Library
 import crawler.domain.Library.AssetToCrawl
 import crawler.domain.Crawl.CrawlResult._
 import crawler.domain.Asset.AssetSource
-import crawler.services.CrawlingService
-import library.domain.AssetRepository
-import library.domain.Models.Chapter
-import library.services.LibraryService
+import crawler.services._
+import crawler.services.site_crawlers.MangakakalotCrawler
 import java.util.UUID.randomUUID
-import library.services.LibraryService.Storage
-import library.services.LibraryService.ChapterDTO.apply
-import library.services.LibraryService.ChapterDTO
+import library.persistence.Storage
+import library.persistence
+import library.services._
+import library.domain.page.ChaptersPageToCheck
+import library.domain.chapter._
+import library.domain.asset.AssetId
 
 object Entrypoints:
-  def library(storage: Storage): Library = new Library {
+  def storage(): Storage[IO] = Storage(
+    persistence.Assets.make[IO],
+    persistence.Chapters.make[IO],
+    persistence.Pages.make[IO]
+  )
+
+  def library(storage: Storage[IO]): Library[IO] = new Library {
     def getAssetsToCrawl(): IO[List[AssetToCrawl]] =
-      LibraryService
-        .getAssetsToCrawl()
+      Pages
+        .findPagesToCheck()
         .run(storage)
-        .map(_.map { case LibraryService.AssetToCrawl(site, url, title) =>
-          AssetToCrawl(site, title, url)
+        .map(_.map { case ChaptersPageToCheck(site, url, title) =>
+          AssetToCrawl(site.value, title.value, url.value)
         })
 
     def handleResult(result: Result): IO[Unit] = result match {
       case ChapterResult(chapters) =>
-        LibraryService
-          .saveChapters(
+        Chapters
+          .create(
             chapters.map(chapter =>
-              ChapterDTO(
-                chapter.no,
-                chapter.url,
-                chapter.dateReleased,
-                chapter.assetId
+              CreateChapter(
+                ChapterNo(chapter.no),
+                ChapterUrl(chapter.url),
+                DateReleased(chapter.dateReleased),
+                AssetId(chapter.assetId)
               )
             )
           )
-          .run(storage)
+          .run(storage.chapters)
           .void
     }
   }
+
+  def crawling(): Crawling[IO] =
+    val siteCrawlersMapping = Map(
+      "mangakakalot" -> MangakakalotCrawler
+    )
+
+    Crawling.make[IO](siteCrawlersMapping)

@@ -12,44 +12,45 @@ import crawler.domain.Crawl.CrawlResult._
 import crawler.domain.SiteCrawler
 import crawler.services.site_crawlers.MangakakalotCrawler
 
-class Crawler(
-    siteCrawlersMappings: Map[String, SiteCrawler],
-    crawlQueue: Queue[IO, SiteCrawlJob],
-    resultQueue: Queue[IO, Result]
-):
-  // TODO: Allow more executors + round robin or whatever
-  val execute = CrawlExecutor.crawl(siteCrawlersMappings)
-
-  def keepCrawling() = (crawl() *> IO.sleep(5 seconds)).foreverM
-
-  // Picks up crawl jobs until the queue is empty
-  def crawl(): IO[Unit] =
-    for {
-      potentialJob <- crawlQueue.tryTake
-      _ <- potentialJob
-        .map(job =>
-          (execute(job) match {
-            case Left(reason) =>
-              IO.println(reason)
-
-            case Right(results) =>
-              results.flatMap(_.traverse(resultQueue.offer))
-          }) *> crawl()
-        )
-        .getOrElse(IO.unit)
-    } yield ()
-
-  def enqueue(jobs: List[SiteCrawlJob]): IO[Unit] =
-    jobs.traverse(crawlQueue.offer).void
+trait Crawler[F[_]]:
+  def crawl(): F[Unit]
+  def enqueue(jobs: List[SiteCrawlJob]): F[Unit]
 
 object Crawler:
-  def apply(resultQueue: Queue[IO, Result]): IO[Crawler] =
-    val siteCrawlersMappings = Map(
-      "mangakakalot" -> MangakakalotCrawler
-    )
+  def make[F[_]: Async](
+      resultsQueue: Queue[F, Result],
+      siteCrawlersMapping: Map[String, SiteCrawler[F]]
+  ): F[Crawler[F]] =
+    for {
+      crawlQueue <- Queue.bounded[F, SiteCrawlJob](capacity = 10)
+    } yield makeMonadicCrawler(siteCrawlersMapping, crawlQueue, resultsQueue)
 
-    Queue
-      .bounded[IO, SiteCrawlJob](capacity = 10)
-      .map(crawlQueue =>
-        new Crawler(siteCrawlersMappings, crawlQueue, resultQueue)
-      )
+  def makeMonadicCrawler[F[_]: Monad](
+      siteCrawlersMappings: Map[String, SiteCrawler[F]],
+      crawlQueue: Queue[F, SiteCrawlJob],
+      resultQueue: Queue[F, Result]
+  ): Crawler[F] = new Crawler[F] {
+    // TODO: Allow more executors + round robin or whatever
+    private val execute = CrawlExecutor.crawl(siteCrawlersMappings)
+
+    override def crawl(): F[Unit] =
+      for {
+        potentialJob <- crawlQueue.tryTake
+        _ <- potentialJob
+          .map(job =>
+            (execute(job) match {
+              case Left(reason) =>
+                // TODO: Use actual log
+                Monad[F].unit
+
+              case Right(results) =>
+                results.flatMap(_.traverse(resultQueue.offer)).void
+            }).flatMap(_ => crawl())
+          )
+          .getOrElse(Monad[F].unit)
+      } yield ()
+
+    override def enqueue(jobs: List[SiteCrawlJob]): F[Unit] =
+      jobs.traverse(crawlQueue.offer).void
+
+  }

@@ -15,7 +15,7 @@ import org.joda.time.DateTime
 import com.github.nscala_time.time.Imports._
 import java.util.UUID
 
-object MangakakalotCrawler extends SiteCrawler:
+object MangakakalotCrawler extends SiteCrawler[IO]:
   /** Crawler for the following family of sites:
     *   - mangakakalot.com
     *   - readmangato.com
