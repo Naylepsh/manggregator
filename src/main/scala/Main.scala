@@ -1,63 +1,56 @@
 import cats.effect.IOApp
 import cats.effect.ExitCode
 import cats.effect._
+import cats.effect.std._
 import cats._
 import cats.implicits._
-import crawler.domain.Asset.Chapter
-import crawler.domain.Crawl.CrawlJob
-import crawler.domain.Crawl.CrawlResult.Result
 import crawler.domain.Library
-import crawler.domain.Library.AssetToCrawl
-import crawler.services.CrawlingService
-import crawler.services.site_crawlers.MangakakalotCrawler
-import library.domain.Models._
-import library.services.LibraryService.Storage
-import java.util.UUID.randomUUID
+import crawler.services.Crawling
 import manggregator.Entrypoints
 import api.Http
-import library.domain.AssetRepository
-import library.services.AssetRepositoryImpl
-import library.services.ChapterRepositoryImpl
-import services.PageRepositoryImpl
+import library.persistence._
+import library.domain.asset._
+import library.domain.page._
 
 object Main extends IOApp:
   def run(args: List[String]): IO[ExitCode] =
-    val assetRepo = AssetRepositoryImpl.inMemoryRepository
-    val chapterRepo = ChapterRepositoryImpl.inMemoryRepository
-    val pagesRepo = PageRepositoryImpl.inMemoryRepository
-    val storage = Storage(assetRepo, pagesRepo, chapterRepo)
+    val storage = Entrypoints.storage()
     val library = Entrypoints.library(storage)
+    val crawling = Entrypoints.crawling()
 
-    seedAssetRepository(assetRepo) *> httpServer(storage, library)
+    seedAssetRepository(storage) *> httpServer(storage, library, crawling)
 
-  def httpServer(storage: Storage, library: Library): IO[ExitCode] =
+  def httpServer[F[_]: Async: Console](
+      storage: Storage[F],
+      library: Library[F],
+      crawling: Crawling[F]
+  ): F[ExitCode] =
 
     val docs = Http.Docs(title = "MANGgregator", version = "0.0.1")
-    val server = api.Http(Http.Props(docs, library, storage))
+    val server = api.Http(Http.Props(docs, library, storage, crawling))
 
     server.as(ExitCode.Success)
 
-  def seedAssetRepository(repo: AssetRepository) =
-    val eliteKnight = Asset(randomUUID, "Elite Knight", true, List())
-    val eliteKnightPage =
-      AssetPage(
-        randomUUID,
-        eliteKnight.id,
-        "mangakakalot",
-        "https://readmanganato.com/manga-gx984006"
+  def seedAssetRepository[F[_]: FlatMap: Console](storage: Storage[F]) =
+    val eliteKnight = CreateAsset(AssetName("Elite Knight"), Enabled(true))
+    val eliteKnightChaptersPage = (assetId: AssetId) =>
+      CreateChaptersPage(
+        Site("mangakakalot"),
+        PageUrl("https://readmanganato.com/manga-gx984006"),
+        assetId
       )
-    val saisa = Asset(randomUUID, "Saisa", true, List())
-    val saisaPage =
-      AssetPage(
-        randomUUID,
-        saisa.id,
-        "mangakakalot",
-        "https://mangakakalot.com/manga/2_saisa_no_osananajimi"
+    val saisa = CreateAsset(AssetName("Saisa"), Enabled(true))
+    val saisaChaptersPage = (assetId: AssetId) =>
+      CreateChaptersPage(
+        Site("mangakakalot"),
+        PageUrl("https://mangakakalot.com/manga/2_saisa_no_osananajimi"),
+        assetId
       )
-
-    println(s"${eliteKnight.id} :: ${saisa.id}")
 
     for {
-      _ <- repo.save(eliteKnight)
-      _ <- repo.save(saisa)
-    } yield repo
+      eliteKnightId <- storage.assets.create(eliteKnight)
+      _ <- storage.pages.create(eliteKnightChaptersPage(eliteKnightId))
+      saisaId <- storage.assets.create(saisa)
+      _ <- storage.pages.create(saisaChaptersPage(saisaId))
+      _ <- Console[F].println(s"${eliteKnightId} :: ${saisaId}")
+    } yield ()

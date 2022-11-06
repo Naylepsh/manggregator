@@ -1,8 +1,11 @@
 package api
 
+import cats._
 import cats.data._
 import cats.syntax.all._
 import cats.effect._
+import cats.effect.implicits._
+import cats.effect.std._
 import com.comcast.ip4s._
 import sttp.tapir.Endpoint
 import sttp.tapir.swagger.bundle.SwaggerInterpreter
@@ -17,14 +20,20 @@ import api.crawler.Routes as CrawlerRoutes
 import api.library.LibraryApi
 import api.library.Routes as LibraryRoutes
 import _root_.crawler.domain.Library
-import _root_.library.services.LibraryService.Storage
+import _root_.library.persistence.Storage
+import _root_.crawler.services.Crawling
 
 object Http:
   case class Docs(title: String, version: String)
-  case class Props(docs: Docs, library: Library, storage: Storage)
+  case class Props[F[_]](
+      docs: Docs,
+      library: Library[F],
+      storage: Storage[F],
+      crawling: Crawling[F]
+  )
 
-  def apply(props: Props) =
-    val crawlerProps = CrawlerRoutes.Props(props.library)
+  def apply[F[_]: Async: Console: Functor](props: Props[F]) =
+    val crawlerProps = CrawlerRoutes.Props(props.library, props.crawling)
     val crawlerApi = CrawlerApi(crawlerProps)
 
     val libraryProps = LibraryRoutes.Props(props.storage)
@@ -34,31 +43,33 @@ object Http:
     val openApiRoutes =
       createOpenApi(endpoints, props.docs.title, props.docs.version)
 
-    val routes = crawlerApi.routes <+> libraryApi.routes
+    val routes = crawlerApi.routes <+> libraryApi.routes <+> openApiRoutes
 
-    val app = (routes <+> openApiRoutes).orNotFound.onError(error =>
-      Kleisli { _ => IO.println(error) }
+    val app = routes.orNotFound.onError(error =>
+      Kleisli { _ => Console[F].println(error) }
     )
 
     createServer(app)
 
-  private def createOpenApi(
+  private def createOpenApi[F[_]: Async](
       endpoints: List[Endpoint[_, _, _, _, _]],
       title: String,
       version: String
-  ): HttpRoutes[IO] =
+  ): HttpRoutes[F] =
     val swaggerEndpoints =
-      SwaggerInterpreter().fromEndpoints[IO](endpoints, title, version)
+      SwaggerInterpreter().fromEndpoints[F](endpoints, title, version)
     val swaggerRoutes =
-      Http4sServerInterpreter[IO]().toRoutes(swaggerEndpoints)
+      Http4sServerInterpreter[F]().toRoutes(swaggerEndpoints)
 
     swaggerRoutes
 
-  private def createServer(app: Kleisli[IO, Request[IO], Response[IO]]) =
+  private def createServer[F[_]: Async](
+      app: Kleisli[F, Request[F], Response[F]]
+  ) =
     EmberServerBuilder
-      .default[IO]
+      .default[F]
       .withHost(ipv4"0.0.0.0")
       .withPort(port"8080")
       .withHttpApp(app)
       .build
-      .use(_ => IO.never)
+      .use(_ => Async[F].never)

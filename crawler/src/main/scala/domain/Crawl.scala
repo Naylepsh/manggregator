@@ -19,3 +19,5 @@ object Crawl:
     sealed trait Result
     case class ChapterResult(chapters: List[Chapter]) extends Result
     case class TitlesResult(titles: List[AssetSource]) extends Result
+
+  type SiteCrawlersMapping[F[_]] = Map[String, SiteCrawler[F]]

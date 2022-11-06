@@ -9,7 +9,9 @@ import crawler.domain.Crawl.CrawlJob._
 import crawler.domain.Crawl.CrawlResult._
 
 object CrawlExecutor:
-  def crawl(siteCrawlersMappings: Map[String, SiteCrawler])(job: SiteCrawlJob) =
+  def crawl[F[_]: Functor](
+      siteCrawlersMappings: Map[String, SiteCrawler[F]]
+  )(job: SiteCrawlJob) =
     siteCrawlersMappings
       .get(job.label)
       .toRight(s"Unregistered site crawler for label:${job.label}")
