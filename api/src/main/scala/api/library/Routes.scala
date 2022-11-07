@@ -58,18 +58,8 @@ object Routes:
 
   private def getAssetsChapters[F[_]: Monad](
       props: Props[F]
-  )(ids: String): F[Either[String, List[Asset]]] =
-    parseIds(ids) match {
-      case Left(reason) =>
-        reason.asLeft[List[Asset]].pure
-
-      case Right(ids) =>
-        Assets
-          .findManyWithChapters(ids.map(AssetId.apply))
-          .run(props.storage)
-          .map(_.asRight[String])
-    }
-
-  private def parseIds(ids: String): Either[String, List[UUID]] =
-    Try(ids.split(",").map(UUID.fromString).toList).toEither.left
-      .map(_.toString)
+  )(ids: List[UUID]): F[Either[String, List[Asset]]] =
+    Assets
+      .findManyWithChapters(ids.map(AssetId.apply))
+      .run(props.storage)
+      .map(_.asRight[String])
