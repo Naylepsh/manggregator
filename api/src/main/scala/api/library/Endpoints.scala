@@ -12,22 +12,31 @@ import library.domain.asset.Asset
 import java.util.UUID
 import sttp.tapir.codec.monix.newtype._
 import sttp.tapir.EndpointInput.Query
+import cats.implicits._
 
 object Endpoints:
-  val pathPrefix = "library"
+  private val pathPrefix = "library"
 
   private def stringToUuids(str: String): List[UUID] =
     str.split(",").map(UUID.fromString).toList
+  private def optionalStringToUuids(str: Option[String]): List[UUID] =
+    str.map(stringToUuids).getOrElse(List.empty)
   private def uuidsToString(uuids: List[UUID]): String =
     uuids.map(_.toString).mkString(",")
+
   private def uuidsQuery(name: String): Query[List[UUID]] =
     query[String](name).map(stringToUuids)(uuidsToString)
+  private def optionalUuidsQuery(name: String): Query[List[UUID]] =
+    query[Option[String]](name)
+      .map(optionalStringToUuids)(uuidsToString(_).some)
 
   val getAssetsChaptersEndpoint
       : PublicEndpoint[List[UUID], String, List[Asset], Any] =
     endpoint.get
       .in(pathPrefix / "assets-chapters")
-      .in(uuidsQuery("ids").description("Comma separated list of UUIDs"))
+      .in(
+        optionalUuidsQuery("ids").description("Comma separated list of UUIDs")
+      )
       .out(jsonBody[List[Asset]])
       .errorOut(stringBody)
       .description("Get the assets (by ids) and their chapters")

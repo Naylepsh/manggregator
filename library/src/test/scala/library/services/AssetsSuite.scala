@@ -1,8 +1,9 @@
 package library.services
 
 import cats._
-import cats.implicits._
+import cats.data._
 import cats.syntax._
+import cats.implicits._
 import library.domain.asset._
 import library.persistence
 import java.util.UUID
@@ -15,10 +16,13 @@ class AssetsSuite extends munit.FunSuite:
 
       override def create(asset: CreateAsset): Id[AssetId] = ???
 
+      override def findAll(): Id[List[Asset]] = ???
+
+      override def findManyByIds(ids: NonEmptyList[AssetId]): Id[List[Asset]] =
+        ???
+
       override def findByName(name: AssetName): Id[Option[Asset]] =
         sampleAsset.some
-
-      override def findManyByIds(ids: List[AssetId]): Id[List[Asset]] = ???
 
       override def findEnabledAssets(): Id[List[Asset]] = ???
 

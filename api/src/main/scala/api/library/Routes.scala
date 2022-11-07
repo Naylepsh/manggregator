@@ -32,7 +32,12 @@ object Routes:
       Endpoints.createAssetPageEndpoint.serverLogic(createAssetPage(props))
     )
 
-  def createAssetPage[F[_]: Monad](
+  def getAssetChaptersRouter[F[_]: Async](props: Props[F]): HttpRoutes[F] =
+    Http4sServerInterpreter[F]().toRoutes(
+      Endpoints.getAssetsChaptersEndpoint.serverLogic(getAssetsChapters(props))
+    )
+
+  private def createAssetPage[F[_]: Monad](
       props: Props[F]
   )(
       assetId: UUID,
@@ -42,11 +47,6 @@ object Routes:
       .create(page.toDomain(assetId))
       .map(_.map(pageId => CreateChaptersPageResponse(pageId.value)))
       .run(props.storage.pages)
-
-  def getAssetChaptersRouter[F[_]: Async](props: Props[F]): HttpRoutes[F] =
-    Http4sServerInterpreter[F]().toRoutes(
-      Endpoints.getAssetsChaptersEndpoint.serverLogic(getAssetsChapters(props))
-    )
 
   private def createAsset[F[_]: Monad](
       props: Props[F]

@@ -8,6 +8,7 @@ import cats.effect.IO
 import cats.implicits._
 import cats.effect.std.UUIDGen.randomUUID
 import cats._
+import cats.data.NonEmptyList
 
 object Assets:
   def create[F[_]: Monad](
@@ -27,7 +28,9 @@ object Assets:
       assetIds: List[AssetId]
   ): Kleisli[F, persistence.Storage[F], List[Asset]] = Kleisli { storage =>
     for {
-      assets <- storage.assets.findManyByIds(assetIds)
+      assets <- NonEmptyList
+        .fromList(assetIds)
+        .fold(storage.assets.findAll())(storage.assets.findManyByIds)
       chapters <- storage.chapters.findByAssetId(assets.map(_.id))
     } yield bindChaptersToAssets(assets, chapters)
   }
