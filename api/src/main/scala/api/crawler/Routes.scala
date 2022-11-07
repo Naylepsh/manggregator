@@ -22,8 +22,7 @@ object Routes:
     crawlRouter(props)
 
   private def crawl[F[_]: Async](props: Props[F])(arg: Unit) =
-    // TODO: Add background task / fire-and-forget
-    props.crawling.crawl().run(props.library) *>
+    props.crawling.crawl().run(props.library).start *>
       "Crawling started successfully".asRight[String].pure
 
   private def crawlRouter[F[_]: Async](
