@@ -18,7 +18,7 @@ import org.http4s.implicits._
 import api.crawler.CrawlerApi
 import api.crawler.Routes as CrawlerRoutes
 import api.library.LibraryApi
-import api.library.Routes as LibraryRoutes
+import api.library.routes as LibraryRoutes
 import _root_.crawler.domain.Library
 import _root_.library.persistence.Storage
 import _root_.crawler.services.Crawling

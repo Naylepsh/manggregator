@@ -14,7 +14,7 @@ import sttp.tapir.codec.monix.newtype._
 import sttp.tapir.EndpointInput.Query
 import cats.implicits._
 
-object Endpoints:
+object endpoints:
   private val pathPrefix = "library"
 
   private def stringToUuids(str: String): List[UUID] =
@@ -64,7 +64,7 @@ object Endpoints:
       "Add an asset page (a page where all chapters of given asset are available) to a related asset"
     )
 
-  val endpoints = List(
+  val all = List(
     getAssetsChaptersEndpoint,
     createAssetEndpoint,
     createAssetPageEndpoint
