@@ -15,19 +15,18 @@ import org.http4s.server.Router
 import crawler.domain.Library
 import crawler.services.Crawling
 
-object Routes:
+object routes:
   case class Props[F[_]](library: Library[F], crawling: Crawling[F])
 
-  def routes[F[_]: Async](props: Props[F]): HttpRoutes[F] =
-    crawlRouter(props)
+  def all[F[_]: Async](props: Props[F]): HttpRoutes[F] =
+    crawl(props)
 
-  private def crawl[F[_]: Async](props: Props[F])(arg: Unit) =
-    props.crawling.crawl().run(props.library).start *>
-      "Crawling started successfully".asRight[String].pure
-
-  private def crawlRouter[F[_]: Async](
+  private def crawl[F[_]: Async](
       props: Props[F]
   ): HttpRoutes[F] =
     Http4sServerInterpreter[F]().toRoutes(
-      Endpoints.crawlEndpoint.serverLogic(crawl(props))
+      endpoints.crawlEndpoint.serverLogic((arg: Unit) =>
+        props.crawling.crawl().run(props.library).start *>
+          "Crawling started successfully".asRight[String].pure
+      )
     )

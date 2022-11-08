@@ -2,7 +2,7 @@ package api.crawler
 
 import sttp.tapir._
 
-object Endpoints:
+object endpoints:
   val pathPrefix = "crawler"
 
   val crawlEndpoint: PublicEndpoint[Unit, String, String, Any] =
@@ -12,4 +12,4 @@ object Endpoints:
       .errorOut(stringBody)
       .description("Start the crawl")
 
-  val endpoints = List(crawlEndpoint)
+  val all = List(crawlEndpoint)

@@ -16,7 +16,7 @@ import org.http4s._
 import org.http4s.dsl.io._
 import org.http4s.implicits._
 import api.crawler.CrawlerApi
-import api.crawler.Routes as CrawlerRoutes
+import api.crawler.routes as CrawlerRoutes
 import api.library.LibraryApi
 import api.library.routes as LibraryRoutes
 import _root_.crawler.domain.Library
