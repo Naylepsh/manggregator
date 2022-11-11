@@ -56,7 +56,7 @@ object Crawler:
                 .map(_.map(TitlesResult(_)).left.map(_.toString))
           }
         )
-        .map(_.flatMap(x => x))
+        .map(_.flatten)
   }
 
   def makeCluster[F[_]: Monad: Logger: Parallel](

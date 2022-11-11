@@ -7,8 +7,6 @@ import cats.effect._
 import cats.effect.std._
 import cats.effect.implicits._
 import org.legogroup.woof.{given, *}
-import scala.concurrent.duration._
-import scala.language.postfixOps
 import crawler.domain.Crawl._
 import crawler.domain.Crawl.CrawlResult._
 import crawler.domain.Crawl.CrawlJob._
