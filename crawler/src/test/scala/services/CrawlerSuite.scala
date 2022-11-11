@@ -37,8 +37,9 @@ class CrawlerSuite extends CatsEffectSuite:
     for {
       given Logger[IO] <- DefaultLogger.makeIo(noOutput)
       resultsQueue <- Queue.bounded[IO, CrawlResult.Result](capacity = 10)
-      crawler <- Crawler.make[IO](resultsQueue, mapping)
-      _ <- crawler.enqueue(jobs)
+      crawlQueue <- Queue.bounded[IO, SiteCrawlJob](capacity = 10)
+      crawler = Crawler.make[IO](crawlQueue, resultsQueue, mapping)
+      _ <- jobs.traverse(crawlQueue.offer)
       _ <- crawler.crawl()
       resultsOnResultsQueue <- resultsQueue.size
     } yield assertEquals(resultsOnResultsQueue, jobs.length)

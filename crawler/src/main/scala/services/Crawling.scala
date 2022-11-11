@@ -14,6 +14,7 @@ import crawler.domain.Crawl.CrawlResult._
 import crawler.domain.Crawl.CrawlJob._
 import crawler.domain.Library
 import crawler.domain.Library.AssetToCrawl
+import services.ResultHandler
 
 trait Crawling[F[_]]:
   def crawl(): Kleisli[F, Library[F], Unit]
@@ -25,45 +26,27 @@ object Crawling:
 
     override def crawl(): Kleisli[F, Library[F], Unit] = Kleisli { library =>
       for {
-        resultsQueue <- Queue.bounded[F, Result](capacity = 10)
-        crawler <- Crawler.make[F](resultsQueue, siteCrawlersMapping)
         assetsToCrawl <- library.getAssetsToCrawl()
+        resultsQueue <- Queue.bounded[F, Result](capacity = 10)
+        crawlQueue <- Queue.bounded[F, SiteCrawlJob](capacity = 10)
+        handler = ResultHandler.make[F](resultsQueue, library)
+        crawler = Crawler
+          .makeCluster[F](
+            crawlQueue,
+            resultsQueue,
+            siteCrawlersMapping,
+            assetsToCrawl.length
+          )
         jobs = assetsToCrawl.map { case AssetToCrawl(site, assetId, url) =>
           SiteCrawlJob(
             site,
             ScrapeChaptersCrawlJob(url, assetId)
           )
         }
-        _ <- crawler.enqueue(jobs)
+        _ <- jobs.traverse(crawlQueue.offer).void
         _ <- (
           crawler.crawl(),
-          handleResults(resultsQueue, library, assetsToCrawl.length)
+          handler.handle(assetsToCrawl.length)
         ).parTupled.void
       } yield ()
     }
-
-    private def handleResults(
-        queue: Queue[F, Result],
-        library: Library[F],
-        resultsToExpect: Int
-    ): F[Unit] =
-      def handle(resultsLeft: Int): F[Unit] =
-        if (resultsLeft > 0)
-          for {
-            _ <- Logger[F].info(s"$resultsLeft results left to go...")
-            potentialResult <- queue.tryTake
-            _ <- potentialResult match {
-              case Some(result) =>
-                Logger[F].info(s"Picked up one of $resultsLeft results left.")
-                  *> library.handleResult(result)
-                  *> handle(resultsLeft - 1)
-
-              case None =>
-                Logger[F].info(s"Waiting for $resultsLeft results. Zzz...")
-                  *> Async[F].sleep(5 seconds)
-                  *> handle(resultsLeft)
-            }
-          } yield ()
-        else Logger[F].info(s"Handled all $resultsToExpect results.")
-
-      handle(resultsToExpect)
