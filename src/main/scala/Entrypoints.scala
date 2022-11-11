@@ -2,13 +2,14 @@ package manggregator
 
 import cats.data._
 import cats.effect._
+import java.util.UUID.randomUUID
+import org.legogroup.woof.{given, *}
 import crawler.domain.Library
 import crawler.domain.Library.AssetToCrawl
 import crawler.domain.Crawl.CrawlResult._
 import crawler.domain.Asset.AssetSource
 import crawler.services._
 import crawler.services.site_crawlers.MangakakalotCrawler
-import java.util.UUID.randomUUID
 import library.persistence.Storage
 import library.persistence
 import library.services._
@@ -50,7 +51,13 @@ object Entrypoints:
     }
   }
 
-  def crawling(): Crawling[IO] =
+  def logger(): IO[Logger[IO]] =
+    given Filter = Filter.everything
+    given Printer = ColorPrinter()
+
+    DefaultLogger.makeIo(Output.fromConsole)
+
+  def crawling()(using Logger[IO]): Crawling[IO] =
     val siteCrawlersMapping = Map(
       "mangakakalot" -> MangakakalotCrawler
     )

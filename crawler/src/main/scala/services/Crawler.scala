@@ -4,6 +4,7 @@ import cats._
 import cats.implicits._
 import cats.effect._
 import cats.effect.std.Queue
+import org.legogroup.woof.{given, *}
 import scala.concurrent.duration._
 import scala.language.postfixOps
 import crawler.domain._
@@ -17,7 +18,7 @@ trait Crawler[F[_]]:
   def enqueue(jobs: List[SiteCrawlJob]): F[Unit]
 
 object Crawler:
-  def make[F[_]: Async](
+  def make[F[_]: Async: Logger](
       resultsQueue: Queue[F, Result],
       siteCrawlersMapping: Map[String, SiteCrawler[F]]
   ): F[Crawler[F]] =
@@ -25,7 +26,7 @@ object Crawler:
       crawlQueue <- Queue.bounded[F, SiteCrawlJob](capacity = 10)
     } yield makeMonadicCrawler(siteCrawlersMapping, crawlQueue, resultsQueue)
 
-  def makeMonadicCrawler[F[_]: Monad](
+  def makeMonadicCrawler[F[_]: Monad: Logger](
       siteCrawlersMappings: Map[String, SiteCrawler[F]],
       crawlQueue: Queue[F, SiteCrawlJob],
       resultQueue: Queue[F, Result]
@@ -40,8 +41,7 @@ object Crawler:
           .map(job =>
             (execute(job) match {
               case Left(reason) =>
-                // TODO: Use actual log
-                Monad[F].unit
+                Logger[F].error(reason)
 
               case Right(results) =>
                 results.flatMap(_.traverse(resultQueue.offer)).void

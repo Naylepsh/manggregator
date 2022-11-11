@@ -4,6 +4,7 @@ import cats.effect._
 import cats.effect.std._
 import cats._
 import cats.implicits._
+import org.legogroup.woof.{given, *}
 import crawler.domain.Library
 import crawler.services.Crawling
 import manggregator.Entrypoints
@@ -14,11 +15,14 @@ import library.domain.page._
 
 object Main extends IOApp:
   def run(args: List[String]): IO[ExitCode] =
-    val storage = Entrypoints.storage()
-    val library = Entrypoints.library(storage)
-    val crawling = Entrypoints.crawling()
-
-    seedAssetRepository(storage) *> httpServer(storage, library, crawling)
+    for {
+      given Logger[IO] <- Entrypoints.logger()
+      storage = Entrypoints.storage()
+      library = Entrypoints.library(storage)
+      crawling = Entrypoints.crawling()
+      _ <- seedAssetRepository(storage)
+      server <- httpServer(storage, library, crawling)
+    } yield server
 
   def httpServer[F[_]: Async: Console](
       storage: Storage[F],
@@ -31,7 +35,7 @@ object Main extends IOApp:
 
     server.as(ExitCode.Success)
 
-  def seedAssetRepository[F[_]: FlatMap: Console](storage: Storage[F]) =
+  def seedAssetRepository[F[_]: FlatMap: Logger](storage: Storage[F]) =
     val eliteKnight = CreateAsset(AssetName("Elite Knight"), Enabled(true))
     val eliteKnightChaptersPage = (assetId: AssetId) =>
       CreateChaptersPage(
@@ -52,5 +56,5 @@ object Main extends IOApp:
       _ <- storage.pages.create(eliteKnightChaptersPage(eliteKnightId))
       saisaId <- storage.assets.create(saisa)
       _ <- storage.pages.create(saisaChaptersPage(saisaId))
-      _ <- Console[F].println(s"${eliteKnightId} :: ${saisaId}")
+      _ <- Logger[F].info(s"${eliteKnightId} :: ${saisaId}")
     } yield ()

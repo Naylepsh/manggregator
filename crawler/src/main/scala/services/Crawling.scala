@@ -6,6 +6,7 @@ import cats.data._
 import cats.effect._
 import cats.effect.std._
 import cats.effect.implicits._
+import org.legogroup.woof.{given, *}
 import scala.concurrent.duration._
 import scala.language.postfixOps
 import crawler.domain.Crawl._
@@ -18,7 +19,7 @@ trait Crawling[F[_]]:
   def crawl(): Kleisli[F, Library[F], Unit]
 
 object Crawling:
-  def make[F[_]: Async](
+  def make[F[_]: Async: Logger](
       siteCrawlersMapping: SiteCrawlersMapping[F]
   ): Crawling[F] = new Crawling[F]:
 
@@ -47,20 +48,22 @@ object Crawling:
         resultsToExpect: Int
     ): F[Unit] =
       def handle(resultsLeft: Int): F[Unit] =
-        // TODO: Actual log
-        // println(s"[Crawling Service] resultsLeft: $resultsLeft")
-
         if (resultsLeft > 0)
           for {
+            _ <- Logger[F].info(s"$resultsLeft results left to go...")
             potentialResult <- queue.tryTake
             _ <- potentialResult match {
               case Some(result) =>
-                library.handleResult(result) *> handle(resultsLeft - 1)
+                Logger[F].info(s"Picked up one of $resultsLeft results left.")
+                  *> library.handleResult(result)
+                  *> handle(resultsLeft - 1)
 
               case None =>
-                Async[F].sleep(5 seconds) *> handle(resultsLeft)
+                Logger[F].info(s"Waiting for $resultsLeft results. Zzz...")
+                  *> Async[F].sleep(5 seconds)
+                  *> handle(resultsLeft)
             }
           } yield ()
-        else Async[F].unit
+        else Logger[F].info(s"Handled all $resultsToExpect results.")
 
       handle(resultsToExpect)

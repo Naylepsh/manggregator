@@ -46,6 +46,7 @@ lazy val dependencies =
     val catsEffect = "org.typelevel" %% "cats-effect" % "3.3.14"
     val scalaScraper = "net.ruippeixotog" %% "scala-scraper" % "3.0.0"
     val scalaTime = "com.github.nscala-time" %% "nscala-time" % "2.32.0"
+    val woof = "org.legogroup" %% "woof-core" % "0.4.7"
     val munit = "org.scalameta" %% "munit" % "0.7.29" % Test
     val munitCatsEffect =
       "org.typelevel" %% "munit-cats-effect-3" % "1.0.7" % Test
@@ -63,12 +64,13 @@ lazy val dependencies =
       "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % TapirVersion
     val tapirJsonCirce =
       "com.softwaremill.sttp.tapir" %% "tapir-json-circe" % TapirVersion
-    val slf4j = "org.slf4j" % "slf4j-simple" % "1.7.36"
+    // val slf4j = "org.slf4j" % "slf4j-simple" % "1.7.36"
   }
 
 lazy val commonDependencies = Seq(
   dependencies.catsEffect,
-  dependencies.slf4j,
+  // dependencies.slf4j,
+  dependencies.woof,
   dependencies.munit,
   dependencies.munitCatsEffect,
   dependencies.newType
