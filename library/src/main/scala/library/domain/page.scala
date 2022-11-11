@@ -1,22 +1,27 @@
 package library.domain
 
 import java.util.UUID
-import monix.newtypes._
+import io.estatico.newtype.macros.newtype
 
 object page:
   import library.domain.asset.AssetId
 
-  type PageId = PageId.Type
-  object PageId extends NewtypeWrapped[UUID]
+  @newtype
+  case class PageId(value: UUID)
 
-  type Site = Site.Type
-  object Site extends NewtypeWrapped[String]
+  @newtype
+  case class Site(value: String)
 
-  type PageUrl = PageUrl.Type
-  object PageUrl extends NewtypeWrapped[String]
+  @newtype
+  case class PageUrl(value: String)
 
   case class SearchPage(id: PageId, site: Site, url: PageUrl)
-  case class ChaptersPage(id: PageId, assetId: AssetId, site: Site, url: PageUrl)
+  case class ChaptersPage(
+      id: PageId,
+      assetId: AssetId,
+      site: Site,
+      url: PageUrl
+  )
 
   case class ChaptersPageToCheck(site: Site, url: PageUrl, assetId: AssetId)
 

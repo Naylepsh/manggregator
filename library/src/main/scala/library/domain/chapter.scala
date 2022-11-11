@@ -2,22 +2,22 @@ package library.domain
 
 import java.util.UUID
 import java.util.Date
-import monix.newtypes._
+import io.estatico.newtype.macros.newtype
 
 object chapter:
   import library.domain.asset.AssetId
 
-  type ChapterId = ChapterId.Type
-  object ChapterId extends NewtypeWrapped[UUID]
+  @newtype
+  case class ChapterId(value: UUID)
 
-  type ChapterNo = ChapterNo.Type
-  object ChapterNo extends NewtypeWrapped[String]
+  @newtype
+  case class ChapterNo(value: String)
 
-  type ChapterUrl = ChapterUrl.Type
-  object ChapterUrl extends NewtypeWrapped[String]
+  @newtype
+  case class ChapterUrl(value: String)
 
-  type DateReleased = DateReleased.Type
-  object DateReleased extends NewtypeWrapped[Date]
+  @newtype
+  case class DateReleased(value: Date)
 
   case class Chapter(
       id: ChapterId,

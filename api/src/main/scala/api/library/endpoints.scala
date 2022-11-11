@@ -10,7 +10,6 @@ import api.library.params._
 import api.library.codecs.given
 import library.domain.asset.Asset
 import java.util.UUID
-import sttp.tapir.codec.monix.newtype._
 import sttp.tapir.EndpointInput.Query
 import cats.implicits._
 

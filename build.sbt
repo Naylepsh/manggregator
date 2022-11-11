@@ -27,8 +27,7 @@ lazy val api = project
       dependencies.http4sDsl,
       dependencies.tapirHttp4s,
       dependencies.tapirJsonCirce,
-      dependencies.tapirSwagger,
-      dependencies.tapirMonixNewTypes
+      dependencies.tapirSwagger
     )
   )
   .aggregate(crawler, library)
@@ -50,7 +49,8 @@ lazy val dependencies =
     val munit = "org.scalameta" %% "munit" % "0.7.29" % Test
     val munitCatsEffect =
       "org.typelevel" %% "munit-cats-effect-3" % "1.0.7" % Test
-    val monixNewTypes = "io.monix" %% "newtypes-core" % "0.2.3"
+    val newType = ("io.estatico" %% "newtype" % "0.4.4")
+      .cross(CrossVersion.for3Use2_13)
     val http4sEmberServer =
       "org.http4s" %% "http4s-ember-server" % Http4sVersion
     val http4sEmberClient =
@@ -63,8 +63,6 @@ lazy val dependencies =
       "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % TapirVersion
     val tapirJsonCirce =
       "com.softwaremill.sttp.tapir" %% "tapir-json-circe" % TapirVersion
-    val tapirMonixNewTypes =
-      "com.softwaremill.sttp.tapir" %% "tapir-monix-newtype" % TapirVersion
     val slf4j = "org.slf4j" % "slf4j-simple" % "1.7.36"
   }
 
@@ -73,7 +71,7 @@ lazy val commonDependencies = Seq(
   dependencies.slf4j,
   dependencies.munit,
   dependencies.munitCatsEffect,
-  dependencies.monixNewTypes,
+  dependencies.newType
 )
 
 addCommandAlias(

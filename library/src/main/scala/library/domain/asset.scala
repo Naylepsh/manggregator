@@ -2,7 +2,7 @@ package library.domain
 
 import java.util.UUID
 import scala.collection.mutable.Map as MutableMap
-import monix.newtypes._
+import io.estatico.newtype.macros.newtype
 
 object asset:
   import library.domain.alias.Alias
@@ -10,14 +10,14 @@ object asset:
   import library.domain.page.CreateChaptersPage
   import library.domain.chapter.Chapter
 
-  type AssetId = AssetId.Type
-  object AssetId extends NewtypeWrapped[UUID]
+  @newtype
+  case class AssetId(value: UUID)
 
-  type AssetName = AssetName.Type
-  object AssetName extends NewtypeWrapped[String]
+  @newtype
+  case class AssetName(value: String)
 
-  type Enabled = Enabled.Type
-  object Enabled extends NewtypeWrapped[Boolean]
+  @newtype
+  case class Enabled(value: Boolean)
 
   case class Asset(
       id: AssetId,
