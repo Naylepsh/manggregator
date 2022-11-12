@@ -65,7 +65,7 @@ object Crawler:
       siteCrawlersMappings: Map[String, SiteCrawler[F]],
       clusterSize: Int = 1
   ): Crawler[F] = new Crawler[F]:
-    val size = if clusterSize > 0 then clusterSize else 1
+    val size = clusterSize.min(1).max(5)
     val crawlers = (1 to size)
       .map(id => (id, make[F](crawlQueue, resultQueue, siteCrawlersMappings)))
       .toList
