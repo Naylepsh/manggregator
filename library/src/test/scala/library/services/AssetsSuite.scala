@@ -4,39 +4,30 @@ import cats._
 import cats.data._
 import cats.syntax._
 import cats.implicits._
+import cats.effect.IO
 import library.domain.asset._
 import library.persistence
 import java.util.UUID
+import library.services.common.TestAssets
 
 class AssetsSuite extends munit.FunSuite:
   import AssetsSuite._
   import common._
 
   test("Cant create the same asset twice") {
-    val assetRepository: persistence.Assets[Id] = new persistence.Assets[Id]:
-
-      override def create(asset: CreateAsset): Id[AssetId] = ???
-
-      override def findAll(): Id[List[Asset]] = ???
-
-      override def findManyByIds(ids: NonEmptyList[AssetId]): Id[List[Asset]] =
-        ???
-
-      override def findByName(name: AssetName): Id[Option[Asset]] =
-        sampleAsset.some
-
-      override def findEnabledAssets(): Id[List[Asset]] = ???
     val storage =
       persistence.Storage(
-        assetRepository,
-        uselessChaptersRepository,
-        uselessPagesRepository
+        dataAssets(sampleAsset),
+        new TestChapters,
+        new TestPages
       )
 
-    val result = Assets
+    Assets
       .make(storage)
       .create(CreateAsset(sampleAsset.name, sampleAsset.enabled))
-    assert(result.isLeft, "Creating duplicate asset should end in failure")
+      .map(result =>
+        assert(result.isLeft, "Creating duplicate asset should end in failure")
+      )
   }
 
 object AssetsSuite:
@@ -45,3 +36,7 @@ object AssetsSuite:
     AssetName("Sample Asset"),
     Enabled(true)
   )
+
+  def dataAssets(asset: Asset) = new TestAssets[IO]:
+    override def findByName(name: AssetName): IO[Option[Asset]] =
+      asset.some.pure

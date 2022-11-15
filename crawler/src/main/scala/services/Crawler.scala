@@ -48,12 +48,12 @@ object Crawler:
             case chapterJob @ ScrapeChaptersCrawlJob(_, _) =>
               crawler
                 .scrapeChapters(chapterJob)
-                .map(_.map(ChapterResult(_)).left.map(_.toString))
+                .map(_.map(ChapterResult(_)).leftMap(_.toString))
 
             case titleJob @ DiscoverTitlesCrawlJob(_, _) =>
               crawler
                 .discoverTitles(titleJob)
-                .map(_.map(TitlesResult(_)).left.map(_.toString))
+                .map(_.map(TitlesResult(_)).leftMap(_.toString))
           }
         )
         .map(_.flatten)

@@ -1,46 +1,42 @@
 package library.services
 
-import cats.Id
+import cats._
+import cats.implicits._
 import cats.data.NonEmptyList
+import cats.effect.std.UUIDGen
+import cats.effect.std.UUIDGen.randomUUID
 import library.persistence
 import library.domain.asset._
 import library.domain.page._
 import library.domain.chapter._
 
 object common:
-  val uselessAssetsRepository = new persistence.Assets[Id] {
+  class TestAssets[F[_]: Applicative: UUIDGen] extends persistence.Assets[F]:
+    override def create(asset: CreateAsset): F[AssetId] =
+      UUIDGen.randomUUID.map(AssetId.apply)
 
-    override def findAll(): Id[List[Asset]] = ???
+    override def findByName(name: AssetName): F[Option[Asset]] = None.pure
 
-    override def create(asset: CreateAsset): Id[AssetId] = ???
+    override def findAll(): F[List[Asset]] = List.empty.pure
 
-    override def findEnabledAssets(): Id[List[Asset]] = ???
+    override def findManyByIds(ids: NonEmptyList[AssetId]): F[List[Asset]] =
+      List.empty.pure
 
-    override def findByName(name: AssetName): Id[Option[Asset]] = ???
+    override def findEnabledAssets(): F[List[Asset]] = List.empty.pure
 
-    override def findManyByIds(ids: NonEmptyList[AssetId]): Id[List[Asset]] =
-      ???
+  class TestPages[F[_]: Applicative: UUIDGen] extends persistence.Pages[F]:
+    override def create(page: CreateChaptersPage): F[PageId] =
+      UUIDGen.randomUUID.map(PageId.apply)
 
-  }
-
-  val uselessPagesRepository = new persistence.Pages[Id] {
-
-    override def create(page: CreateChaptersPage): Id[PageId] = ???
-
-    override def findByUrl(url: PageUrl): Id[Option[ChaptersPage]] = ???
+    override def findByUrl(url: PageUrl): F[Option[ChaptersPage]] = None.pure
 
     override def findManyByAssetIds(
         assetIds: List[AssetId]
-    ): Id[List[ChaptersPage]] = ???
+    ): F[List[ChaptersPage]] = List.empty.pure
 
-  }
+  class TestChapters[F[_]: Applicative] extends persistence.Chapters[F]:
+    override def create(chapters: List[CreateChapter]): F[List[ChapterId]] =
+      List.empty.pure
 
-  val uselessChaptersRepository: persistence.Chapters[Id] =
-    new persistence.Chapters[Id] {
-
-      override def create(chapters: List[CreateChapter]): Id[List[ChapterId]] =
-        ???
-
-      override def findByAssetId(ids: List[AssetId]): Id[List[Chapter]] = ???
-
-    }
+    override def findByAssetId(ids: List[AssetId]): F[List[Chapter]] =
+      List.empty.pure
