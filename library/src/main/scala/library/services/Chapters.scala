@@ -1,20 +1,22 @@
 package library.services
 
 import library.domain.chapter._
-import library.persistence
-import cats.data.Kleisli
-import cats.effect.IO
-import cats.implicits._
 import cats._
+import cats.implicits._
+import cats.data.Kleisli
+import library.persistence
+
+trait Chapters[F[_]]:
+  def create(chapters: List[CreateChapter]): F[Either[String, List[ChapterId]]]
 
 object Chapters:
-  def create[F[_]: FlatMap](
-      chapters: List[CreateChapter]
-  ): Kleisli[F, persistence.Chapters[F], Either[String, List[ChapterId]]] =
-    Kleisli { storage =>
-      for {
-        chaptersInStore <- storage.findByAssetId(chapters.map(_.assetId))
-        chaptersToSave = CreateChapter.discardIfIn(chapters, chaptersInStore)
-        stored <- storage.create(chaptersToSave)
-      } yield stored.asRight[String]
-    }
+  def make[F[_]: Monad](storage: persistence.Chapters[F]): Chapters[F] =
+    new Chapters[F]:
+      def create(
+          chapters: List[CreateChapter]
+      ): F[Either[String, List[ChapterId]]] =
+        for {
+          chaptersInStore <- storage.findByAssetId(chapters.map(_.assetId))
+          chaptersToSave = CreateChapter.discardIfIn(chapters, chaptersInStore)
+          stored <- storage.create(chaptersToSave)
+        } yield stored.asRight[String]

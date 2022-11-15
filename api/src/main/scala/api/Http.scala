@@ -6,6 +6,7 @@ import cats.syntax.all._
 import cats.effect._
 import cats.effect.implicits._
 import cats.effect.std._
+import org.legogroup.woof.{given, *}
 import com.comcast.ip4s._
 import sttp.tapir.Endpoint
 import sttp.tapir.swagger.bundle.SwaggerInterpreter
@@ -28,16 +29,15 @@ object Http:
   case class Props[F[_]](
       docs: Docs,
       library: Library[F],
-      storage: Storage[F],
-      crawling: Crawling[F]
+      crawling: Crawling[F],
+      libraryServices: LibraryRoutes.Services[F]
   )
 
-  def apply[F[_]: Async: Console: Functor](props: Props[F]) =
+  def apply[F[_]: Async: Logger: Functor](props: Props[F]) =
     val crawlerProps = CrawlerRoutes.Props(props.library, props.crawling)
     val crawlerApi = CrawlerApi(crawlerProps)
 
-    val libraryProps = LibraryRoutes.Props(props.storage)
-    val libraryApi = LibraryApi(libraryProps)
+    val libraryApi = LibraryApi(props.libraryServices)
 
     val endpoints = crawlerApi.endpoints <+> libraryApi.endpoints
     val openApiRoutes =
@@ -46,7 +46,7 @@ object Http:
     val routes = crawlerApi.routes <+> libraryApi.routes <+> openApiRoutes
 
     val app = routes.orNotFound.onError(error =>
-      Kleisli { _ => Console[F].println(error) }
+      Kleisli { _ => Logger[F].error(error.toString) }
     )
 
     createServer(app)

@@ -16,8 +16,15 @@ import library.services._
 import library.domain.page.ChaptersPageToCheck
 import library.domain.chapter._
 import library.domain.asset.AssetId
+import api.library.routes.Services
 
 object Entrypoints:
+  def logger(): IO[Logger[IO]] =
+    given Filter = Filter.everything
+    given Printer = ColorPrinter()
+
+    DefaultLogger.makeIo(Output.fromConsole)
+
   def storage(): Storage[IO] = Storage(
     persistence.Assets.make[IO],
     persistence.Chapters.make[IO],
@@ -27,8 +34,8 @@ object Entrypoints:
   def library(storage: Storage[IO]): Library[IO] = new Library {
     def getAssetsToCrawl(): IO[List[AssetToCrawl]] =
       Pages
-        .findPagesToCheck()
-        .run(storage)
+        .make(storage)
+        .findPagesOfEnabledAssets()
         .map(_.map { case ChaptersPageToCheck(site, url, title) =>
           AssetToCrawl(site.value, title.value, url.value)
         })
@@ -36,6 +43,7 @@ object Entrypoints:
     def handleResult(result: Result): IO[Unit] = result match {
       case ChapterResult(chapters) =>
         Chapters
+          .make(storage.chapters)
           .create(
             chapters.map(chapter =>
               CreateChapter(
@@ -46,16 +54,9 @@ object Entrypoints:
               )
             )
           )
-          .run(storage.chapters)
           .void
     }
   }
-
-  def logger(): IO[Logger[IO]] =
-    given Filter = Filter.everything
-    given Printer = ColorPrinter()
-
-    DefaultLogger.makeIo(Output.fromConsole)
 
   def crawling()(using Logger[IO]): Crawling[IO] =
     val siteCrawlersMapping = Map(
@@ -63,3 +64,8 @@ object Entrypoints:
     )
 
     Crawling.make[IO](siteCrawlersMapping)
+
+  def libraryServices(storage: Storage[IO]): Services[IO] = Services(
+    Assets.make(storage),
+    Pages.make(storage)
+  )

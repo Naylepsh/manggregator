@@ -2,35 +2,34 @@ package library.services
 
 import library.domain.asset._
 import library.domain.alias._
-import library.persistence
-import cats.data.Kleisli
-import cats.effect.IO
 import cats.implicits._
-import cats.effect.std.UUIDGen.randomUUID
 import cats._
-import cats.data.NonEmptyList
+import cats.data._
+import library.persistence.Storage
+
+trait Assets[F[_]]:
+  def create(asset: CreateAsset): F[Either[String, AssetId]]
+  def findManyWithChapters(assetIds: List[AssetId]): F[List[Asset]]
 
 object Assets:
-  def create[F[_]: Monad](
-      asset: CreateAsset
-  ): Kleisli[F, persistence.Assets[F], Either[String, AssetId]] =
-    Kleisli { assets =>
-      assets.findByName(asset.name).flatMap {
+  def make[F[_]: Monad](storage: Storage[F]): Assets[F] = new Assets[F]:
+    def create(
+        asset: CreateAsset
+    ): F[Either[String, AssetId]] =
+      storage.assets.findByName(asset.name).flatMap {
         case Some(_) =>
           s"Asset with name ${asset.name} already exists".asLeft[AssetId].pure
 
         case None =>
-          assets.create(asset).map(_.asRight[String])
+          storage.assets.create(asset).map(_.asRight[String])
       }
-    }
 
-  def findManyWithChapters[F[_]: FlatMap](
-      assetIds: List[AssetId]
-  ): Kleisli[F, persistence.Storage[F], List[Asset]] = Kleisli { storage =>
-    for {
-      assets <- NonEmptyList
-        .fromList(assetIds)
-        .fold(storage.assets.findAll())(storage.assets.findManyByIds)
-      chapters <- storage.chapters.findByAssetId(assets.map(_.id))
-    } yield bindChaptersToAssets(assets, chapters)
-  }
+    def findManyWithChapters(
+        assetIds: List[AssetId]
+    ): F[List[Asset]] =
+      for {
+        assets <- NonEmptyList
+          .fromList(assetIds)
+          .fold(storage.assets.findAll())(storage.assets.findManyByIds)
+        chapters <- storage.chapters.findByAssetId(assets.map(_.id))
+      } yield bindChaptersToAssets(assets, chapters)

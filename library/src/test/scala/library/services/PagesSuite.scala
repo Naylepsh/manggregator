@@ -9,6 +9,7 @@ import java.util.UUID
 
 class PagesSuite extends munit.FunSuite:
   import PagesSuite._
+  import common._
 
   test("Cant create the same page twice") {
     val page = CreateChaptersPage(
@@ -24,16 +25,19 @@ class PagesSuite extends munit.FunSuite:
       override def findManyByAssetIds(
           assetIds: List[AssetId]
       ): Id[List[ChaptersPage]] = ???
+    val storage = persistence.Storage(
+      uselessAssetsRepository,
+      uselessChaptersRepository,
+      pageStore
+    )
 
-    Pages
-      .create[Id](page)
-      .map(result =>
-        assert(
-          result.isLeft,
-          "Creating the same page twice should result in failure"
-        )
-      )
-      .run(pageStore)
+    val result = Pages
+      .make(storage)
+      .create(page)
+    assert(
+      result.isLeft,
+      "Creating the same page twice should result in failure"
+    )
   }
 
 object PagesSuite:

@@ -39,10 +39,8 @@ class ChaptersSuite extends munit.FunSuite:
           )
         }
 
-    Chapters
-      .create[Id](chapters)
-      .map(_.map(ids => assertEquals(ids.length, 0)))
-      .run(chapterStore)
+    val result = Chapters.make(chapterStore).create(chapters)
+    result.map(ids => assertEquals(ids.length, 0))
   }
 
 object ChaptersSuite:

@@ -16,46 +16,43 @@ import api.library.params._
 import api.utils.routes.combine
 
 object routes:
-  case class Props[F[_]](storage: Storage[F])
+  case class Services[F[_]](assets: Assets[F], pages: Pages[F])
 
-  def all[F[_]: Async](props: Props[F]): HttpRoutes[F] =
+  def all[F[_]: Async](props: Services[F]): HttpRoutes[F] =
     NonEmptyList
       .of(createAsset, createAssetPage, getAssetChapters)
       .sequence
       .map(combine)
       .run(props)
 
-  private def createAsset[F[_]: Async]: Reader[Props[F], HttpRoutes[F]] =
+  private def createAsset[F[_]: Async]: Reader[Services[F], HttpRoutes[F]] =
     Reader { props =>
       Http4sServerInterpreter[F]().toRoutes(
         endpoints.createAssetEndpoint.serverLogic((asset) =>
-          Assets
+          props.assets
             .create(asset.toDomain)
             .map(_.map(assetId => CreateAssetResponse(assetId.value)))
-            .run(props.storage.assets)
         )
       )
     }
 
-  private def createAssetPage[F[_]: Async]: Reader[Props[F], HttpRoutes[F]] =
+  private def createAssetPage[F[_]: Async]: Reader[Services[F], HttpRoutes[F]] =
     Reader { props =>
       Http4sServerInterpreter[F]().toRoutes(
         endpoints.createAssetPageEndpoint.serverLogic((assetId, page) =>
-          Pages
+          props.pages
             .create(page.toDomain(assetId))
             .map(_.map(pageId => CreateChaptersPageResponse(pageId.value)))
-            .run(props.storage.pages)
         )
       )
     }
 
-  private def getAssetChapters[F[_]: Async]: Reader[Props[F], HttpRoutes[F]] =
+  private def getAssetChapters[F[_]: Async]: Reader[Services[F], HttpRoutes[F]] =
     Reader { props =>
       Http4sServerInterpreter[F]().toRoutes(
         endpoints.getAssetsChaptersEndpoint.serverLogic((ids) =>
-          Assets
+          props.assets
             .findManyWithChapters(ids.map(AssetId.apply))
-            .run(props.storage)
             .map(_.asRight[String])
         )
       )

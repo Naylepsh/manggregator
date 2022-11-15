@@ -10,9 +10,10 @@ import java.util.UUID
 
 class AssetsSuite extends munit.FunSuite:
   import AssetsSuite._
+  import common._
 
   test("Cant create the same asset twice") {
-    val assets: persistence.Assets[Id] = new persistence.Assets[Id]:
+    val assetRepository: persistence.Assets[Id] = new persistence.Assets[Id]:
 
       override def create(asset: CreateAsset): Id[AssetId] = ???
 
@@ -25,15 +26,17 @@ class AssetsSuite extends munit.FunSuite:
         sampleAsset.some
 
       override def findEnabledAssets(): Id[List[Asset]] = ???
+    val storage =
+      persistence.Storage(
+        assetRepository,
+        uselessChaptersRepository,
+        uselessPagesRepository
+      )
 
-    Assets
-      .create[Id](
-        CreateAsset(sampleAsset.name, sampleAsset.enabled)
-      )
-      .map(result =>
-        assert(result.isLeft, "Creating duplicate asset should end in failure")
-      )
-      .run(assets)
+    val result = Assets
+      .make(storage)
+      .create(CreateAsset(sampleAsset.name, sampleAsset.enabled))
+    assert(result.isLeft, "Creating duplicate asset should end in failure")
   }
 
 object AssetsSuite:
