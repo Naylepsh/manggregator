@@ -17,6 +17,8 @@ import library.domain.page.ChaptersPageToCheck
 import library.domain.chapter._
 import library.domain.asset.AssetId
 import api.library.routes.Services
+import api._
+import api.config._
 
 object Entrypoints:
   def logger(): IO[Logger[IO]] =
@@ -69,3 +71,13 @@ object Entrypoints:
     Assets.make(storage),
     Pages.make(storage)
   )
+
+  def http(
+      docs: Docs,
+      library: Library[IO],
+      crawling: Crawling[IO],
+      libraryServices: Services[IO],
+      serverConfig: ServerConfig
+  )(using Logger[IO]) =
+    val api = HttpApi.make[IO](docs, library, crawling, libraryServices)
+    HttpServer[IO].newEmber(serverConfig, api.app)
