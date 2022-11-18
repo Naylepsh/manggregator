@@ -2,6 +2,7 @@ import cats.effect._
 import cats.effect.std._
 import cats._
 import cats.implicits._
+import com.comcast.ip4s._
 import org.legogroup.woof.{given, *}
 import crawler.domain.Library
 import crawler.services.Crawling
@@ -9,11 +10,17 @@ import manggregator.Entrypoints
 import library.persistence._
 import library.domain.asset._
 import library.domain.page._
-import api.Http
+import api.config._
 import api.library.routes.Services
 
 object Main extends IOApp:
   def run(args: List[String]): IO[ExitCode] =
+    val serverConfig = ServerConfig(
+      ipv4"0.0.0.0",
+      port"8080"
+    )
+    val docs = Docs(title = "MANGgregator", version = "0.0.1")
+
     for {
       given Logger[IO] <- Entrypoints.logger()
       storage = Entrypoints.storage()
@@ -21,9 +28,8 @@ object Main extends IOApp:
       crawling = Entrypoints.crawling()
       libraryServices = Entrypoints.libraryServices(storage)
       _ <- seedAssetRepository(storage)
-      docs = Http.Docs(title = "MANGgregator", version = "0.0.1")
-      server <- api
-        .Http(Http.Props(docs, library, crawling, libraryServices))
+      _ <- Entrypoints
+        .http(docs, library, crawling, libraryServices, serverConfig)
         .useForever
     } yield ExitCode.Success
 
