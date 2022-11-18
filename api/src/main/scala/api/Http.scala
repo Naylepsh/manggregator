@@ -15,6 +15,8 @@ import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.ember.server._
 import org.http4s._
 import org.http4s.dsl.io._
+import org.http4s.server.Server
+import org.http4s.server.defaults.Banner
 import org.http4s.implicits._
 import api.crawler.CrawlerApi
 import api.crawler.routes as CrawlerRoutes
@@ -33,7 +35,9 @@ object Http:
       libraryServices: LibraryRoutes.Services[F]
   )
 
-  def apply[F[_]: Async: Logger: Functor](props: Props[F]) =
+  def apply[F[_]: Async: Logger: Functor](
+      props: Props[F]
+  ): Resource[F, Server] =
     val crawlerProps = CrawlerRoutes.Props(props.library, props.crawling)
     val crawlerApi = CrawlerApi(crawlerProps)
 
@@ -63,7 +67,10 @@ object Http:
 
     swaggerRoutes
 
-  private def createServer[F[_]: Async](
+  private def showEmberBanner[F[_]: Logger](server: Server) =
+    Logger[F].info(s"\n${Banner.mkString("\n")}\nHTTP Server started at ${server.address}")
+
+  private def createServer[F[_]: Async: Logger](
       app: Kleisli[F, Request[F], Response[F]]
   ) =
     EmberServerBuilder
@@ -72,4 +79,4 @@ object Http:
       .withPort(port"8080")
       .withHttpApp(app)
       .build
-      .use(_ => Async[F].never)
+      .evalTap(showEmberBanner)

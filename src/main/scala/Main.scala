@@ -22,7 +22,9 @@ object Main extends IOApp:
       libraryServices = Entrypoints.libraryServices(storage)
       _ <- seedAssetRepository(storage)
       docs = Http.Docs(title = "MANGgregator", version = "0.0.1")
-      server <- api.Http(Http.Props(docs, library, crawling, libraryServices))
+      server <- api
+        .Http(Http.Props(docs, library, crawling, libraryServices))
+        .useForever
     } yield ExitCode.Success
 
   def seedAssetRepository[F[_]: FlatMap: Logger](storage: Storage[F]) =
