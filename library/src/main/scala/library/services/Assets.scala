@@ -8,20 +8,17 @@ import cats.data._
 import library.persistence.Storage
 
 trait Assets[F[_]]:
-  def create(asset: CreateAsset): F[Either[String, AssetId]]
+  def create(asset: CreateAsset): F[Either[AssetAlreadyExists, AssetId]]
   def findManyWithChapters(assetIds: List[AssetId]): F[List[Asset]]
 
 object Assets:
   def make[F[_]: Monad](storage: Storage[F]): Assets[F] = new Assets[F]:
     def create(
         asset: CreateAsset
-    ): F[Either[String, AssetId]] =
+    ): F[Either[AssetAlreadyExists, AssetId]] =
       storage.assets.findByName(asset.name).flatMap {
-        case Some(_) =>
-          s"Asset with name ${asset.name} already exists".asLeft[AssetId].pure
-
-        case None =>
-          storage.assets.create(asset).map(_.asRight[String])
+        case Some(_) => AssetAlreadyExists(asset.name).asLeft.pure
+        case None    => storage.assets.create(asset).map(_.asRight)
       }
 
     def findManyWithChapters(

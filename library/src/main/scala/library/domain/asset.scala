@@ -3,6 +3,7 @@ package library.domain
 import java.util.UUID
 import scala.collection.mutable.Map as MutableMap
 import io.estatico.newtype.macros.newtype
+import scala.util.control.NoStackTrace
 
 object asset:
   import library.domain.alias.Alias
@@ -46,3 +47,6 @@ object asset:
       name: AssetName,
       enabled: Enabled
   )
+
+  // --- Errors ---
+  case class AssetAlreadyExists(assetName: AssetName) extends NoStackTrace

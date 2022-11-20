@@ -32,7 +32,10 @@ class ChaptersSuite extends munit.FunSuite:
     Chapters
       .make(dataChapters(List(sampleChapter)))
       .create(chapters)
-      .map(_.map(ids => assertEquals(ids.length, 0)))
+      .map { case CreateChaptersResult(created, alreadyExist) =>
+        assertEquals(created.length, newChapters.length)
+        assertEquals(alreadyExist.length, 1)
+      }
   }
 
 object ChaptersSuite:

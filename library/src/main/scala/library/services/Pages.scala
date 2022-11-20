@@ -8,22 +8,20 @@ import cats.implicits._
 import cats._
 
 trait Pages[F[_]]:
-  def create(page: CreateChaptersPage): F[Either[String, PageId]]
+  def create(page: CreateChaptersPage): F[Either[PageAlreadyExists, PageId]]
   def findPagesOfEnabledAssets(): F[List[ChaptersPageToCheck]]
 
 object Pages:
   def make[F[_]: Monad](storage: Storage[F]): Pages[F] = new Pages[F]:
     def create(
         page: CreateChaptersPage
-    ): F[Either[String, PageId]] =
+    ): F[Either[PageAlreadyExists, PageId]] =
       storage.pages.findByUrl(page.url).flatMap {
         case Some(_) =>
-          s"Asset page with url ${page.url} already exists"
-            .asLeft[PageId]
-            .pure
+          PageAlreadyExists(page.url).asLeft.pure
 
         case None =>
-          storage.pages.create(page).map(_.asRight[String])
+          storage.pages.create(page).map(_.asRight)
       }
 
     def findPagesOfEnabledAssets(): F[List[ChaptersPageToCheck]] =

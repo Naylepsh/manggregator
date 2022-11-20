@@ -2,6 +2,7 @@ package library.domain
 
 import java.util.UUID
 import io.estatico.newtype.macros.newtype
+import scala.util.control.NoStackTrace
 
 object page:
   import library.domain.asset.AssetId
@@ -26,3 +27,6 @@ object page:
   case class ChaptersPageToCheck(site: Site, url: PageUrl, assetId: AssetId)
 
   case class CreateChaptersPage(site: Site, url: PageUrl, assetId: AssetId)
+
+  // --- Errors ---
+  case class PageAlreadyExists(url: PageUrl) extends NoStackTrace

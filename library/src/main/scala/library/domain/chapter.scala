@@ -45,3 +45,8 @@ object chapter:
           )
           .isEmpty
       )
+
+  case class CreateChaptersResult(
+      created: List[ChapterId],
+      alreadyExist: List[ChapterId]
+  )

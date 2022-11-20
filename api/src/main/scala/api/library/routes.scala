@@ -9,6 +9,7 @@ import scala.util.Try
 import org.http4s.HttpRoutes
 import sttp.tapir.server.http4s.Http4sServerInterpreter
 import library.domain.asset._
+import library.domain.page._
 import library.services._
 import library.persistence.Storage
 import api.library.responses._
@@ -31,7 +32,10 @@ object routes:
         endpoints.createAssetEndpoint.serverLogic((asset) =>
           props.assets
             .create(asset.toDomain)
-            .map(_.map(assetId => CreateAssetResponse(assetId.value)))
+            .map(_.map(assetId => CreateAssetResponse(assetId.value)).left.map {
+              case AssetAlreadyExists(assetName) =>
+                s"Asset with the name of $assetName already exists"
+            })
         )
       )
     }
@@ -42,12 +46,18 @@ object routes:
         endpoints.createAssetPageEndpoint.serverLogic((assetId, page) =>
           props.pages
             .create(page.toDomain(assetId))
-            .map(_.map(pageId => CreateChaptersPageResponse(pageId.value)))
+            .map(
+              _.map(pageId => CreateChaptersPageResponse(pageId.value)).left
+                .map { case PageAlreadyExists(url) =>
+                  s"Page with the url of $url already exists"
+                }
+            )
         )
       )
     }
 
-  private def getAssetChapters[F[_]: Async]: Reader[Services[F], HttpRoutes[F]] =
+  private def getAssetChapters[F[_]: Async]
+      : Reader[Services[F], HttpRoutes[F]] =
     Reader { props =>
       Http4sServerInterpreter[F]().toRoutes(
         endpoints.getAssetsChaptersEndpoint.serverLogic((ids) =>
