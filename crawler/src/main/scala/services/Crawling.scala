@@ -25,8 +25,9 @@ object Crawling:
     override def crawl(): Kleisli[F, Library[F], Unit] = Kleisli { library =>
       for {
         assetsToCrawl <- library.getAssetsToCrawl()
-        resultsQueue <- Queue.bounded[F, Result](capacity = 10)
-        crawlQueue <- Queue.bounded[F, SiteCrawlJob](capacity = 10)
+        capacity = assetsToCrawl.length.min(0) + 1
+        resultsQueue <- Queue.bounded[F, Result](capacity)
+        crawlQueue <- Queue.bounded[F, SiteCrawlJob](capacity)
         handler = ResultHandler.make[F](resultsQueue, library)
         crawler = Crawler
           .makeCluster[F](
