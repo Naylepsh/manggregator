@@ -14,7 +14,8 @@ import library.services._
 import library.persistence.Storage
 import api.library.responses._
 import api.library.params._
-import api.utils.routes.combine
+import api.library.codecs.given
+import api.utils.routes.given
 
 object routes:
   case class Services[F[_]](assets: Assets[F], pages: Pages[F])
@@ -23,7 +24,7 @@ object routes:
     NonEmptyList
       .of(createAsset, createAssetPage, getAssetChapters)
       .sequence
-      .map(combine)
+      .map(_.reduce)
       .run(props)
 
   private def createAsset[F[_]: Async]: Reader[Services[F], HttpRoutes[F]] =
