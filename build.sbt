@@ -35,7 +35,9 @@ lazy val api = project
 
 lazy val library = project.settings(
   name := "library",
-  libraryDependencies ++= commonDependencies
+  libraryDependencies ++= commonDependencies ++ Seq(
+    dependencies.doobie
+  )
 )
 
 val Http4sVersion = "0.23.16"
@@ -65,6 +67,7 @@ lazy val dependencies =
     val tapirJsonCirce =
       "com.softwaremill.sttp.tapir" %% "tapir-json-circe" % TapirVersion
     // val slf4j = "org.slf4j" % "slf4j-simple" % "1.7.36"
+    val doobie = "org.tpolecat" %% "doobie-core" % "1.0.0-RC2"
   }
 
 lazy val commonDependencies = Seq(
