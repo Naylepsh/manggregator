@@ -33,4 +33,4 @@ metals.sbt
 
 # dev
 .env
-db-dev.sqlite
+*.sqlite
