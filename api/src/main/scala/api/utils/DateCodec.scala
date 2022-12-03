@@ -1,11 +1,13 @@
 package api.utils
 
-import io.circe._
-import scala.util.Try
 import java.text.SimpleDateFormat
 import java.util.Date
+
+import scala.util.Try
+
 import cats._
 import cats.implicits._
+import io.circe._
 
 object DateCodec:
   val dateFormatter = SimpleDateFormat("dd MMM yyyy")

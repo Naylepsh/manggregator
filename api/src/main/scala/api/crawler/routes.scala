@@ -1,19 +1,19 @@
 package api.crawler
 
-import sttp.tapir._
-import sttp.tapir.swagger.bundle.SwaggerInterpreter
-import sttp.tapir.server.http4s.Http4sServerInterpreter
 import cats._
-import cats.implicits._
 import cats.effect._
 import cats.effect.implicits._
+import cats.implicits._
 import cats.syntax.all._
+import crawler.domain.Library
+import crawler.services.Crawling
 import org.http4s.HttpRoutes
 import org.http4s.dsl.io._
 import org.http4s.implicits._
 import org.http4s.server.Router
-import crawler.domain.Library
-import crawler.services.Crawling
+import sttp.tapir._
+import sttp.tapir.server.http4s.Http4sServerInterpreter
+import sttp.tapir.swagger.bundle.SwaggerInterpreter
 
 object routes:
   case class Props[F[_]](library: Library[F], crawling: Crawling[F])

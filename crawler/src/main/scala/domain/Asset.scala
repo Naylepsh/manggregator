@@ -1,7 +1,6 @@
 package crawler.domain
 
-import java.util.Date
-import java.util.UUID
+import java.util.{Date, UUID}
 
 object Asset:
   type Url = String

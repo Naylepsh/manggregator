@@ -1,9 +1,9 @@
 package library.services
 
-import library.domain.chapter._
 import cats._
 import cats.data._
 import cats.implicits._
+import library.domain.chapter._
 import library.persistence
 
 trait Chapters[F[_]]:

@@ -1,6 +1,7 @@
 package library.domain
 
 import java.util.UUID
+
 import io.estatico.newtype.macros.newtype
 
 object alias:

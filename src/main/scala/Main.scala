@@ -1,17 +1,17 @@
-import cats.effect._
-import cats.effect.std._
-import cats._
-import cats.implicits._
-import com.comcast.ip4s._
-import org.legogroup.woof.{given, *}
-import crawler.domain.Library
-import crawler.services.Crawling
-import manggregator.Entrypoints
-import library.persistence._
-import library.domain.asset._
-import library.domain.page._
 import api.config._
 import api.library.routes.Services
+import cats._
+import cats.effect._
+import cats.effect.std._
+import cats.implicits._
+import com.comcast.ip4s._
+import crawler.domain.Library
+import crawler.services.Crawling
+import library.domain.asset._
+import library.domain.page._
+import library.persistence._
+import manggregator.Entrypoints
+import org.legogroup.woof.{_, given}
 
 object Main extends IOApp:
   def run(args: List[String]): IO[ExitCode] =

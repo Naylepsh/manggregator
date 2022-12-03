@@ -1,11 +1,12 @@
 package api.utils
 
+import scala.annotation.tailrec
+
 import cats._
 import cats.data._
-import cats.syntax._
 import cats.implicits._
+import cats.syntax._
 import org.http4s.HttpRoutes
-import scala.annotation.tailrec
 
 object routes:
   def combine[F[_]: Monad](

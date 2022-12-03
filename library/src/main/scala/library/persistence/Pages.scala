@@ -1,19 +1,21 @@
 package library.persistence
 
-import library.domain.page._
-import library.domain.asset.AssetId
+import java.util.UUID
+
+import scala.collection.mutable.ListBuffer
+
 import cats._
-import cats.syntax._
 import cats.data.NonEmptyList
 import cats.effect._
-import cats.implicits._
 import cats.effect.std.UUIDGen
 import cats.effect.std.UUIDGen.randomUUID
-import scala.collection.mutable.ListBuffer
-import java.util.UUID
+import cats.implicits._
+import cats.syntax._
 import doobie._
 import doobie.implicits._
 import doobie.util.query._
+import library.domain.asset.AssetId
+import library.domain.page._
 
 trait Pages[F[_]]:
   def create(page: CreateChaptersPage): F[PageId]

@@ -1,23 +1,21 @@
 package api
 
+import _root_.crawler.domain.Library
+import _root_.crawler.services.Crawling
+import _root_.library.persistence.Storage
+import api.config.Docs
+import api.crawler.{CrawlerApi, routes => CrawlerRoutes}
+import api.library.{LibraryApi, routes => LibraryRoutes}
 import cats._
 import cats.data._
-import cats.syntax.all._
 import cats.effect._
 import cats.effect.implicits._
-import org.legogroup.woof.{given, *}
+import cats.syntax.all._
 import org.http4s._
+import org.legogroup.woof.{_, given}
 import sttp.tapir.Endpoint
 import sttp.tapir.server.http4s.Http4sServerInterpreter
 import sttp.tapir.swagger.bundle.SwaggerInterpreter
-import api.library.LibraryApi
-import api.library.routes as LibraryRoutes
-import api.crawler.CrawlerApi
-import api.crawler.routes as CrawlerRoutes
-import api.config.Docs
-import _root_.crawler.domain.Library
-import _root_.library.persistence.Storage
-import _root_.crawler.services.Crawling
 
 object HttpApi:
   def make[F[_]: Async: Logger](

@@ -2,10 +2,13 @@ ThisBuild / scalaVersion := "3.2.0"
 ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / name := "manggregator"
 ThisBuild / organization := "io.naylepsh"
+ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.6.0"
 
 lazy val root = project
   .in(file("."))
-  .settings(libraryDependencies ++= commonDependencies)
+  .settings(
+    libraryDependencies ++= commonDependencies
+  )
   .aggregate(crawler, library, api)
   .dependsOn(crawler, library, api)
 

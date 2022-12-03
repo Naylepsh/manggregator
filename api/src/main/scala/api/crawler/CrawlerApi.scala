@@ -1,8 +1,8 @@
 package api.crawler
 
-import api.domain.Api
-import api.crawler.routes.{Props, all as allRoutes}
 import api.crawler.endpoints.all as allEndpoints
+import api.crawler.routes.{Props, all as allRoutes}
+import api.domain.Api
 import cats._
 import cats.effect._
 

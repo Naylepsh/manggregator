@@ -1,24 +1,25 @@
 package manggregator
 
+import java.util.UUID.randomUUID
+
+import api.{HttpApi, HttpServer}
+import api.config._
+import api.library.routes.Services
 import cats.data._
 import cats.effect._
-import java.util.UUID.randomUUID
-import org.legogroup.woof.{given, *}
+import crawler.domain.Asset.AssetSource
+import crawler.domain.Crawl.CrawlResult._
 import crawler.domain.Library
 import crawler.domain.Library.AssetToCrawl
-import crawler.domain.Crawl.CrawlResult._
-import crawler.domain.Asset.AssetSource
 import crawler.services._
 import crawler.services.site_crawlers.MangakakalotCrawler
-import library.persistence.Storage
-import library.persistence
-import library.services._
-import library.domain.page.ChaptersPageToCheck
-import library.domain.chapter._
 import library.domain.asset.AssetId
-import api.library.routes.Services
-import api._
-import api.config._
+import library.domain.chapter._
+import library.domain.page.ChaptersPageToCheck
+import library.persistence
+import library.persistence.Storage
+import library.services._
+import org.legogroup.woof.{_, given}
 
 object Entrypoints:
   def logger(): IO[Logger[IO]] =

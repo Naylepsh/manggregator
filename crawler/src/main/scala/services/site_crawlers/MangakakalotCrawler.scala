@@ -1,19 +1,20 @@
 package crawler.services.site_crawlers
 
-import cats.effect._
+import java.util.{Date, UUID}
+
 import scala.util.Try
 import scala.util.matching.Regex
-import crawler.domain.Crawl.CrawlJob._
+
+import cats.effect._
+import com.github.nscala_time.time.Imports._
 import crawler.domain.Asset._
+import crawler.domain.Crawl.CrawlJob._
 import crawler.domain.SiteCrawler
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser
-import net.ruippeixotog.scalascraper.dsl.DSL._
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 import net.ruippeixotog.scalascraper.dsl.DSL.Parse._
-import java.util.Date
+import net.ruippeixotog.scalascraper.dsl.DSL._
 import org.joda.time.DateTime
-import com.github.nscala_time.time.Imports._
-import java.util.UUID
 
 object MangakakalotCrawler extends SiteCrawler[IO]:
   /** Crawler for the following family of sites:

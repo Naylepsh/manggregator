@@ -1,21 +1,23 @@
 package library.persistence
 
-import library.domain.chapter._
-import library.domain.asset.AssetId
+import java.sql.Timestamp
+import java.text.SimpleDateFormat
+import java.util.UUID
+
+import scala.collection.mutable.ListBuffer
+
 import cats._
 import cats.data.NonEmptyList
-import cats.syntax._
-import cats.implicits._
 import cats.effect._
 import cats.effect.std.UUIDGen
 import cats.effect.std.UUIDGen.randomUUID
-import scala.collection.mutable.ListBuffer
+import cats.implicits._
+import cats.syntax._
 import doobie._
 import doobie.implicits._
 import doobie.util.query._
-import java.util.UUID
-import java.sql.Timestamp
-import java.text.SimpleDateFormat
+import library.domain.asset.AssetId
+import library.domain.chapter._
 
 trait Chapters[F[_]]:
   def create(chapters: List[CreateChapter]): F[List[ChapterId]]

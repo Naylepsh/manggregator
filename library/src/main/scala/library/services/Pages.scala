@@ -1,11 +1,11 @@
 package library.services
 
-import library.domain.page._
-import library.domain.asset.AssetId
-import library.persistence.Storage
 import cats._
 import cats.data._
 import cats.implicits._
+import library.domain.asset.AssetId
+import library.domain.page._
+import library.persistence.Storage
 
 trait Pages[F[_]]:
   def create(page: CreateChaptersPage): F[Either[PageAlreadyExists, PageId]]

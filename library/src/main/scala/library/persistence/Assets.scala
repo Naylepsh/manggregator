@@ -1,18 +1,20 @@
 package library.persistence
 
-import library.domain.asset._
+import java.util.UUID
+
+import scala.collection.mutable.Map as MutableMap
+
 import cats._
 import cats.data._
-import cats.syntax._
-import cats.implicits._
 import cats.effect._
 import cats.effect.std.UUIDGen
 import cats.effect.std.UUIDGen.randomUUID
-import scala.collection.mutable.Map as MutableMap
-import java.util.UUID
+import cats.implicits._
+import cats.syntax._
 import doobie._
 import doobie.implicits._
 import doobie.util.query._
+import library.domain.asset._
 
 trait Assets[F[_]]:
   def create(asset: CreateAsset): F[AssetId]

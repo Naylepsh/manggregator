@@ -1,10 +1,10 @@
 package library.services
 
-import library.domain.asset._
-import library.domain.alias._
-import cats.implicits._
 import cats._
 import cats.data._
+import cats.implicits._
+import library.domain.alias._
+import library.domain.asset._
 import library.persistence.Storage
 
 trait Assets[F[_]]:

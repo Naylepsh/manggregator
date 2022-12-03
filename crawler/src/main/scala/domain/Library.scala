@@ -1,9 +1,10 @@
 package crawler.domain
 
+import java.util.UUID
+
 import cats.effect._
 import crawler.domain.Crawl.CrawlResult._
 import crawler.domain.Library.AssetToCrawl
-import java.util.UUID
 
 trait Library[F[_]]:
   def getAssetsToCrawl(): F[List[AssetToCrawl]]

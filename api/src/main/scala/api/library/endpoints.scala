@@ -1,17 +1,18 @@
 package api.library
 
+import java.util.UUID
+
+import api.library.codecs.given
+import api.library.params._
+import api.library.responses._
+import api.utils.DateCodec.{decodeDate, encodeDate}
+import cats.implicits._
+import io.circe.generic.auto._
+import library.domain.asset.Asset
+import sttp.tapir.EndpointInput.Query
 import sttp.tapir._
 import sttp.tapir.generic.auto._
 import sttp.tapir.json.circe._
-import io.circe.generic.auto._
-import api.utils.DateCodec.{encodeDate, decodeDate}
-import api.library.responses._
-import api.library.params._
-import api.library.codecs.given
-import library.domain.asset.Asset
-import java.util.UUID
-import sttp.tapir.EndpointInput.Query
-import cats.implicits._
 
 object endpoints:
   private val pathPrefix = "library"

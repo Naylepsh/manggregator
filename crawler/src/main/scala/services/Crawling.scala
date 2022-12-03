@@ -1,17 +1,17 @@
 package crawler.services
 
 import cats._
-import cats.implicits._
 import cats.data._
 import cats.effect._
-import cats.effect.std._
 import cats.effect.implicits._
-import org.legogroup.woof.{given, *}
-import crawler.domain.Crawl._
-import crawler.domain.Crawl.CrawlResult._
+import cats.effect.std._
+import cats.implicits._
 import crawler.domain.Crawl.CrawlJob._
+import crawler.domain.Crawl.CrawlResult._
+import crawler.domain.Crawl._
 import crawler.domain.Library
 import crawler.domain.Library.AssetToCrawl
+import org.legogroup.woof.{_, given}
 import services.ResultHandler
 
 trait Crawling[F[_]]:
