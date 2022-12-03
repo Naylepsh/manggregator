@@ -24,13 +24,9 @@ object Assets:
     def findManyWithChapters(
         assetIds: List[AssetId]
     ): F[List[Asset]] =
-      for {
-        assets <- NonEmptyList
-          .fromList(assetIds)
-          .fold(storage.assets.findAll())(storage.assets.findManyByIds)
-        chapters <- NonEmptyList
-          .fromList(assets)
-          .fold(List.empty.pure)(as =>
-            storage.chapters.findByAssetId(as.map(_.id))
-          )
-      } yield bindChaptersToAssets(assets, chapters)
+      for
+        assets <-
+          if (assetIds.isEmpty) storage.assets.findAll()
+          else storage.assets.findManyByIds(assetIds)
+        chapters <- storage.chapters.findByAssetIds(assets.map(_.id))
+      yield bindChaptersToAssets(assets, chapters)

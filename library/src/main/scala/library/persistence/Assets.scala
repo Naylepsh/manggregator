@@ -17,7 +17,7 @@ import doobie.util.query._
 trait Assets[F[_]]:
   def create(asset: CreateAsset): F[AssetId]
   def findAll(): F[List[Asset]]
-  def findManyByIds(ids: NonEmptyList[AssetId]): F[List[Asset]]
+  def findManyByIds(ids: List[AssetId]): F[List[Asset]]
   def findByName(name: AssetName): F[Option[Asset]]
   def findEnabledAssets(): F[List[Asset]]
 
@@ -34,8 +34,8 @@ object Assets:
 
     override def findAll(): F[List[Asset]] = store.values.toList.pure
 
-    override def findManyByIds(ids: NonEmptyList[AssetId]): F[List[Asset]] =
-      store.values.filter(asset => ids.exists(_ == asset.id)).toList.pure
+    override def findManyByIds(ids: List[AssetId]): F[List[Asset]] =
+      store.values.filter(asset => ids.contains(asset.id)).toList.pure
 
     override def findByName(name: AssetName): F[Option[Asset]] =
       store
@@ -62,11 +62,13 @@ object Assets:
           ).run.transact(xa)
         yield AssetId(id)
 
-      override def findManyByIds(ids: NonEmptyList[AssetId]): F[List[Asset]] =
-        selectByIds(ids.map(_.value))
-          .to[List]
-          .map(_.map(AssetRecord.toDomain))
-          .transact(xa)
+      override def findManyByIds(ids: List[AssetId]): F[List[Asset]] =
+        NonEmptyList.fromList(ids).fold(List.empty.pure) { ids =>
+          selectByIds(ids.map(_.value))
+            .to[List]
+            .map(_.map(AssetRecord.toDomain))
+            .transact(xa)
+        }
 
       override def findByName(name: AssetName): F[Option[Asset]] =
         selectByName(name.value).option

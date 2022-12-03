@@ -3,9 +3,9 @@ package library.services
 import library.domain.page._
 import library.domain.asset.AssetId
 import library.persistence.Storage
-import cats.data.Kleisli
-import cats.implicits._
 import cats._
+import cats.data._
+import cats.implicits._
 
 trait Pages[F[_]]:
   def create(page: CreateChaptersPage): F[Either[PageAlreadyExists, PageId]]
@@ -27,7 +27,7 @@ object Pages:
     def findPagesOfEnabledAssets(): F[List[ChaptersPageToCheck]] =
       for {
         assets <- storage.assets.findEnabledAssets()
-        pages <- storage.pages.findManyByAssetIds(assets.map(_.id))
+        pages <- storage.pages.findByAssetIds(assets.map(_.id))
       } yield pages.map { case ChaptersPage(_, assetId, site, url) =>
         ChaptersPageToCheck(site, url, assetId)
       }

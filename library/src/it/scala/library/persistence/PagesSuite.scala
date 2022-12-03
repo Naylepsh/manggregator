@@ -10,19 +10,19 @@ import java.text.SimpleDateFormat
 import library.resources.database._
 import library.config.types._
 import library.domain.asset._
-import library.domain.chapter._
+import library.domain.page._
 
-object ChaptersSuite extends IOSuite:
+object PagesSuite extends IOSuite:
   override type Res = HikariTransactor[IO]
   override def sharedResource: Resource[cats.effect.IO, Res] =
     databaseResource
       .evalTap { xa =>
-        clearChapters(xa) *> clearAssets(xa)
+        clearPages(xa) *> clearAssets(xa)
       }
 
-  test("Created chapters can be found") { xa =>
+  test("Created pages can be found") { xa =>
     val assetRepository = Assets.makeSQL(xa)
-    val chapterRepository = Chapters.makeSQL(xa)
+    val pagesRepository = Pages.makeSQL(xa)
 
     val asset1 = CreateAsset(AssetName("asset1"), Enabled(true))
     val asset2 = CreateAsset(AssetName("asset2"), Enabled(true))
@@ -33,27 +33,26 @@ object ChaptersSuite extends IOSuite:
 
     for
       assetIds <- assets.traverse(assetRepository.create)
-      chapters = assetIds.zipWithIndex.map { case (assetId, index) =>
-        CreateChapter(
-          no = ChapterNo(index.toString),
-          url = ChapterUrl(s"http://foo.bar/asset/$index"),
-          dateReleased = DateReleased(date),
+      pages = assetIds.map { assetId =>
+        CreateChaptersPage(
+          site = Site("some-site"),
+          url = PageUrl(s"http://some-site.com/asset/${assetId.value}"),
           assetId = assetId
         )
       }
       assetIdsSubset = assetIds.tail
-      chaptersBefore <- chapterRepository.findByAssetIds(assetIdsSubset)
-      chaptersIds <- chapterRepository.create(chapters)
-      chaptersAfter <- chapterRepository.findByAssetIds(assetIdsSubset)
+      pagesBefore <- pagesRepository.findByAssetIds(assetIdsSubset)
+      pagesIds <- pages.traverse(pagesRepository.create)
+      pagesAfter <- pagesRepository.findByAssetIds(assetIdsSubset)
     yield expect.all(
       assetIds.length == assets.length,
-      chaptersBefore.length == 0,
-      chaptersIds.length == assetIds.length,
-      chaptersAfter.length == assetIdsSubset.length
+      pagesBefore.length == 0,
+      pagesIds.length == assetIds.length,
+      pagesAfter.length == assetIdsSubset.length
     )
   }
 
-  private def clearChapters(xa: HikariTransactor[IO]) =
+  private def clearPages(xa: HikariTransactor[IO]) =
     sql"""
-    DELETE FROM chapter
+    DELETE FROM chapters_page
     """.update.run.void.transact(xa)

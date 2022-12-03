@@ -16,11 +16,7 @@ object Chapters:
           chapters: List[CreateChapter]
       ): F[CreateChaptersResult] =
         for {
-          chaptersInStore <- NonEmptyList
-            .fromList(chapters)
-            .fold(List.empty.pure)(cs =>
-              storage.findByAssetId(cs.map(_.assetId))
-            )
+          chaptersInStore <- storage.findByAssetIds(chapters.map(_.assetId))
           chaptersToSave = CreateChapter.discardIfIn(chapters, chaptersInStore)
           stored <- storage.create(chaptersToSave)
         } yield CreateChaptersResult(

@@ -17,7 +17,7 @@ CREATE TABLE chapters_page (
   id uuid primary key,
   assetId uuid not null,
   site text not null,
-  page text not null,
+  url text not null,
 
   foreign key (assetId) references asset (id)
 );

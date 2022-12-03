@@ -51,7 +51,7 @@ object ChaptersSuite:
   )
 
   def dataChapters(chapters: List[Chapter]) = new TestChapters[IO]:
-    override def findByAssetId(ids: NonEmptyList[AssetId]): IO[List[Chapter]] =
+    override def findByAssetIds(ids: List[AssetId]): IO[List[Chapter]] =
       chapters.pure
 
   extension (chapter: Chapter)

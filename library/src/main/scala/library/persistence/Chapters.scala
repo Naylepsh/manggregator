@@ -19,7 +19,7 @@ import java.text.SimpleDateFormat
 
 trait Chapters[F[_]]:
   def create(chapters: List[CreateChapter]): F[List[ChapterId]]
-  def findByAssetId(ids: NonEmptyList[AssetId]): F[List[Chapter]]
+  def findByAssetIds(ids: List[AssetId]): F[List[Chapter]]
 
 object Chapters:
   import ChaptersSQL._
@@ -43,8 +43,8 @@ object Chapters:
         .sequence
         .map(store.addAll.andThen(_.map(_.id).toList))
 
-    override def findByAssetId(ids: NonEmptyList[AssetId]): F[List[Chapter]] =
-      store.filter(chapter => ids.exists(_ == chapter.assetId)).toList.pure
+    override def findByAssetIds(ids: List[AssetId]): F[List[Chapter]] =
+      store.filter(chapter => ids.contains(chapter.assetId)).toList.pure
 
   def makeSQL[F[_]: MonadCancelThrow: UUIDGen](
       xa: Transactor[F]
@@ -69,11 +69,13 @@ object Chapters:
           res <- insert.updateMany(records).transact(xa)
         yield records.map(chapter => ChapterId(chapter.id)).toList
 
-      override def findByAssetId(ids: NonEmptyList[AssetId]): F[List[Chapter]] =
-        selectByAssetIds(ids.map(_.value))
-          .to[List]
-          .map(_.map(ChapterRecord.toDomain))
-          .transact(xa)
+      override def findByAssetIds(ids: List[AssetId]): F[List[Chapter]] =
+        NonEmptyList.fromList(ids).fold(List.empty.pure) { ids =>
+          selectByAssetIds(ids.map(_.value))
+            .to[List]
+            .map(_.map(ChapterRecord.toDomain))
+            .transact(xa)
+        }
 
 object ChaptersSQL:
   import mappings.given
