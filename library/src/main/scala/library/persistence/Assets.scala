@@ -86,8 +86,7 @@ object Assets:
           .transact(xa)
 
 private object AssetSQL:
-  given Get[UUID] = Get[String].map(UUID.fromString)
-  given Put[UUID] = Put[String].contramap(_.toString)
+  import mappings.given
 
   case class AssetRecord(
       id: UUID,
@@ -123,7 +122,7 @@ private object AssetSQL:
     (
       sql"""
         SELECT * FROM asset
-        WHERE""" ++ Fragments.in(fr"id", ids)
+        WHERE """ ++ Fragments.in(fr"id", ids)
     ).query[AssetRecord]
 
   def insert(record: AssetRecord): Update0 =

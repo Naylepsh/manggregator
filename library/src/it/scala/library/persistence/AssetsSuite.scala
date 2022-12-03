@@ -13,13 +13,7 @@ object AssetsSuite extends IOSuite:
 
   override type Res = HikariTransactor[IO]
   override def sharedResource: Resource[cats.effect.IO, Res] =
-    makeTransactorResource(
-      DatabaseConfig(
-        DatabasePath("./db-test.sqlite"),
-        DatabaseUsername("username"),
-        DatabasePassword("password")
-      )
-    ).evalTap(clearAssets)
+    databaseResource.evalTap(clearAssets)
 
   test("Created assets can be found") { xa =>
     val repository = Assets.makeSQL(xa)
@@ -42,8 +36,3 @@ object AssetsSuite extends IOSuite:
       !enabledAssetsIds.contains(disabledAssetFromDb.get)
     )
   }
-
-  private def clearAssets(xa: HikariTransactor[IO]) =
-    sql"""
-    DELETE FROM asset
-    """.update.run.void.transact(xa)

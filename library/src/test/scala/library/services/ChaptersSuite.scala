@@ -5,6 +5,7 @@ import library.domain.asset._
 import library.persistence
 import common._
 import cats._
+import cats.data.NonEmptyList
 import cats.implicits._
 import cats.effect._
 import java.util.UUID
@@ -50,7 +51,7 @@ object ChaptersSuite:
   )
 
   def dataChapters(chapters: List[Chapter]) = new TestChapters[IO]:
-    override def findByAssetId(ids: List[AssetId]): IO[List[Chapter]] =
+    override def findByAssetId(ids: NonEmptyList[AssetId]): IO[List[Chapter]] =
       chapters.pure
 
   extension (chapter: Chapter)

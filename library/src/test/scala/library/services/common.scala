@@ -38,5 +38,5 @@ object common:
     override def create(chapters: List[CreateChapter]): F[List[ChapterId]] =
       List.empty.pure
 
-    override def findByAssetId(ids: List[AssetId]): F[List[Chapter]] =
+    override def findByAssetId(ids: NonEmptyList[AssetId]): F[List[Chapter]] =
       List.empty.pure

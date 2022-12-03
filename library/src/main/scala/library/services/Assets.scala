@@ -28,5 +28,9 @@ object Assets:
         assets <- NonEmptyList
           .fromList(assetIds)
           .fold(storage.assets.findAll())(storage.assets.findManyByIds)
-        chapters <- storage.chapters.findByAssetId(assets.map(_.id))
+        chapters <- NonEmptyList
+          .fromList(assets)
+          .fold(List.empty.pure)(as =>
+            storage.chapters.findByAssetId(as.map(_.id))
+          )
       } yield bindChaptersToAssets(assets, chapters)
