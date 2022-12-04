@@ -52,7 +52,9 @@ object MangakakalotCrawler extends SiteCrawler[IO]:
       (browser.parseString(content) >> elementList(selectors.chapterList))
         .flatMap { chapterElement =>
           for {
-            name <- chapterElement >?> allText(selectors.chapterName)
+            nameElement <- chapterElement >?> element(selectors.chapterName)
+            name = nameElement.text
+            chapterUrl <- nameElement >?> attr("href")
             no <- parseChapterNoFromName(name)
             timeUploaded <- chapterElement >?> allText(
               selectors.timeUploaded
@@ -61,7 +63,7 @@ object MangakakalotCrawler extends SiteCrawler[IO]:
           } yield Chapter(
             assetId = id,
             no = no,
-            url = url,
+            url = chapterUrl,
             dateReleased = dateReleased
           )
         }

@@ -7,7 +7,10 @@ ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports"
 lazy val root = project
   .in(file("."))
   .settings(
-    libraryDependencies ++= commonDependencies
+    libraryDependencies ++= commonDependencies ++ Seq(
+      dependencies.ciris,
+      dependencies.slf4j
+    )
   )
   .aggregate(crawler, library, api)
   .dependsOn(crawler, library, api)
@@ -73,7 +76,7 @@ lazy val dependencies =
       "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % TapirVersion
     val tapirJsonCirce =
       "com.softwaremill.sttp.tapir" %% "tapir-json-circe" % TapirVersion
-    // val slf4j = "org.slf4j" % "slf4j-simple" % "1.7.36"
+    val slf4j = "org.slf4j" % "slf4j-simple" % "1.7.36"
     val doobie = "org.tpolecat" %% "doobie-core" % DoobieVersion
     val doobieHikari = "org.tpolecat" %% "doobie-hikari" % DoobieVersion
     val sqliteJDB = "org.xerial" % "sqlite-jdbc" % "3.40.0.0"
@@ -81,6 +84,7 @@ lazy val dependencies =
     val munitCatsEffect =
       "org.typelevel" %% "munit-cats-effect-3" % "1.0.7" % Test
     val weaver = "com.disneystreaming" %% "weaver-cats" % "0.8.1"
+    val ciris = "is.cir" %% "ciris" % "3.0.0"
   }
 
 lazy val allTestFrameworks =

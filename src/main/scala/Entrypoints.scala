@@ -2,9 +2,9 @@ package manggregator
 
 import java.util.UUID.randomUUID
 
-import api.{HttpApi, HttpServer}
 import api.config._
 import api.library.routes.Services
+import api.{HttpApi, HttpServer}
 import cats.data._
 import cats.effect._
 import crawler.domain.Asset.AssetSource
@@ -13,6 +13,7 @@ import crawler.domain.Library
 import crawler.domain.Library.AssetToCrawl
 import crawler.services._
 import crawler.services.site_crawlers.MangakakalotCrawler
+import doobie.util.transactor.Transactor
 import library.domain.asset.AssetId
 import library.domain.chapter._
 import library.domain.page.ChaptersPageToCheck
@@ -28,10 +29,10 @@ object Entrypoints:
 
     DefaultLogger.makeIo(Output.fromConsole)
 
-  def storage(): Storage[IO] = Storage(
-    persistence.Assets.make[IO],
-    persistence.Chapters.make[IO],
-    persistence.Pages.make[IO]
+  def storage(xa: Transactor[IO]): Storage[IO] = Storage(
+    persistence.Assets.makeSQL[IO](xa),
+    persistence.Chapters.makeSQL[IO](xa),
+    persistence.Pages.makeSQL[IO](xa)
   )
 
   def library(storage: Storage[IO]): Library[IO] = new Library {
