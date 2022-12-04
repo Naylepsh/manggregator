@@ -1,8 +1,8 @@
 package crawler.domain
 
 import cats.effect._
-import crawler.domain.Crawl.CrawlJob._
 import crawler.domain.Asset._
+import crawler.domain.Crawl.CrawlJob._
 
 trait SiteCrawler[F[_]]:
   def discoverTitles(

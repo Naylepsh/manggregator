@@ -1,19 +1,20 @@
 package crawler.services.site_crawlers
 
-import cats.effect._
+import java.util.{Date, UUID}
+
 import scala.util.Try
 import scala.util.matching.Regex
-import crawler.domain.Crawl.CrawlJob._
+
+import cats.effect._
+import com.github.nscala_time.time.Imports._
 import crawler.domain.Asset._
+import crawler.domain.Crawl.CrawlJob._
 import crawler.domain.SiteCrawler
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser
-import net.ruippeixotog.scalascraper.dsl.DSL._
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 import net.ruippeixotog.scalascraper.dsl.DSL.Parse._
-import java.util.Date
+import net.ruippeixotog.scalascraper.dsl.DSL._
 import org.joda.time.DateTime
-import com.github.nscala_time.time.Imports._
-import java.util.UUID
 
 object MangakakalotCrawler extends SiteCrawler[IO]:
   /** Crawler for the following family of sites:
@@ -51,7 +52,9 @@ object MangakakalotCrawler extends SiteCrawler[IO]:
       (browser.parseString(content) >> elementList(selectors.chapterList))
         .flatMap { chapterElement =>
           for {
-            name <- chapterElement >?> allText(selectors.chapterName)
+            nameElement <- chapterElement >?> element(selectors.chapterName)
+            name = nameElement.text
+            chapterUrl <- nameElement >?> attr("href")
             no <- parseChapterNoFromName(name)
             timeUploaded <- chapterElement >?> allText(
               selectors.timeUploaded
@@ -60,7 +63,7 @@ object MangakakalotCrawler extends SiteCrawler[IO]:
           } yield Chapter(
             assetId = id,
             no = no,
-            url = url,
+            url = chapterUrl,
             dateReleased = dateReleased
           )
         }
@@ -144,7 +147,7 @@ object MangakakalotCrawler extends SiteCrawler[IO]:
   object Selectors:
     val mangakakalotSelectors = Selectors(
       chapterList = ".chapter-list .row",
-      chapterName = "span:nth-of-type(1)",
+      chapterName = "span:nth-of-type(1) a",
       timeUploaded = "span:nth-of-type(3)"
     )
     val manganatoSelectors = Selectors(

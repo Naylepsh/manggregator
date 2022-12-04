@@ -1,7 +1,8 @@
 package crawler.domain
 
-import Asset._
 import java.util.UUID
+
+import Asset._
 
 object Crawl:
   sealed trait CrawlJob:

@@ -1,14 +1,14 @@
 package api
 
+import api.config.ServerConfig
 import cats.effect._
 import com.comcast.ip4s._
 import org.http4s.HttpApp
 import org.http4s.dsl.io._
+import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.server.Server
 import org.http4s.server.defaults.Banner
-import org.http4s.ember.server.EmberServerBuilder
-import org.legogroup.woof.{given, *}
-import api.config.ServerConfig
+import org.legogroup.woof.{_, given}
 
 trait HttpServer[F[_]]:
   def newEmber(config: ServerConfig, app: HttpApp[F]): Resource[F, Server]

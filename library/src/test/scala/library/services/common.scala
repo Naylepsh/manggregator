@@ -19,7 +19,7 @@ object common:
 
     override def findAll(): F[List[Asset]] = List.empty.pure
 
-    override def findManyByIds(ids: NonEmptyList[AssetId]): F[List[Asset]] =
+    override def findManyByIds(ids: List[AssetId]): F[List[Asset]] =
       List.empty.pure
 
     override def findEnabledAssets(): F[List[Asset]] = List.empty.pure
@@ -30,7 +30,7 @@ object common:
 
     override def findByUrl(url: PageUrl): F[Option[ChaptersPage]] = None.pure
 
-    override def findManyByAssetIds(
+    override def findByAssetIds(
         assetIds: List[AssetId]
     ): F[List[ChaptersPage]] = List.empty.pure
 
@@ -38,5 +38,5 @@ object common:
     override def create(chapters: List[CreateChapter]): F[List[ChapterId]] =
       List.empty.pure
 
-    override def findByAssetId(ids: List[AssetId]): F[List[Chapter]] =
+    override def findByAssetIds(ids: List[AssetId]): F[List[Chapter]] =
       List.empty.pure

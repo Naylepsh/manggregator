@@ -1,16 +1,17 @@
 package services
 
-import cats._
-import cats.implicits._
-import cats.data._
-import cats.effect._
-import cats.effect.std._
-import cats.effect.implicits._
-import org.legogroup.woof.{given, *}
 import scala.concurrent.duration._
 import scala.language.postfixOps
-import crawler.domain.Library
+
+import cats._
+import cats.data._
+import cats.effect._
+import cats.effect.implicits._
+import cats.effect.std._
+import cats.implicits._
 import crawler.domain.Crawl.CrawlResult._
+import crawler.domain.Library
+import org.legogroup.woof.{_, given}
 
 trait ResultHandler[F[_]]:
   def handle(resultsToExpect: Int): F[Unit]

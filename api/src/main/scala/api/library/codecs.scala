@@ -1,8 +1,8 @@
 package api.library
 
 import io.circe.Encoder
-import library.domain.asset._
 import library.domain.alias._
+import library.domain.asset._
 import library.domain.chapter._
 
 object codecs:

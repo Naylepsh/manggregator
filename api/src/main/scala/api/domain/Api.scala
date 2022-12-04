@@ -1,7 +1,7 @@
 package api.domain
 
-import org.http4s.HttpRoutes
 import cats.effect._
+import org.http4s.HttpRoutes
 import sttp.tapir._
 
 trait Api[F[_]]:

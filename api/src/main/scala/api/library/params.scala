@@ -1,9 +1,10 @@
 package api.library
 
-import library.domain.alias._
-import library.domain.page._
-import library.domain.asset._
 import java.util.UUID
+
+import library.domain.alias._
+import library.domain.asset._
+import library.domain.page._
 
 object params:
 

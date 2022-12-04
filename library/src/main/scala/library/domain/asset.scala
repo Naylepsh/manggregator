@@ -1,9 +1,11 @@
 package library.domain
 
 import java.util.UUID
+
 import scala.collection.mutable.Map as MutableMap
-import io.estatico.newtype.macros.newtype
 import scala.util.control.NoStackTrace
+
+import io.estatico.newtype.macros.newtype
 
 object asset:
   import library.domain.alias.Alias

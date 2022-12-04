@@ -1,8 +1,10 @@
 package library.domain
 
 import java.util.UUID
-import io.estatico.newtype.macros.newtype
+
 import scala.util.control.NoStackTrace
+
+import io.estatico.newtype.macros.newtype
 
 object page:
   import library.domain.asset.AssetId

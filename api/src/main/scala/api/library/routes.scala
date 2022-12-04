@@ -1,21 +1,22 @@
 package api.library
 
-import cats._
-import cats.data._
-import cats.syntax._
-import cats.implicits._
-import cats.effect.kernel.Async
 import scala.util.Try
-import org.http4s.HttpRoutes
-import sttp.tapir.server.http4s.Http4sServerInterpreter
-import library.domain.asset._
-import library.domain.page._
-import library.services._
-import library.persistence.Storage
-import api.library.responses._
+
 import api.library.params._
+import api.library.responses._
 import api.library.codecs.given
 import api.utils.routes.given
+import cats._
+import cats.data._
+import cats.effect.kernel.Async
+import cats.implicits._
+import cats.syntax._
+import library.domain.asset._
+import library.domain.page._
+import library.persistence.Storage
+import library.services._
+import org.http4s.HttpRoutes
+import sttp.tapir.server.http4s.Http4sServerInterpreter
 
 object routes:
   case class Services[F[_]](assets: Assets[F], pages: Pages[F])

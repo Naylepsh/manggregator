@@ -1,19 +1,19 @@
 package crawler.services
 
-import cats._
-import cats.implicits._
-import cats.effect._
-import cats.effect.std.Queue
-import org.legogroup.woof.{given, *}
-import org.legogroup.woof.Logger.withLogContext
 import scala.concurrent.duration._
 import scala.language.postfixOps
-import crawler.domain._
-import crawler.domain.Crawl._
-import crawler.domain.Crawl.CrawlResult._
+
+import cats._
+import cats.effect._
+import cats.effect.std.Queue
+import cats.implicits._
 import crawler.domain.Crawl.CrawlJob._
-import crawler.domain.SiteCrawler
+import crawler.domain.Crawl.CrawlResult._
+import crawler.domain.Crawl._
+import crawler.domain.{SiteCrawler, _}
 import crawler.services.site_crawlers.MangakakalotCrawler
+import org.legogroup.woof.Logger.withLogContext
+import org.legogroup.woof.{_, given}
 
 trait Crawler[F[_]]:
   def crawl(): F[Unit]

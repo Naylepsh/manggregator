@@ -1,11 +1,11 @@
 package api.library
 
 import api.domain.Api
-import api.library.routes.{Services, all as allRoutes}
 import api.library.endpoints.all as allEndpoints
-import sttp.tapir.Endpoint
-import org.http4s.HttpRoutes
+import api.library.routes.{Services, all as allRoutes}
 import cats.effect.kernel.Async
+import org.http4s.HttpRoutes
+import sttp.tapir.Endpoint
 
 object LibraryApi:
   def apply[F[_]: Async](props: Services[F]): Api[F] = new Api {

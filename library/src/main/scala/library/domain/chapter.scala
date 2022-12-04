@@ -1,7 +1,7 @@
 package library.domain
 
-import java.util.UUID
-import java.util.Date
+import java.util.{Date, UUID}
+
 import io.estatico.newtype.macros.newtype
 
 object chapter:

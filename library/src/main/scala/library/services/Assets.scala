@@ -1,10 +1,10 @@
 package library.services
 
-import library.domain.asset._
-import library.domain.alias._
-import cats.implicits._
 import cats._
 import cats.data._
+import cats.implicits._
+import library.domain.alias._
+import library.domain.asset._
 import library.persistence.Storage
 
 trait Assets[F[_]]:
@@ -24,9 +24,9 @@ object Assets:
     def findManyWithChapters(
         assetIds: List[AssetId]
     ): F[List[Asset]] =
-      for {
-        assets <- NonEmptyList
-          .fromList(assetIds)
-          .fold(storage.assets.findAll())(storage.assets.findManyByIds)
-        chapters <- storage.chapters.findByAssetId(assets.map(_.id))
-      } yield bindChaptersToAssets(assets, chapters)
+      for
+        assets <-
+          if (assetIds.isEmpty) storage.assets.findAll()
+          else storage.assets.findManyByIds(assetIds)
+        chapters <- storage.chapters.findByAssetIds(assets.map(_.id))
+      yield bindChaptersToAssets(assets, chapters)
