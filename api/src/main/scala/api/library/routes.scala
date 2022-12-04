@@ -4,7 +4,8 @@ import scala.util.Try
 
 import api.library.params._
 import api.library.responses._
-import api.utils.routes.combine
+import api.library.codecs.given
+import api.utils.routes.given
 import cats._
 import cats.data._
 import cats.effect.kernel.Async
@@ -24,7 +25,7 @@ object routes:
     NonEmptyList
       .of(createAsset, createAssetPage, getAssetChapters)
       .sequence
-      .map(combine)
+      .map(_.reduce)
       .run(props)
 
   private def createAsset[F[_]: Async]: Reader[Services[F], HttpRoutes[F]] =

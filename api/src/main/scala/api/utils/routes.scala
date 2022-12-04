@@ -9,16 +9,6 @@ import cats.syntax._
 import org.http4s.HttpRoutes
 
 object routes:
-  def combine[F[_]: Monad](
-      routes: NonEmptyList[HttpRoutes[F]]
-  ): HttpRoutes[F] =
-    combine(routes.tail, routes.head)
-
-  @tailrec
-  private def combine[F[_]: Monad](
-      routesLeft: List[HttpRoutes[F]],
-      accRoute: HttpRoutes[F]
-  ): HttpRoutes[F] = routesLeft match {
-    case route :: next => combine(next, accRoute <+> route)
-    case Nil           => accRoute
+  given given_Semigroup[F[_]: Monad]: Semigroup[HttpRoutes[F]] with {
+    def combine(x: HttpRoutes[F], y: HttpRoutes[F]): HttpRoutes[F] = x <+> y
   }

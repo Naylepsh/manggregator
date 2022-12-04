@@ -147,7 +147,7 @@ object MangakakalotCrawler extends SiteCrawler[IO]:
   object Selectors:
     val mangakakalotSelectors = Selectors(
       chapterList = ".chapter-list .row",
-      chapterName = "span:nth-of-type(1)",
+      chapterName = "span:nth-of-type(1) a",
       timeUploaded = "span:nth-of-type(3)"
     )
     val manganatoSelectors = Selectors(
