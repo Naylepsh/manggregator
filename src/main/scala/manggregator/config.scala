@@ -1,3 +1,5 @@
+package manggregator
+
 import api.config.{ServerConfig, _}
 import cats._
 import cats.effect._

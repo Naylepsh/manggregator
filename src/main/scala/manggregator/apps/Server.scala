@@ -1,3 +1,5 @@
+package manggregator.apps
+
 import api.config._
 import cats._
 import cats.effect._
@@ -7,10 +9,11 @@ import library.domain.page._
 import library.persistence._
 import library.resources.database._
 import manggregator.Entrypoints
+import manggregator.config
 import org.legogroup.woof.{_, given}
 
-object Main extends IOApp:
-  def run(args: List[String]): IO[ExitCode] =
+object Server:
+  def run(): IO[ExitCode] =
     config.load[IO].flatMap { cfg =>
       makeTransactorResource[IO](cfg.database)
         .evalTap(checkSQLiteConnection)
