@@ -26,8 +26,8 @@ object Crawling:
       for {
         assetsToCrawl <- library.getAssetsToCrawl()
         capacity = assetsToCrawl.length.min(0) + 1
-        resultsQueue <- Queue.bounded[F, Result](capacity)
-        crawlQueue <- Queue.bounded[F, SiteCrawlJob](capacity)
+        resultsQueue <- Queue.unbounded[F, Result]
+        crawlQueue <- Queue.unbounded[F, SiteCrawlJob]
         handler = ResultHandler.make[F](resultsQueue, library)
         crawler = Crawler
           .makeCluster[F](
@@ -42,10 +42,13 @@ object Crawling:
             ScrapeChaptersCrawlJob(url, assetId)
           )
         }
+        _ <- Logger[F].debug("Putting jobs on the crawl queue")
         _ <- jobs.traverse(crawlQueue.offer).void
+        _ <- Logger[F].debug("Starting the crawl")
         _ <- (
           crawler.crawl(),
           handler.handle(assetsToCrawl.length)
         ).parTupled.void
+        _ <- Logger[F].debug("Done with the crawl")
       } yield ()
     }
