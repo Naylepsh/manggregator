@@ -11,6 +11,7 @@ import library.resources.database._
 import library.config.types._
 import library.domain.asset._
 import library.domain.chapter._
+import java.util.Date
 
 object ChaptersSuite extends IOSuite:
   override type Res = HikariTransactor[IO]
@@ -52,6 +53,48 @@ object ChaptersSuite extends IOSuite:
       chaptersAfter.length == assetIdsSubset.length
     )
   }
+
+  test(
+    "Searching for recent released does not include records released before given date"
+  ) { xa =>
+    val assetRepository = Assets.makeSQL(xa)
+    val chapterRepository = Chapters.makeSQL(xa)
+
+    val asset = CreateAsset(AssetName("asset1"), Enabled(true))
+    val oldRelease = new SimpleDateFormat("dd/MM/yyyy").parse("04/01/2023")
+    val newRelease = new SimpleDateFormat("dd/MM/yyyy").parse("05/01/2023")
+    val newestRelease = new SimpleDateFormat("dd/MM/yyyy").parse("06/01/2023")
+
+    for
+      assetId <- assetRepository.create(asset)
+      _ <- createChapter(chapterRepository, "1", oldRelease, assetId)
+      newId <- createChapter(chapterRepository, "2", newRelease, assetId)
+      newestId <- createChapter(chapterRepository, "3", newestRelease, assetId)
+      recentChapters <- chapterRepository.findRecentReleases(
+        DateReleased(newRelease)
+      )
+    yield expect.all(
+      recentChapters.length == 2,
+      List(newId, newestId).forall(recentChapters.map(_.id).contains)
+    )
+  }
+
+  private def createChapter(
+      chapterRepository: Chapters[IO],
+      no: String,
+      date: Date,
+      assetId: AssetId
+  ) =
+    chapterRepository.create(
+      List(
+        CreateChapter(
+          no = ChapterNo(no),
+          url = ChapterUrl(s"http://foo.bar/asset/$no"),
+          dateReleased = DateReleased(date),
+          assetId = assetId
+        )
+      )
+    ).map(_.head)
 
   private def clearChapters(xa: HikariTransactor[IO]) =
     sql"""

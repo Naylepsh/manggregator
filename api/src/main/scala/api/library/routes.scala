@@ -17,13 +17,19 @@ import library.persistence.Storage
 import library.services._
 import org.http4s.HttpRoutes
 import sttp.tapir.server.http4s.Http4sServerInterpreter
+import library.domain.chapter.DateReleased
 
 object routes:
   case class Services[F[_]](assets: Assets[F], pages: Pages[F])
 
   def all[F[_]: Async](props: Services[F]): HttpRoutes[F] =
     NonEmptyList
-      .of(createAsset, createAssetPage, getAssetChapters)
+      .of(
+        createAsset,
+        createAssetPage,
+        getAssetChapters,
+        getAssetsWithRecentlyReleasedChapters
+      )
       .sequence
       .map(_.reduce)
       .run(props)
@@ -66,6 +72,19 @@ object routes:
           props.assets
             .findManyWithChapters(ids.map(AssetId.apply))
             .map(_.asRight[String])
+        )
+      )
+    }
+
+  private def getAssetsWithRecentlyReleasedChapters[F[_]: Async]
+      : Reader[Services[F], HttpRoutes[F]] =
+    Reader { props =>
+      Http4sServerInterpreter[F]().toRoutes(
+        endpoints.getAssetsWithRecentChapterReleasesEndpoint.serverLogic(
+          (minDate) =>
+            props.assets
+              .findRecentReleases(DateReleased(minDate))
+              .map(_.asRight[String])
         )
       )
     }
