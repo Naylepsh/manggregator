@@ -16,7 +16,7 @@ import java.text.SimpleDateFormat
 
 object SingleCrawl:
   def run(args: List[String]): IO[ExitCode] =
-    val format = new SimpleDateFormat("dd/MM/yyyy")
+    val format = new SimpleDateFormat("yyyy-MM-dd")
     val minReleaseDate = DateReleased(format.parse(args.tail.head))
 
     config.load[IO].flatMap { cfg =>

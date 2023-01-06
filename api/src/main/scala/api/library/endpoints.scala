@@ -13,6 +13,8 @@ import sttp.tapir.EndpointInput.Query
 import sttp.tapir._
 import sttp.tapir.generic.auto._
 import sttp.tapir.json.circe._
+import java.util.Date
+import java.text.SimpleDateFormat
 
 object endpoints:
   private val pathPrefix = "library"
@@ -30,6 +32,11 @@ object endpoints:
     query[Option[String]](name)
       .map(optionalStringToUuids)(uuidsToString(_).some)
 
+  private val formatStr = "yyyy-MM-dd"
+  private val format = new SimpleDateFormat(formatStr)
+  private def dateQuery(date: String): Query[Date] =
+    query[String](date).map(str => format.parse(str))(_.toString)
+
   val getAssetsChaptersEndpoint
       : PublicEndpoint[List[UUID], String, List[Asset], Any] =
     endpoint.get
@@ -40,6 +47,17 @@ object endpoints:
       .out(jsonBody[List[Asset]])
       .errorOut(stringBody)
       .description("Get the assets (by ids) and their chapters")
+
+  val getAssetsWithRecentChapterReleasesEndpoint
+      : PublicEndpoint[Date, String, List[Asset], Any] =
+    endpoint.get
+      .in(pathPrefix / "recent-assets-chapters")
+      .in(
+        dateQuery("min-date").description(s"Date in $formatStr format")
+      )
+      .out(jsonBody[List[Asset]])
+      .errorOut(stringBody)
+      .description("Get the assets with recently released chapters")
 
   val createAssetEndpoint
       : PublicEndpoint[CreateAssetParam, String, CreateAssetResponse, Any] =
@@ -66,6 +84,7 @@ object endpoints:
 
   val all = List(
     getAssetsChaptersEndpoint,
+    getAssetsWithRecentChapterReleasesEndpoint,
     createAssetEndpoint,
     createAssetPageEndpoint
   )
