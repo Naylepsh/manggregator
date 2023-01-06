@@ -5,7 +5,7 @@ import java.util.{Date, UUID}
 import io.estatico.newtype.macros.newtype
 
 object chapter:
-  import library.domain.asset.AssetId
+  import library.domain.asset._
 
   @newtype
   case class ChapterId(value: UUID)
@@ -27,6 +27,7 @@ object chapter:
       assetId: AssetId
   )
 
+  // --- Commands ---
   case class CreateChapter(
       no: ChapterNo,
       url: ChapterUrl,
@@ -49,4 +50,15 @@ object chapter:
   case class CreateChaptersResult(
       created: List[ChapterId],
       alreadyExist: List[ChapterId]
+  )
+
+  //  --- Queries ---
+  case class GetRecentChapters(
+      minDate: DateReleased
+  )
+  case class RecentChapter(
+      id: ChapterId,
+      no: ChapterNo,
+      url: ChapterUrl,
+      assetName: AssetName
   )

@@ -35,8 +35,13 @@ object common:
     ): F[List[ChaptersPage]] = List.empty.pure
 
   class TestChapters[F[_]: Applicative] extends persistence.Chapters[F]:
+
     override def create(chapters: List[CreateChapter]): F[List[ChapterId]] =
       List.empty.pure
 
     override def findByAssetIds(ids: List[AssetId]): F[List[Chapter]] =
       List.empty.pure
+
+    override def findRecentReleases(
+        minDateReleased: DateReleased
+    ): F[List[Chapter]] = List.empty.pure
