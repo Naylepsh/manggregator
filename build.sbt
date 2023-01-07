@@ -7,6 +7,7 @@ ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports"
 lazy val root = project
   .in(file("."))
   .settings(
+    name := "manggregator",
     libraryDependencies ++= commonDependencies ++ Seq(
       dependencies.ciris,
       dependencies.slf4j
@@ -94,7 +95,7 @@ lazy val allTestFrameworks =
 
 lazy val commonDependencies = Seq(
   dependencies.catsEffect,
-  // dependencies.slf4j,
+  dependencies.slf4j,
   dependencies.woof,
   dependencies.munit,
   dependencies.munitCatsEffect,
@@ -103,6 +104,8 @@ lazy val commonDependencies = Seq(
 )
 
 lazy val commonTestFrameworks = Seq(allTestFrameworks.weaverCatsEffect)
+
+enablePlugins(JavaAppPackaging)
 
 addCommandAlias(
   "codeCoverage",

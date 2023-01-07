@@ -1,8 +1,23 @@
-## sbt project compiled with Scala 3
+## MANGgregAtor
+
+### Installation
+
+- `sbt stage`
 
 ### Usage
 
-This is a normal sbt project. You can compile code with `sbt compile`, run it with `sbt run`, and `sbt console` will start a Scala 3 REPL.
+- `./target/universal/stage/bin/manggregator <mode> <args>`
 
-For more information on the sbt-dotty plugin, see the
-[scala3-example-project](https://github.com/scala/scala3-example-project/blob/main/README.md).
+### Modes & args
+
+#### Single Crawl
+
+Crawls all the enabled assets from the databases and displays the recent release (where "recent" is the given argument by the user)
+
+- `single-crawl yyyy-MM-dd`
+
+#### Server
+
+API giving the access to all functionalities. Docs will be displayed at `http://localhost:8080/docs/`
+
+- `server`
