@@ -28,7 +28,7 @@ object Crawling:
         resultsQueue <- Queue.unbounded[F, Result]
         crawlQueue <- Queue.unbounded[F, SiteCrawlJob]
         handler = ResultHandler.make[F](resultsQueue, library)
-        crawler = Crawler
+        crawler = CrawlHandler
           .makeCluster[F](
             crawlQueue,
             resultsQueue,

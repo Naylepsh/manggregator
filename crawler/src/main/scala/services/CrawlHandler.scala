@@ -15,15 +15,15 @@ import crawler.services.site_crawlers.MangakakalotCrawler
 import org.legogroup.woof.Logger.withLogContext
 import org.legogroup.woof.{_, given}
 
-trait Crawler[F[_]]:
+trait CrawlHandler[F[_]]:
   def crawl(): F[Unit]
 
-object Crawler:
+object CrawlHandler:
   def make[F[_]: Monad: Logger](
       crawlQueue: Queue[F, SiteCrawlJob],
       resultQueue: Queue[F, Result],
       siteCrawlersMappings: Map[String, SiteCrawler[F]]
-  ): Crawler[F] = new Crawler[F] {
+  ): CrawlHandler[F] = new CrawlHandler[F] {
     override def crawl(): F[Unit] =
       for
         _ <- Logger[F].debug(s"Trying to pick up a job")
@@ -64,7 +64,7 @@ object Crawler:
       resultQueue: Queue[F, Result],
       siteCrawlersMappings: Map[String, SiteCrawler[F]],
       clusterSize: Int = 1
-  ): Crawler[F] = new Crawler[F]:
+  ): CrawlHandler[F] = new CrawlHandler[F]:
     val size = clusterSize.min(1).max(5)
     val crawlers = (1 to size)
       .map(id => (id, make[F](crawlQueue, resultQueue, siteCrawlersMappings)))
