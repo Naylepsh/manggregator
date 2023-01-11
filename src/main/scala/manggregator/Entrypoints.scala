@@ -44,7 +44,7 @@ object Entrypoints:
           AssetToCrawl(site.value, title.value, url.value)
         })
 
-    def handleResult(result: Result): IO[Unit] = result match {
+    def handleResult(result: SuccessfulResult): IO[Unit] = result match {
       case ChapterResult(chapters) =>
         Chapters
           .make(storage.chapters)

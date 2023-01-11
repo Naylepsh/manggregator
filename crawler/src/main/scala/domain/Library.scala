@@ -8,7 +8,7 @@ import crawler.domain.Library.AssetToCrawl
 
 trait Library[F[_]]:
   def getAssetsToCrawl(): F[List[AssetToCrawl]]
-  def handleResult(result: Result): F[Unit]
+  def handleResult(result: SuccessfulResult): F[Unit]
 
 object Library:
   case class AssetToCrawl(site: String, assetId: UUID, url: String)

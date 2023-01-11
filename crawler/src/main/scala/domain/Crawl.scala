@@ -3,6 +3,7 @@ package crawler.domain
 import java.util.UUID
 
 import Asset._
+import scala.util.control.NoStackTrace
 
 object Crawl:
   sealed trait CrawlJob:
@@ -17,8 +18,12 @@ object Crawl:
   case class SiteCrawlJob(label: String, job: CrawlJob)
 
   object CrawlResult:
-    sealed trait Result
-    case class ChapterResult(chapters: List[Chapter]) extends Result
-    case class TitlesResult(titles: List[AssetSource]) extends Result
+    sealed trait SuccessfulResult
+    case class ChapterResult(chapters: List[Chapter]) extends SuccessfulResult
+    case class TitlesResult(titles: List[AssetSource]) extends SuccessfulResult
+
+    case class CrawlError(url: String, reason: String) extends NoStackTrace
+
+    type Result = Either[CrawlError, SuccessfulResult]
 
   type SiteCrawlersMapping[F[_]] = Map[String, SiteCrawler[F]]

@@ -25,18 +25,19 @@ object Crawler:
       siteCrawlersMappings: Map[String, SiteCrawler[F]]
   ): Crawler[F] = new Crawler[F] {
     override def crawl(): F[Unit] =
-      for {
+      for
         _ <- Logger[F].debug(s"Trying to pick up a job")
         potentialJob <- crawlQueue.tryTake
         _ <- potentialJob.map(handleJob(_) *> crawl()).getOrElse(Monad[F].unit)
-      } yield ()
+      yield ()
 
     private def handleJob(job: SiteCrawlJob): F[Unit] =
       Logger[F].debug(s"Picked up ${job.toString}") *> execute(job).flatMap(
-        _ match {
-          case Left(reason)  => Logger[F].error(reason)
-          case Right(result) => resultQueue.offer(result)
-        }
+        _ match
+          case Left(reason) =>
+            resultQueue.offer(CrawlError(job.job.url, reason).asLeft)
+
+          case Right(result) => resultQueue.offer(result.asRight)
       )
 
     private def execute(job: SiteCrawlJob) =
@@ -44,7 +45,7 @@ object Crawler:
         .get(job.label)
         .toRight(s"Unregistered site crawler for label: ${job.label}")
         .traverse(crawler =>
-          job.job match {
+          job.job match
             case chapterJob @ ScrapeChaptersCrawlJob(_, _) =>
               crawler
                 .scrapeChapters(chapterJob)
@@ -54,7 +55,6 @@ object Crawler:
               crawler
                 .discoverTitles(titleJob)
                 .map(_.map(TitlesResult(_)).leftMap(_.toString))
-          }
         )
         .map(_.flatten)
   }

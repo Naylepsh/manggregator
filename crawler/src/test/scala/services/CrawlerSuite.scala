@@ -12,14 +12,17 @@ import cats.effect.std._
 import cats.implicits._
 import java.util.Date
 import java.util.UUID.randomUUID
-import org.legogroup.woof.{given, *}
+import org.legogroup.woof.{*, given}
 
 class CrawlerSuite extends CatsEffectSuite:
-  import CrawlerSuite.{given, *}
+  import CrawlerSuite.{*, given}
 
   test("crawler processes all the jobs from queue") {
     val mapping: Map[String, SiteCrawler[IO]] =
-      Map(testCrawlerLabel -> testCrawler)
+      Map(
+        testCrawlerLabel -> testCrawler,
+        testFailingCrawlerLabel -> testFailingCrawler
+      )
     val jobs = List(
       SiteCrawlJob(
         testCrawlerLabel,
@@ -31,10 +34,14 @@ class CrawlerSuite extends CatsEffectSuite:
       SiteCrawlJob(
         testCrawlerLabel,
         DiscoverTitlesCrawlJob("http://localhost:3000/assets", "Title 2")
+      ),
+      SiteCrawlJob(
+        testFailingCrawlerLabel,
+        DiscoverTitlesCrawlJob("http://localhost:3000/assets", "Title 3")
       )
     )
 
-    for {
+    for
       given Logger[IO] <- DefaultLogger.makeIo(noOutput)
       resultsQueue <- Queue.bounded[IO, CrawlResult.Result](capacity = 10)
       crawlQueue <- Queue.bounded[IO, SiteCrawlJob](capacity = 10)
@@ -42,7 +49,7 @@ class CrawlerSuite extends CatsEffectSuite:
       _ <- jobs.traverse(crawlQueue.offer)
       _ <- crawler.crawl()
       resultsOnResultsQueue <- resultsQueue.size
-    } yield assertEquals(resultsOnResultsQueue, jobs.length)
+    yield assertEquals(resultsOnResultsQueue, jobs.length)
   }
 
 object CrawlerSuite:
@@ -76,15 +83,25 @@ object CrawlerSuite:
   val testCrawler = new SiteCrawler[IO]:
     def discoverTitles(
         job: DiscoverTitlesCrawlJob
-    ): IO[Either[Throwable, List[AssetSource]]] = IO(
-      Right(testTitles)
-    )
+    ): IO[Either[Throwable, List[AssetSource]]] =
+      testTitles.asRight.pure
 
     def scrapeChapters(
         job: ScrapeChaptersCrawlJob
-    ): IO[Either[Throwable, List[Chapter]]] = IO(
-      Right(testChapters)
-    )
+    ): IO[Either[Throwable, List[Chapter]]] =
+      testChapters.asRight.pure
+
+  val testFailingCrawlerLabel = "test-failing"
+  val testFailingCrawler = new SiteCrawler[IO]:
+    def discoverTitles(
+        job: DiscoverTitlesCrawlJob
+    ): IO[Either[Throwable, List[AssetSource]]] =
+      new RuntimeException("Failed for reasons").asLeft.pure
+
+    def scrapeChapters(
+        job: ScrapeChaptersCrawlJob
+    ): IO[Either[Throwable, List[Chapter]]] =
+      new RuntimeException("Failed for reasons").asLeft.pure
 
   given Filter = Filter.everything
   given Printer = NoColorPrinter()

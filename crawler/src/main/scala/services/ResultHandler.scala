@@ -24,13 +24,13 @@ object ResultHandler:
     override def handle(resultsToExpect: Int): F[Unit] =
       def keepGoing(resultsLeft: Int): F[Unit] =
         if (resultsLeft > 0)
-          for {
+          for
             _ <- Logger[F].info(s"$resultsLeft results left to go...")
             potentialResult <- queue.tryTake
             _ <- potentialResult match {
               case Some(result) =>
                 Logger[F].info(s"Picked up one of $resultsLeft results left.")
-                  *> library.handleResult(result)
+                  *> handleResult(result)
                   *> keepGoing(resultsLeft - 1)
 
               case None =>
@@ -38,7 +38,15 @@ object ResultHandler:
                   *> Async[F].sleep(5 seconds)
                   *> keepGoing(resultsLeft)
             }
-          } yield ()
+          yield ()
         else Logger[F].info(s"Handled all $resultsToExpect results.")
 
       keepGoing(resultsToExpect)
+
+    private def handleResult(result: Result): F[Unit] =
+      result match
+        case Left(error) =>
+          Logger[F].error(
+            s"A job for ${error.url} ended in failure due to ${error.reason}"
+          )
+        case Right(data) => library.handleResult(data)
