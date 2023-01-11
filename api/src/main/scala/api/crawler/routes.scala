@@ -6,7 +6,7 @@ import cats.effect.implicits._
 import cats.implicits._
 import cats.syntax.all._
 import crawler.domain.Library
-import crawler.services.Crawling
+import crawler.services.Crawler
 import org.http4s.HttpRoutes
 import org.http4s.dsl.io._
 import org.http4s.implicits._
@@ -16,7 +16,7 @@ import sttp.tapir.server.http4s.Http4sServerInterpreter
 import sttp.tapir.swagger.bundle.SwaggerInterpreter
 
 object routes:
-  case class Props[F[_]](library: Library[F], crawling: Crawling[F])
+  case class Props[F[_]](library: Library[F], crawling: Crawler[F])
 
   def all[F[_]: Async](props: Props[F]): HttpRoutes[F] =
     crawl(props)

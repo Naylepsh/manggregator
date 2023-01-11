@@ -1,7 +1,7 @@
 package api
 
 import _root_.crawler.domain.Library
-import _root_.crawler.services.Crawling
+import _root_.crawler.services.Crawler
 import _root_.library.persistence.Storage
 import api.config.Docs
 import api.crawler.{CrawlerApi, routes => CrawlerRoutes}
@@ -21,10 +21,10 @@ object HttpApi:
   def make[F[_]: Async: Logger](
       docs: Docs,
       library: Library[F],
-      crawling: Crawling[F],
+      crawler: Crawler[F],
       libraryServices: LibraryRoutes.Services[F]
   ): HttpApi[F] =
-    new HttpApi[F](docs, library, crawling, libraryServices) {}
+    new HttpApi[F](docs, library, crawler, libraryServices) {}
 
   private def createOpenApi[F[_]: Async](
       endpoints: List[Endpoint[_, _, _, _, _]],
@@ -41,12 +41,12 @@ object HttpApi:
 sealed abstract class HttpApi[F[_]: Async: Logger] private (
     docs: Docs,
     library: Library[F],
-    crawling: Crawling[F],
+    crawler: Crawler[F],
     libraryServices: LibraryRoutes.Services[F]
 ):
   import HttpApi._
 
-  private val crawlerProps = CrawlerRoutes.Props(library, crawling)
+  private val crawlerProps = CrawlerRoutes.Props(library, crawler)
   private val crawlerApi = CrawlerApi(crawlerProps)
 
   private val libraryApi = LibraryApi(libraryServices)

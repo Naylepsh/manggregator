@@ -62,7 +62,7 @@ object Entrypoints:
     }
   }
 
-  def crawling()(using Logger[IO]): Crawling[IO] =
+  def crawling()(using Logger[IO]): Crawler[IO] =
     val siteCrawlersMapping = Map(
       "mangakakalot" -> MangakakalotCrawler
     )
@@ -77,7 +77,7 @@ object Entrypoints:
   def http(
       docs: Docs,
       library: Library[IO],
-      crawling: Crawling[IO],
+      crawling: Crawler[IO],
       libraryServices: Services[IO],
       serverConfig: ServerConfig
   )(using Logger[IO]) =
