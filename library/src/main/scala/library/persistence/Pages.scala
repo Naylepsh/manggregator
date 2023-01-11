@@ -27,24 +27,6 @@ trait Pages[F[_]]:
 object Pages:
   import PagesSQL._
 
-  def make[F[_]: Concurrent: UUIDGen: Functor]: Pages[F] = new Pages[F]:
-    val store: ListBuffer[ChaptersPage] = ListBuffer()
-
-    override def create(page: CreateChaptersPage): F[PageId] =
-      randomUUID[F].map(id =>
-        val pageId = PageId(id)
-        store.addOne(ChaptersPage(pageId, page.assetId, page.site, page.url))
-        pageId
-      )
-
-    override def findByUrl(url: PageUrl): F[Option[ChaptersPage]] =
-      store.find(_.url == url).pure
-
-    override def findByAssetIds(
-        assetIds: List[AssetId]
-    ): F[List[ChaptersPage]] =
-      store.filter(page => assetIds.contains(page.assetId)).toList.pure
-
   def makeSQL[F[_]: MonadCancelThrow: UUIDGen](
       xa: Transactor[F]
   ): Pages[F] = new Pages[F]:

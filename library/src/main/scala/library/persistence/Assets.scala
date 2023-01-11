@@ -24,30 +24,6 @@ trait Assets[F[_]]:
   def findEnabledAssets(): F[List[Asset]]
 
 object Assets:
-  def make[F[_]: Concurrent: UUIDGen: Functor]: Assets[F] = new Assets[F]:
-    val store: MutableMap[AssetId, Asset] = MutableMap()
-
-    override def create(asset: CreateAsset): F[AssetId] =
-      randomUUID[F].map { id =>
-        val assetId = AssetId(id)
-        store.addOne(assetId -> Asset(assetId, asset.name, asset.enabled))
-        assetId
-      }
-
-    override def findAll(): F[List[Asset]] = store.values.toList.pure
-
-    override def findManyByIds(ids: List[AssetId]): F[List[Asset]] =
-      store.values.filter(asset => ids.contains(asset.id)).toList.pure
-
-    override def findByName(name: AssetName): F[Option[Asset]] =
-      store
-        .find { case (_, asset) => asset.name == name }
-        .map { case (_, asset) => asset }
-        .pure
-
-    override def findEnabledAssets(): F[List[Asset]] =
-      store.values.filter(_.enabled.value).toList.pure
-
   def makeSQL[F[_]: MonadCancelThrow: UUIDGen](xa: Transactor[F]): Assets[F] =
     new Assets[F]:
       import AssetSQL._
