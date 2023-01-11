@@ -67,7 +67,8 @@ object Entrypoints:
       "mangakakalot" -> MangakakalotCrawler
     )
 
-    Crawling.make[IO](siteCrawlersMapping)
+
+    Crawler.make[IO](siteCrawlersMapping)
 
   def libraryServices(storage: Storage[IO]): Services[IO] = Services(
     Assets.make(storage),

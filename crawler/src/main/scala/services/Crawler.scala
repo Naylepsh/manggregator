@@ -17,7 +17,7 @@ import services.ResultHandler
 trait Crawler[F[_]]:
   def crawl(): Kleisli[F, Library[F], Unit]
 
-object Crawling:
+object Crawler:
   def make[F[_]: Async: Logger](
       siteCrawlersMapping: SiteCrawlersMapping[F]
   ): Crawler[F] = new Crawler[F]:
