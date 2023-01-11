@@ -14,13 +14,13 @@ import crawler.domain.Library.AssetToCrawl
 import org.legogroup.woof.{_, given}
 import services.ResultHandler
 
-trait Crawling[F[_]]:
+trait Crawler[F[_]]:
   def crawl(): Kleisli[F, Library[F], Unit]
 
 object Crawling:
   def make[F[_]: Async: Logger](
       siteCrawlersMapping: SiteCrawlersMapping[F]
-  ): Crawling[F] = new Crawling[F]:
+  ): Crawler[F] = new Crawler[F]:
 
     override def crawl(): Kleisli[F, Library[F], Unit] = Kleisli { library =>
       for {

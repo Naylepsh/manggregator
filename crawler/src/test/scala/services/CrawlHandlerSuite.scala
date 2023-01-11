@@ -1,4 +1,4 @@
-package crawler.services
+package services
 
 import munit.CatsEffectSuite
 import crawler.domain.Asset._
@@ -13,9 +13,10 @@ import cats.implicits._
 import java.util.Date
 import java.util.UUID.randomUUID
 import org.legogroup.woof.{*, given}
+import crawler.services.CrawlHandler
 
-class CrawlerSuite extends CatsEffectSuite:
-  import CrawlerSuite.{*, given}
+class CrawlHandlerSuite extends CatsEffectSuite:
+  import CrawlHandlerSuite.{*, given}
 
   test("crawler processes all the jobs from queue") {
     val mapping: Map[String, SiteCrawler[IO]] =
@@ -52,7 +53,7 @@ class CrawlerSuite extends CatsEffectSuite:
     yield assertEquals(resultsOnResultsQueue, jobs.length)
   }
 
-object CrawlerSuite:
+object CrawlHandlerSuite:
   val testTitles =
     List(
       AssetSource("Title 1", "http://localhost:3000/assets/title-1"),
