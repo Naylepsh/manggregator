@@ -1,9 +1,11 @@
 package api.library
 
-import io.circe.Encoder
+import io.circe.{Decoder, Encoder}
 import library.domain.alias._
 import library.domain.asset._
 import library.domain.chapter._
+import java.net.URI
+import scala.util.Try
 
 object codecs:
   // --- Asset codecs ---
@@ -20,3 +22,16 @@ object codecs:
   given Encoder[ChapterNo] = Encoder[String].contramap(_.value)
   given Encoder[ChapterUrl] = Encoder[String].contramap(_.value)
   given Encoder[DateReleased] = Encoder[String].contramap(_.value.toString)
+
+  given Encoder[URI] = Encoder[String].contramap(_.toString)
+  given Decoder[URI] = Decoder.decodeString.emap(convertToUrl)
+
+  private def convertToUrl(s: String): Either[String, URI] =
+    Try {
+      // Just constructing URI is not enough to validate.
+      // Even `new URI("string")` passes.
+      // toURL has to be called.
+      val uri = new URI(s)
+      uri.toURL()
+      uri
+    }.toEither.left.map(_ => s"$s is not a valid url")

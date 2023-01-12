@@ -3,6 +3,7 @@ package api.library
 import java.util.UUID
 
 import api.library.codecs.given
+import api.library.schemas.given
 import api.library.params._
 import api.library.responses._
 import api.utils.DateCodec.{decodeDate, encodeDate}

@@ -5,6 +5,7 @@ import java.util.UUID
 import library.domain.alias._
 import library.domain.asset._
 import library.domain.page._
+import java.net.URI
 
 object params:
 
@@ -25,6 +26,6 @@ object params:
 
   // --- Create chapters page ---
 
-  case class CreateChaptersPageParam(site: String, url: String):
+  case class CreateChaptersPageParam(site: String, url: URI):
     def toDomain(assetId: UUID): CreateChaptersPage =
-      CreateChaptersPage(Site(site), PageUrl(url), AssetId(assetId))
+      CreateChaptersPage(Site(site), PageUrl(url.toString), AssetId(assetId))
