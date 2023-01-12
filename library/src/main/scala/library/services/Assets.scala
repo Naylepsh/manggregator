@@ -5,8 +5,8 @@ import cats.data._
 import cats.implicits._
 import library.domain.alias._
 import library.domain.asset._
-import library.persistence.Storage
 import library.domain.chapter.DateReleased
+import library.persistence.Storage
 
 trait Assets[F[_]]:
   def create(asset: CreateAsset): F[Either[AssetAlreadyExists, AssetId]]

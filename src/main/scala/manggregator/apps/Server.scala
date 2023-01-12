@@ -8,8 +8,7 @@ import library.domain.asset._
 import library.domain.page._
 import library.persistence._
 import library.resources.database._
-import manggregator.Entrypoints
-import manggregator.config
+import manggregator.{Entrypoints, config}
 import org.legogroup.woof.{_, given}
 
 object Server:

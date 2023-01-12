@@ -1,18 +1,18 @@
 package manggregator.apps
 
+import java.text.SimpleDateFormat
+
 import api.config._
 import cats._
 import cats.effect._
 import cats.implicits._
 import library.domain.asset._
-import library.domain.page._
 import library.domain.chapter.DateReleased
+import library.domain.page._
 import library.persistence._
 import library.resources.database._
-import manggregator.Entrypoints
-import manggregator.config
+import manggregator.{Entrypoints, config}
 import org.legogroup.woof.{_, given}
-import java.text.SimpleDateFormat
 
 object SingleCrawl:
   def run(args: List[String]): IO[ExitCode] =

@@ -1,11 +1,12 @@
 package api.library
 
-import java.util.UUID
+import java.text.SimpleDateFormat
+import java.util.{Date, UUID}
 
 import api.library.codecs.given
-import api.library.schemas.given
 import api.library.params._
 import api.library.responses._
+import api.library.schemas.given
 import api.utils.DateCodec.{decodeDate, encodeDate}
 import cats.implicits._
 import io.circe.generic.auto._
@@ -14,8 +15,6 @@ import sttp.tapir.EndpointInput.Query
 import sttp.tapir._
 import sttp.tapir.generic.auto._
 import sttp.tapir.json.circe._
-import java.util.Date
-import java.text.SimpleDateFormat
 
 object endpoints:
   private val pathPrefix = "library"

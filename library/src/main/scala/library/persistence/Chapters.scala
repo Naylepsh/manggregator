@@ -2,7 +2,7 @@ package library.persistence
 
 import java.sql.Timestamp
 import java.text.SimpleDateFormat
-import java.util.UUID
+import java.util.{Date, UUID}
 
 import cats._
 import cats.data.NonEmptyList
@@ -16,7 +16,6 @@ import doobie.implicits._
 import doobie.util.query._
 import library.domain.asset._
 import library.domain.chapter._
-import java.util.Date
 
 trait Chapters[F[_]]:
   def create(chapters: List[CreateChapter]): F[List[ChapterId]]

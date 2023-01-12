@@ -2,8 +2,9 @@ package crawler.domain
 
 import java.util.UUID
 
-import Asset._
 import scala.util.control.NoStackTrace
+
+import Asset._
 
 object Crawl:
   sealed trait CrawlJob:
