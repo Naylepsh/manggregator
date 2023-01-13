@@ -15,6 +15,7 @@ import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 import net.ruippeixotog.scalascraper.dsl.DSL.Parse._
 import net.ruippeixotog.scalascraper.dsl.DSL._
 import org.joda.time.DateTime
+import crawler.domain.Url
 
 object MangakakalotCrawler extends SiteCrawler[IO]:
   /** Crawler for the following family of sites:
@@ -42,7 +43,7 @@ object MangakakalotCrawler extends SiteCrawler[IO]:
     }
 
   def getContent(url: Url): IO[Either[Throwable, String]] = IO {
-    Try(browser.get(url).toHtml).toEither
+    Try(browser.get(url.value).toHtml).toEither
   }
 
   def parseChapters(url: Url, id: UUID, selectors: Selectors)(
@@ -54,7 +55,8 @@ object MangakakalotCrawler extends SiteCrawler[IO]:
           for {
             nameElement <- chapterElement >?> element(selectors.chapterName)
             name = nameElement.text
-            chapterUrl <- nameElement >?> attr("href")
+            chapterRawUrl <- nameElement >?> attr("href")
+            chapterUrl <- Url.fromString(chapterRawUrl).toOption
             no <- parseChapterNoFromName(name)
             timeUploaded <- chapterElement >?> allText(
               selectors.timeUploaded
@@ -158,7 +160,7 @@ object MangakakalotCrawler extends SiteCrawler[IO]:
 
     private val mangakakalotUrlPattern = ".*mangakakalot.*".r
     private val manganatoUrlPattern = ".*manganato.*".r
-    def inferSelectors(url: Url): Option[Selectors] = url match {
+    def inferSelectors(url: Url): Option[Selectors] = url.value match {
       case mangakakalotUrlPattern() => Some(mangakakalotSelectors)
       case manganatoUrlPattern()    => Some(manganatoSelectors)
       case _                        => None

@@ -47,6 +47,6 @@ object ResultHandler:
       result match
         case Left(error) =>
           Logger[F].error(
-            s"A job for ${error.url} ended in failure due to ${error.reason}"
+            s"A job for ${error.url.value} ended in failure due to ${error.reason}"
           )
         case Right(data) => library.handleResult(data)

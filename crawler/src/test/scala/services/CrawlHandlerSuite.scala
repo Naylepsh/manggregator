@@ -14,6 +14,7 @@ import java.util.Date
 import java.util.UUID.randomUUID
 import org.legogroup.woof.{*, given}
 import crawler.services.CrawlHandler
+import crawler.domain.Url
 
 class CrawlHandlerSuite extends CatsEffectSuite:
   import CrawlHandlerSuite.{*, given}
@@ -28,17 +29,17 @@ class CrawlHandlerSuite extends CatsEffectSuite:
       SiteCrawlJob(
         testCrawlerLabel,
         ScrapeChaptersCrawlJob(
-          "http://localhost:3000/assets/title-1",
+          Url("http://localhost:3000/assets/title-1"),
           randomUUID
         )
       ),
       SiteCrawlJob(
         testCrawlerLabel,
-        DiscoverTitlesCrawlJob("http://localhost:3000/assets", "Title 2")
+        DiscoverTitlesCrawlJob(Url("http://localhost:3000/assets"), "Title 2")
       ),
       SiteCrawlJob(
         testFailingCrawlerLabel,
-        DiscoverTitlesCrawlJob("http://localhost:3000/assets", "Title 3")
+        DiscoverTitlesCrawlJob(Url("http://localhost:3000/assets"), "Title 3")
       )
     )
 
@@ -56,27 +57,27 @@ class CrawlHandlerSuite extends CatsEffectSuite:
 object CrawlHandlerSuite:
   val testTitles =
     List(
-      AssetSource("Title 1", "http://localhost:3000/assets/title-1"),
-      AssetSource("Title 2", "http://localhost:3000/assets/title-2")
+      AssetSource("Title 1", Url("http://localhost:3000/assets/title-1")),
+      AssetSource("Title 2", Url("http://localhost:3000/assets/title-2"))
     )
   val testChapters =
     List(
       Chapter(
         randomUUID,
         "1",
-        "http://localhost:3000/assets/title-1/chapters/1",
+        Url("http://localhost:3000/assets/title-1/chapters/1"),
         Date()
       ),
       Chapter(
         randomUUID,
         "2",
-        "http://localhost:3000/assets/title-1/chapters/2",
+        Url("http://localhost:3000/assets/title-1/chapters/2"),
         Date()
       ),
       Chapter(
         randomUUID,
         "1",
-        "http://localhost:3000/assets/title-2/chapters/1",
+        Url("http://localhost:3000/assets/title-2/chapters/1"),
         Date()
       )
     )

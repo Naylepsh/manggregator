@@ -6,6 +6,7 @@ import org.joda.time.DateTime
 import com.github.nscala_time.time.Imports._
 import org.joda.time.DateTimeComparator
 import java.util.UUID.randomUUID
+import crawler.domain.Url
 
 class MangakakalotCrawlerSuite extends CatsEffectSuite:
   import MangakakalotCrawler._
@@ -81,7 +82,7 @@ class MangakakalotCrawlerSuite extends CatsEffectSuite:
 
     MangakakalotCrawler
       .parseChapters(
-        url = "https://mangakakalot.com/manga/ot927321",
+        url = Url("https://mangakakalot.com/manga/ot927321"),
         id = randomUUID,
         selectors = Selectors.mangakakalotSelectors
       )(html)

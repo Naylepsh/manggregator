@@ -21,6 +21,7 @@ import library.persistence
 import library.persistence.Storage
 import library.services._
 import org.legogroup.woof.{_, given}
+import crawler.domain.Url
 
 object Entrypoints:
   def logger(): IO[Logger[IO]] =
@@ -35,16 +36,27 @@ object Entrypoints:
     persistence.Pages.makeSQL[IO](xa)
   )
 
-  def library(storage: Storage[IO]): Library[IO] = new Library {
+  def library(storage: Storage[IO]): Library[IO] = new Library:
     def getAssetsToCrawl(): IO[List[AssetToCrawl]] =
       Pages
         .make(storage)
         .findPagesOfEnabledAssets()
-        .map(_.map { case ChaptersPageToCheck(site, url, title) =>
-          AssetToCrawl(site.value, title.value, url.value)
-        })
+        .map(toCrawlerDomain)
 
-    def handleResult(result: SuccessfulResult): IO[Unit] = result match {
+    private def toCrawlerDomain(
+        pages: List[ChaptersPageToCheck]
+    ): List[AssetToCrawl] =
+      pages
+        .map { case ChaptersPageToCheck(site, url, title) =>
+          Url
+            .fromString(url.value)
+            .map(AssetToCrawl(site.value, title.value, _))
+        }
+        .collect { case Right(value) =>
+          value
+        }
+
+    def handleResult(result: SuccessfulResult): IO[Unit] = result match
       case ChapterResult(chapters) =>
         Chapters
           .make(storage.chapters)
@@ -52,21 +64,18 @@ object Entrypoints:
             chapters.map(chapter =>
               CreateChapter(
                 ChapterNo(chapter.no),
-                ChapterUrl(chapter.url),
+                ChapterUrl(chapter.url.value),
                 DateReleased(chapter.dateReleased),
                 AssetId(chapter.assetId)
               )
             )
           )
           .void
-    }
-  }
 
   def crawling()(using Logger[IO]): Crawler[IO] =
     val siteCrawlersMapping = Map(
       "mangakakalot" -> MangakakalotCrawler
     )
-
 
     Crawler.make[IO](siteCrawlersMapping)
 

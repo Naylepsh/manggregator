@@ -11,4 +11,4 @@ trait Library[F[_]]:
   def handleResult(result: SuccessfulResult): F[Unit]
 
 object Library:
-  case class AssetToCrawl(site: String, assetId: UUID, url: String)
+  case class AssetToCrawl(site: String, assetId: UUID, url: Url)
