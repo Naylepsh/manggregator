@@ -1,5 +1,7 @@
 ## MANGgregAtor
 
+Scrapes websites for new chapters of manga of your choice
+
 ### Installation
 
 - `sbt stage`
