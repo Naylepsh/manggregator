@@ -33,6 +33,9 @@ class MangadexCrawler[F[_]: Monad](
           .getManga(mangaId)
           .map(_.flatMap(_.data.traverse(toDomain(job.assetId, _))))
 
+  def chapterUrl(chapterId: String): String =
+    s"https://mangadex.org/chapter/${chapterId}"
+
   private def toDomain(
       assetId: UUID,
       chapter: entities.Chapter
@@ -50,9 +53,7 @@ class MangadexCrawler[F[_]: Monad](
   private def inferUrl(chapter: entities.Chapter): Either[Throwable, Url] =
     Url
       .fromString(
-        chapter.attributes.externalUrl.getOrElse(
-          s"https://mangadex.org/chapter/${chapter.id}"
-        )
+        chapter.attributes.externalUrl.getOrElse(chapterUrl(chapter.id))
       )
       .left
       .map(reason => new RuntimeException(reason))
