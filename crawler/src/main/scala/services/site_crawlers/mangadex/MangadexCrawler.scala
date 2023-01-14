@@ -1,6 +1,7 @@
 package crawler.services.site_crawlers.mangadex
 
 import crawler.domain.SiteCrawler
+import crawler.resources.httpclient.HttpClient
 import cats._
 import cats.syntax.all._
 import cats.effect._
@@ -63,3 +64,7 @@ class MangadexCrawler[F[_]: Monad](
     Try(
       dateTimeFormat.parseDateTime(rawDate.split("[+]").head).date
     ).toEither
+
+object MangadexCrawler:
+  def makeIO(httpClient: HttpClient[IO]): MangadexCrawler[IO] =
+    new MangadexCrawler[IO](MangadexAPI.makeIO(httpClient))

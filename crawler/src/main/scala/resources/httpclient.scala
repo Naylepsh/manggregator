@@ -10,8 +10,8 @@ import sttp.client3.SttpBackend
 import sttp.capabilities.WebSockets
 
 object httpclient:
-  def makeClient[F[_]: Async: Functor]
-      : Resource[F, SttpBackend[F, WebSockets]] =
+  type HttpClient[F[_]] = Resource[F, SttpBackend[F, WebSockets]]
+  def makeClient[F[_]: Async: Functor]: HttpClient[F] =
     /** STTP docs recommend closing the backend on application exit. This should
       * work the same as normal client backend, except it should do the closing
       * automatically

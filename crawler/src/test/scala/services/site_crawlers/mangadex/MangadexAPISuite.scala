@@ -10,7 +10,7 @@ object MangadexAPISuite extends weaver.FunSuite:
     expect(
       MangadexAPI.extractMangaIdFromAssetPageUrl(
         Url(s"https://mangadex.org/title/$id")
-      ) == id.pure
+      ) == id.asRight
     )
   }
 
@@ -19,7 +19,7 @@ object MangadexAPISuite extends weaver.FunSuite:
     expect(
       MangadexAPI.extractMangaIdFromAssetPageUrl(
         Url(s"https://mangadex.org/title/$id/the-manga-title-goes-here")
-      ) == id.pure
+      ) == id.asRight
     )
   }
 

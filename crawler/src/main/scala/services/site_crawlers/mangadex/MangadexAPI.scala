@@ -35,5 +35,5 @@ object MangadexAPI:
       case _ =>
         Left(new RuntimeException(s"Can't parse manga id from ${url.value}"))
 
-  private val shortAssetPagePattern = ".*/title/(.)*".r
-  private val fullAssetPagePattern = ".*/title/(.)*/.*".r
+  private val shortAssetPagePattern = ".*/title/(.*)".r
+  private val fullAssetPagePattern = ".*/title/(.*)/.*".r
