@@ -7,6 +7,8 @@ object Dependencies {
     val scalaTime = "2.32.0"
     val newType = "0.4.4"
     val ciris = "3.0.0"
+    val circe = "0.14.3"
+    val sttp = "3.8.8"
     val http4s = "0.23.16"
     val tapir = "1.1.3"
     val slf4j = "1.7.36"
@@ -26,6 +28,12 @@ object Dependencies {
     val woof = "org.legogroup" %% "woof-core" % V.woof
     val newType = ("io.estatico" %% "newtype" % V.newType)
       .cross(CrossVersion.for3Use2_13)
+    val circe = "io.circe" %% "circe-core" % V.circe
+    val circeGeneric = "io.circe" %% "circe-generic" % V.circe
+    val circeParser = "io.circe" %% "circe-parser" % V.circe
+    val sttp = "com.softwaremill.sttp.client3" %% "core" % V.sttp
+    val sttpCats = "com.softwaremill.sttp.client3" %% "cats" % V.sttp
+    val sttpCirce = "com.softwaremill.sttp.client3" %% "circe" % V.sttp
 
     val http4sEmberServer =
       "org.http4s" %% "http4s-ember-server" % V.http4s

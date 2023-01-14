@@ -28,7 +28,7 @@ object SingleCrawl:
             storage = Entrypoints.storage(xa)
             libraryServices = Entrypoints.libraryServices(storage)
             library = Entrypoints.library(storage)
-            crawling = Entrypoints.crawling()
+            crawling = Entrypoints.crawler()
             _ <- crawling.crawl().run(library)
             assets <- libraryServices.assets
               .findRecentReleases(minReleaseDate)

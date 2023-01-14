@@ -18,13 +18,23 @@ lazy val root = project
   .aggregate(crawler, library, api)
   .dependsOn(crawler, library, api)
 
-lazy val crawler = project.settings(
-  name := "crawler",
-  libraryDependencies ++= commonLibraries ++ Seq(
-    Libraries.scalaScraper,
-    Libraries.scalaTime
+lazy val crawler = project
+  .configs(IntegrationTest)
+  .settings(
+    name := "crawler",
+    testFrameworks ++= commonTestFrameworks,
+    Defaults.itSettings,
+    libraryDependencies ++= commonLibraries ++ Seq(
+      Libraries.scalaScraper,
+      Libraries.scalaTime,
+      Libraries.sttp,
+      Libraries.sttpCats,
+      Libraries.sttpCirce,
+      Libraries.circe,
+      Libraries.circeGeneric,
+      Libraries.circeParser
+    )
   )
-)
 
 lazy val api = project
   .settings(

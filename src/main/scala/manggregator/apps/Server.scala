@@ -21,7 +21,7 @@ object Server:
             given Logger[IO] <- Entrypoints.logger()
             storage = Entrypoints.storage(xa)
             library = Entrypoints.library(storage)
-            crawling = Entrypoints.crawling()
+            crawling = Entrypoints.crawler()
             libraryServices = Entrypoints.libraryServices(storage)
             _ <- Entrypoints
               .http(cfg.apiDocs, library, crawling, libraryServices, cfg.server)
