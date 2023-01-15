@@ -1,9 +1,11 @@
 package crawler
 
+import java.net.URI
+
+import scala.util.Try
+
 import io.estatico.newtype.macros.newtype
 import io.estatico.newtype.ops._
-import scala.util.Try
-import java.net.URI
 
 package object domain:
   @newtype

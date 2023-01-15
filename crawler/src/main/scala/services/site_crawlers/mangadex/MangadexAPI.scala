@@ -1,25 +1,28 @@
 package crawler.services.site_crawlers.mangadex
 
+import cats._
+import cats.effect._
+import cats.implicits._
 import crawler.domain.Url
-import sttp.client3.httpclient.cats.HttpClientCatsBackend
-import sttp.model.Uri
-import sttp.client3.{SttpBackend, UriContext, basicRequest}
-import sttp.client3.circe._
 import io.circe.generic.auto._
 import sttp.capabilities.WebSockets
-import cats.effect._
+import sttp.client3.circe._
+import sttp.client3.httpclient.cats.HttpClientCatsBackend
+import sttp.client3.{SttpBackend, UriContext, basicRequest}
+import sttp.model.Uri
+
 import entities._
 
 trait MangadexAPI[F[_]]:
   def getManga(mangaId: String): F[Either[Throwable, GetMangaResponse]]
 
 object MangadexAPI:
-  def makeIO(
-      httpClient: Resource[IO, SttpBackend[IO, WebSockets]]
-  ): MangadexAPI[IO] = new MangadexAPI[IO]:
+  def make[F[_]: Async](
+      httpClient: Resource[F, SttpBackend[F, WebSockets]]
+  ): MangadexAPI[F] = new MangadexAPI[F]:
     override def getManga(
         mangaId: String
-    ): IO[Either[Throwable, GetMangaResponse]] =
+    ): F[Either[Throwable, GetMangaResponse]] =
       httpClient.use { backend =>
         val url =
           uri"https://api.mangadex.org/manga/$mangaId/feed?order[chapter]=desc&translatedLanguage[]=en"

@@ -9,10 +9,12 @@ import cats.data._
 import cats.effect._
 import crawler.domain.Asset.AssetSource
 import crawler.domain.Crawl.CrawlResult._
-import crawler.domain.Library
 import crawler.domain.Library.AssetToCrawl
+import crawler.domain.{Library, Url}
+import crawler.resources.httpclient
 import crawler.services._
 import crawler.services.site_crawlers.MangakakalotCrawler
+import crawler.services.site_crawlers.mangadex.MangadexCrawler
 import doobie.util.transactor.Transactor
 import library.domain.asset.AssetId
 import library.domain.chapter._
@@ -21,9 +23,6 @@ import library.persistence
 import library.persistence.Storage
 import library.services._
 import org.legogroup.woof.{_, given}
-import crawler.domain.Url
-import crawler.services.site_crawlers.mangadex.MangadexCrawler
-import crawler.resources.httpclient
 
 object Entrypoints:
   def logger(): IO[Logger[IO]] =
@@ -78,7 +77,7 @@ object Entrypoints:
     val httpClientResource = httpclient.makeClient[IO]
     val siteCrawlersMapping = Map(
       "mangakakalot" -> MangakakalotCrawler,
-      "mangadex" -> MangadexCrawler.makeIO(httpClientResource)
+      "mangadex" -> MangadexCrawler.make(httpClientResource)
     )
 
     Crawler.make[IO](siteCrawlersMapping)

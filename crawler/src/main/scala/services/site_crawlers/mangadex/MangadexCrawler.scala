@@ -1,20 +1,21 @@
 package crawler.services.site_crawlers.mangadex
 
-import crawler.domain.SiteCrawler
-import crawler.resources.httpclient.HttpClient
+import java.util.{Date, UUID}
+
+import scala.util.Try
+
 import cats._
-import cats.syntax.all._
 import cats.effect._
+import cats.syntax.all._
+import com.github.nscala_time.time.Imports._
 import crawler.domain.Asset.{AssetSource, Chapter}
 import crawler.domain.Crawl.CrawlJob.{
   DiscoverTitlesCrawlJob,
   ScrapeChaptersCrawlJob
 }
-import crawler.domain.Url
-import java.util.{Date, UUID}
+import crawler.domain.{SiteCrawler, Url}
+import crawler.resources.httpclient.HttpClient
 import org.joda.time.format.DateTimeFormat
-import com.github.nscala_time.time.Imports._
-import scala.util.Try
 
 class MangadexCrawler[F[_]: Monad](
     api: MangadexAPI[F]
@@ -66,5 +67,5 @@ class MangadexCrawler[F[_]: Monad](
     ).toEither
 
 object MangadexCrawler:
-  def makeIO(httpClient: HttpClient[IO]): MangadexCrawler[IO] =
-    new MangadexCrawler[IO](MangadexAPI.makeIO(httpClient))
+  def make[F[_]: Async](httpClient: HttpClient[F]): MangadexCrawler[F] =
+    new MangadexCrawler[F](MangadexAPI.make(httpClient))

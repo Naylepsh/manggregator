@@ -15,7 +15,7 @@ object MangadexAPISuite extends IOSuite:
   override type Res = MangadexAPI[IO]
   override def sharedResource: Resource[IO, Res] =
     val client = httpclient.makeClient
-    client.map(_ => MangadexAPI.makeIO(client))
+    client.map(_ => MangadexAPI.make(client))
 
   test(
     "Request for a short manga should return all english-translated chapters"

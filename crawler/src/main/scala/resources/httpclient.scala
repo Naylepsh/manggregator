@@ -1,13 +1,12 @@
 package crawler.resources
 
-import sttp.client3.httpclient.cats.HttpClientCatsBackend
-import cats.effect.kernel.Async
-import cats.effect.kernel.Resource
 import cats._
+import cats.effect.kernel.{Async, Resource}
 import cats.implicits._
 import cats.syntax.all._
-import sttp.client3.SttpBackend
 import sttp.capabilities.WebSockets
+import sttp.client3.SttpBackend
+import sttp.client3.httpclient.cats.HttpClientCatsBackend
 
 object httpclient:
   type HttpClient[F[_]] = Resource[F, SttpBackend[F, WebSockets]]

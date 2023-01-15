@@ -9,13 +9,12 @@ import cats.effect._
 import com.github.nscala_time.time.Imports._
 import crawler.domain.Asset._
 import crawler.domain.Crawl.CrawlJob._
-import crawler.domain.SiteCrawler
+import crawler.domain.{SiteCrawler, Url}
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 import net.ruippeixotog.scalascraper.dsl.DSL.Parse._
 import net.ruippeixotog.scalascraper.dsl.DSL._
 import org.joda.time.DateTime
-import crawler.domain.Url
 
 object MangakakalotCrawler extends SiteCrawler[IO]:
   /** Crawler for the following family of sites:
