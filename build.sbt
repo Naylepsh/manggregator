@@ -88,3 +88,8 @@ addCommandAlias(
   "codeCoverage",
   "coverage ; test ; coverageReport"
 )
+
+addCommandAlias(
+  "organizeImports",
+  "scalafixEnable ; scalafix OrganizeImports"
+)
