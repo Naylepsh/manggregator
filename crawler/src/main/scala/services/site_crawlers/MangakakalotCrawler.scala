@@ -6,6 +6,7 @@ import scala.util.Try
 import scala.util.matching.Regex
 
 import cats.effect._
+import cats.implicits._
 import com.github.nscala_time.time.Imports._
 import crawler.domain.Asset._
 import crawler.domain.Crawl.CrawlJob._
@@ -15,6 +16,8 @@ import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 import net.ruippeixotog.scalascraper.dsl.DSL.Parse._
 import net.ruippeixotog.scalascraper.dsl.DSL._
 import org.joda.time.DateTime
+import retry.RetryPolicies._
+import retry._
 
 object MangakakalotCrawler extends SiteCrawler[IO]:
   /** Crawler for the following family of sites:
@@ -26,7 +29,7 @@ object MangakakalotCrawler extends SiteCrawler[IO]:
   def discoverTitles(
       job: DiscoverTitlesCrawlJob
   ): IO[Either[Throwable, List[AssetSource]]] =
-    getContent(job.url).map(_.map(parseTitles))
+    getHtml(job.url).map(_.map(parseTitles))
 
   def scrapeChapters(
       job: ScrapeChaptersCrawlJob
@@ -36,14 +39,10 @@ object MangakakalotCrawler extends SiteCrawler[IO]:
         IO(Left(RuntimeException(s"${job.url} has no registered selectors")))
 
       case Some(selectors) =>
-        getContent(job.url).map(
+        getHtml(job.url).map(
           _.flatMap(parseChapters(job.url, job.assetId, selectors))
         )
     }
-
-  def getContent(url: Url): IO[Either[Throwable, String]] = IO {
-    Try(browser.get(url.value).toHtml).toEither
-  }
 
   def parseChapters(url: Url, id: UUID, selectors: Selectors)(
       content: String
@@ -69,6 +68,26 @@ object MangakakalotCrawler extends SiteCrawler[IO]:
           )
         }
     }.toEither
+
+  private def getHtml(url: Url): IO[Either[Throwable, String]] =
+    /** The import has to stay here instead of being at the top level, due to
+      * ambiguity of DurationInt and nscala_time implicits
+      */
+    import concurrent.duration.DurationInt
+
+    /** Ideally retryingOnSomeErrors would be used, but figuring out what's a
+      * reasonable error from JsoupBrowser is a bother...
+      */
+    retryingOnAllErrors(
+      policy =
+        limitRetries[IO](5) join exponentialBackoff[IO](100.milliseconds),
+      onError = doNothing
+    )(IO(browser.get(url.value).toHtml))
+      .map(_.asRight[Throwable])
+      .handleError(_.asLeft[String])
+
+  private def doNothing(err: Throwable, details: RetryDetails): IO[Unit] =
+    IO.unit
 
   private val chapterNoPattern = ".*Chapter ([0-9]+[.]?[0-9]?).*".r
   def parseChapterNoFromName(chapterName: String): Option[String] =

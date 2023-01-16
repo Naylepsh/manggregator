@@ -3,6 +3,7 @@ import sbt._
 object Dependencies {
   object V {
     val catsEffect = "3.3.14"
+    val catsRetry = "3.1.0"
     val scalaScraper = "3.0.0"
     val scalaTime = "2.32.0"
     val newType = "0.4.4"
@@ -19,10 +20,12 @@ object Dependencies {
     val munit = "0.7.29"
     val munitCatsEffect = "1.0.7"
     val weaver = "0.8.1"
+
   }
 
   object Libraries {
     val catsEffect = "org.typelevel" %% "cats-effect" % V.catsEffect
+    val catsRetry = "com.github.cb372" %% "cats-retry" % V.catsRetry
     val scalaScraper = "net.ruippeixotog" %% "scala-scraper" % V.scalaScraper
     val scalaTime = "com.github.nscala-time" %% "nscala-time" % V.scalaTime
     val woof = "org.legogroup" %% "woof-core" % V.woof

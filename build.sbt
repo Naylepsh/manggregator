@@ -72,6 +72,7 @@ lazy val allTestFrameworks =
 
 lazy val commonLibraries = Seq(
   Libraries.catsEffect,
+  Libraries.catsRetry,
   Libraries.slf4j,
   Libraries.woof,
   Libraries.munit,
