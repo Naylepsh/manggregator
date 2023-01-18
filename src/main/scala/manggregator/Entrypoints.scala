@@ -24,6 +24,7 @@ import library.persistence
 import library.persistence.Storage
 import library.services._
 import org.legogroup.woof.{_, given}
+import crawler.services.site_crawlers.nyaa.NyaaCrawler
 
 object Entrypoints:
   def logger(): IO[Logger[IO]] =
@@ -80,7 +81,8 @@ object Entrypoints:
 
     val siteCrawlersMapping = Map(
       "mangakakalot" -> MangakakalotCrawler,
-      "mangadex" -> MangadexCrawler.make(httpClientResource)
+      "mangadex" -> MangadexCrawler.make(httpClientResource),
+      "nyaa" -> NyaaCrawler(httpClientResource)
     )
 
     Crawler.make[IO](siteCrawlersMapping)
