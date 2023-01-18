@@ -1,26 +1,23 @@
 package crawler.services.site_crawlers.nyaa
 
-import crawler.domain.SiteCrawler
-import crawler.domain.Asset.Chapter
-import crawler.domain.Crawl.CrawlJob.ScrapeChaptersCrawlJob
-import crawler.domain.Asset.AssetSource
-import crawler.domain.Crawl.CrawlJob.DiscoverTitlesCrawlJob
-import cats.effect.kernel.Resource
-import sttp.capabilities.WebSockets
-import sttp.client3.{SttpBackend, UriContext, basicRequest}
-import crawler.domain.Url
-import cats.effect.kernel.Async
+import java.util.{Date, UUID}
+
+import scala.util.Try
+
+import cats.effect.kernel.{Async, Resource}
 import cats.implicits._
+import com.github.nscala_time.time.Imports._
+import crawler.domain.Asset.{AssetSource, Chapter}
+import crawler.domain.Crawl.CrawlJob.{DiscoverTitlesCrawlJob, ScrapeChaptersCrawlJob}
+import crawler.domain.{SiteCrawler, Url}
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 import net.ruippeixotog.scalascraper.dsl.DSL.Parse._
 import net.ruippeixotog.scalascraper.dsl.DSL._
 import net.ruippeixotog.scalascraper.model.Element
 import org.joda.time.format.DateTimeFormat
-import java.util.Date
-import scala.util.Try
-import com.github.nscala_time.time.Imports._
-import java.util.UUID
+import sttp.capabilities.WebSockets
+import sttp.client3.{SttpBackend, UriContext, basicRequest}
 
 class NyaaCrawler[F[_]: Async](
     httpClient: Resource[F, SttpBackend[F, WebSockets]]
