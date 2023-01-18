@@ -26,9 +26,12 @@ object MangadexAPI:
       httpClient.use { backend =>
         val url =
           uri"https://api.mangadex.org/manga/$mangaId/feed?order[chapter]=desc&translatedLanguage[]=en"
-        val request =
-          basicRequest.get(url).response(asJson[GetMangaResponse])
-        backend.send(request).map(_.body)
+
+        basicRequest
+          .get(url)
+          .response(asJson[GetMangaResponse])
+          .send(backend)
+          .map(_.body)
       }
 
   def extractMangaIdFromAssetPageUrl(url: Url): Either[Throwable, String] =

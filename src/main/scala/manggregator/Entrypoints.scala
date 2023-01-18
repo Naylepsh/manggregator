@@ -23,6 +23,7 @@ import library.persistence
 import library.persistence.Storage
 import library.services._
 import org.legogroup.woof.{_, given}
+import crawler.services.httpclient.RetryingBackend
 
 object Entrypoints:
   def logger(): IO[Logger[IO]] =
@@ -74,7 +75,9 @@ object Entrypoints:
           .void
 
   def crawler()(using Logger[IO]): Crawler[IO] =
-    val httpClientResource = httpclient.makeClient[IO]
+    val httpClientResource =
+      httpclient.makeClient[IO].map(RetryingBackend.apply)
+
     val siteCrawlersMapping = Map(
       "mangakakalot" -> MangakakalotCrawler,
       "mangadex" -> MangadexCrawler.make(httpClientResource)
