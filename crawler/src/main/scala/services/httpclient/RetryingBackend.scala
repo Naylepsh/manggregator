@@ -1,14 +1,15 @@
 package crawler.services.httpclient
 
-import concurrent.duration.DurationInt
+import cats._
+import cats.effect.kernel.Async
+import cats.implicits._
 import crawler.domain.Url
 import retry.RetryPolicies._
 import retry._
-import cats._
-import cats.implicits._
-import cats.effect.kernel.Async
 import sttp.capabilities.Effect
 import sttp.client3._
+
+import concurrent.duration.DurationInt
 
 class RetryingBackend[F[_]: Async, P](
     delegate: SttpBackend[F, P]
