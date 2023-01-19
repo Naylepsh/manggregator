@@ -42,7 +42,7 @@ object chapter:
       all.filter(chapter =>
         toDiscard
           .find(other =>
-            other.assetId == chapter.assetId && other.no == chapter.no
+            other.assetId == chapter.assetId && other.url == chapter.url
           )
           .isEmpty
       )
