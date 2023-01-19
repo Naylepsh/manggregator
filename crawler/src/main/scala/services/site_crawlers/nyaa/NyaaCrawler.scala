@@ -118,7 +118,7 @@ class NyaaCrawler[F[_]: Async](
             "Could not extract an href from release name column"
           )
         )
-      case Some(relativePath) => Right(s"https://nyaa.si/$relativePath")
+      case Some(relativePath) => Right(s"https://nyaa.si$relativePath")
 
   private def getDateReleased(releaseRow: Element): Either[Throwable, String] =
     (releaseRow >?> text("td[data-timestamp]")) match
