@@ -35,11 +35,12 @@ object MangadexAPI:
       }
 
   def extractMangaIdFromAssetPageUrl(url: Url): Either[Throwable, String] =
-    url.value match
-      case shortAssetPagePattern(id) => Right(id)
+    url.value match {
       case fullAssetPagePattern(id)  => Right(id)
+      case shortAssetPagePattern(id) => Right(id)
       case _ =>
         Left(new RuntimeException(s"Can't parse manga id from ${url.value}"))
+    }
 
-  private val shortAssetPagePattern = ".*/title/(.*)".r
-  private val fullAssetPagePattern = ".*/title/(.*)/.*".r
+  val shortAssetPagePattern = ".*/title/(.*)".r
+  val fullAssetPagePattern = ".*/title/(.*)/.*".r
