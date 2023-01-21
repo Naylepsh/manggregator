@@ -32,6 +32,7 @@ object MangadexAPI:
           .response(asJson[GetMangaResponse])
           .send(backend)
           .map(_.body)
+          .handleError(_.asLeft)
       }
 
   def extractMangaIdFromAssetPageUrl(url: Url): Either[Throwable, String] =

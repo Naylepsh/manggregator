@@ -29,10 +29,12 @@ object ResultHandler:
         for
           _ <- Logger[F].info(s"${metadata.resultsLeft} results left to go...")
           potentialResult <- queue.tryTake
-          _ <- potentialResult match {
-            case Some(result) => handleResult(metadata, result)
-            case None         => waitForResult(metadata)
-          }
+          newMetadata <- potentialResult match
+            case Some(result) =>
+              handleResult(metadata, result).as(metadata.bumpFrom(result))
+
+            case None => waitForResult(metadata).as(metadata)
+          _ <- keepGoing(newMetadata)
         yield ()
       else
         Logger[F].info(
@@ -43,36 +45,45 @@ object ResultHandler:
         )
 
     private def handleResult(metadata: Metadata, result: Result): F[Unit] =
-      for
-        _ <- Logger[F].info(
-          s"Picked up one of ${metadata.resultsLeft} results left."
-        )
-        _ <- result match
+      Logger[F].info(
+        s"Picked up one of ${metadata.resultsLeft} results left."
+      )
+        *> (result match
           case Left(error) =>
             Logger[F].error(
               s"A job for ${error.url.value} ended in failure due to ${error.reason}"
             )
           case Right(data) => library.handleResult(data)
-        newMetadata = result.fold(
-          _ => Metadata.oneMoreFailure(metadata),
-          _ => Metadata.oneMoreSuccess(metadata)
         )
-        _ <- keepGoing(newMetadata)
-      yield ()
 
     private def waitForResult(
         metadata: Metadata
     ): F[Unit] =
       Logger[F].info(s"Waiting for ${metadata.resultsLeft} results. Zzz...")
         *> Async[F].sleep(5 seconds)
-        *> keepGoing(metadata)
 
   private case class Metadata(
       resultsToExpect: Int,
       resultsLeft: Int,
       successes: Int,
       failures: Int
-  )
+  ):
+    def bumpFrom(result: Result): Metadata = result match
+      case Left(_)  => addFailure
+      case Right(_) => addSuccess
+
+    def addSuccess: Metadata =
+      this.copy(
+        successes = successes + 1,
+        resultsLeft = resultsLeft - 1
+      )
+
+    def addFailure: Metadata =
+      this.copy(
+        failures = failures + 1,
+        resultsLeft = resultsLeft - 1
+      )
+
   private object Metadata:
     def apply(resultsToExpect: Int): Metadata = Metadata(
       resultsToExpect,
@@ -80,15 +91,3 @@ object ResultHandler:
       0,
       0
     )
-
-    def oneMoreSuccess(metadata: Metadata): Metadata =
-      metadata.copy(
-        successes = metadata.successes + 1,
-        resultsLeft = metadata.resultsLeft - 1
-      )
-
-    def oneMoreFailure(metadata: Metadata): Metadata =
-      metadata.copy(
-        failures = metadata.failures + 1,
-        resultsLeft = metadata.resultsLeft - 1
-      )
