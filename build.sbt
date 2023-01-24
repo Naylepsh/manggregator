@@ -65,6 +65,16 @@ lazy val library = project
     )
   )
 
+lazy val tui = project
+  .settings(
+    name := "tui",
+    libraryDependencies ++= commonLibraries ++ Seq(
+      Libraries.consoleUi
+    )
+  )
+  .aggregate(crawler, library)
+  .dependsOn(crawler, library)
+
 lazy val allTestFrameworks =
   new {
     val weaverCatsEffect = new TestFramework("weaver.framework.CatsEffect")
