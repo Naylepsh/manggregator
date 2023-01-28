@@ -15,8 +15,8 @@ lazy val root = project
       Libraries.slf4j
     )
   )
-  .aggregate(crawler, library, api)
-  .dependsOn(crawler, library, api)
+  .aggregate(crawler, library, api, tui)
+  .dependsOn(crawler, library, api, tui)
 
 lazy val crawler = project
   .configs(IntegrationTest)

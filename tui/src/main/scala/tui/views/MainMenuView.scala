@@ -6,14 +6,16 @@ import cats.implicits._
 import de.codeshelf.consoleui.prompt.ConsolePrompt
 import scala.jdk.CollectionConverters.*
 import cats.Applicative
-import tui.actions.LibraryActions
 import java.util.Date
 import java.text.SimpleDateFormat
 import scala.util.Try
 import tui.utils.retry.retryUntilSuccess
+import library.services.Assets
+import library.domain.chapter.DateReleased
 
 class MainMenuView[F[_]: Console: Sync](
-    prompt: ConsolePrompt
+    prompt: ConsolePrompt,
+    assetService: Assets[F]
 ) extends View[F]:
 
   // TODO: Handle unsafe `get`s
@@ -37,6 +39,7 @@ class MainMenuView[F[_]: Console: Sync](
     "exit" -> Action(text = "exit", onSelect = () => Applicative[F].unit)
   )
 
+  // TODO:
   private def triggerCrawl(): F[Unit] = Applicative[F].unit
 
   private def browseRecentReleases(): F[Unit] =
@@ -44,7 +47,7 @@ class MainMenuView[F[_]: Console: Sync](
       minDate <- retryUntilSuccess(
         getDateInput(s"Enter min. release date ($dateStringFormat):")
       )
-      assets <- LibraryActions.getRecentReleases()
+      assets <- assetService.findRecentReleases(DateReleased(minDate))
       _ <- new CrawlResultsView[F](prompt, assets).view()
     yield ()
 
