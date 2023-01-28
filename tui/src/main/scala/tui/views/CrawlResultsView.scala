@@ -20,7 +20,7 @@ class CrawlResultsView[F[_]: Sync: Console](
   // TODO: Handle unsafe `get`s
   def view(): F[Unit] =
     for
-      rawResult <- showPrompt(buildAssetNamesPrompt)
+      rawResult <- showPrompt(prompt, buildAssetNamesPrompt)
       assetId = getListPromptResult(rawResult.get(crawlResultsName).get)
       asset = assets.find(_.id.value.toString == assetId).get
       _ <- showAssetChapters(asset)
@@ -45,18 +45,5 @@ class CrawlResultsView[F[_]: Sync: Console](
 
   private def showAssetChapters(asset: Asset): F[Unit] =
     asset.chapters.foldLeft(Applicative[F].unit) { (acc, chapter) =>
-      acc *> Console[F].println(s"${chapter.no} | ${chapter.url}")
-    }
-
-  // --- Console UI helpers ---
-  // TODO: Move to separate helper package
-
-  private def getListPromptResult(rawPromptResult: PromtResultItemIF): String =
-    rawPromptResult.asInstanceOf[ListResult].getSelectedId()
-
-  private def showPrompt(
-      prompts: java.util.List[PromptableElementIF]
-  ): F[scala.collection.mutable.Map[String, ? <: PromtResultItemIF]] =
-    Applicative[F].pure {
-      prompt.prompt(prompts).asScala
+      acc *> Console[F].println(s"${chapter.no.value} | ${chapter.url.value}")
     }
