@@ -22,10 +22,15 @@ class CrawlResultsView[F[_]: Sync: Console](
     for
       rawResult <- showPrompt(prompt, buildAssetNamesPrompt)
       assetId = getListPromptResult(rawResult.get(crawlResultsName).get)
-      asset = assets.find(_.id.value.toString == assetId).get
-      _ <- showAssetChapters(asset)
-      _ <- view()
+      _ <- assets
+        .find(_.id.value.toString == assetId)
+        .map { asset =>
+          showAssetChapters(asset) >> view()
+        }
+        .getOrElse(exit)
     yield ()
+
+  private val exit = Sync[F].unit
 
   private val crawlResultsName = "crawl-results"
 
@@ -41,6 +46,9 @@ class CrawlResultsView[F[_]: Sync: Console](
       .foldLeft(header) { (builder, asset) =>
         builder.newItem(asset.id.value.toString).text(asset.name.value).add()
       }
+      .newItem("exit")
+      .text("exit")
+      .add()
       .addPrompt()
       .build()
 
