@@ -24,6 +24,7 @@ class CrawlResultsView[F[_]: Sync: Console](
       assetId = getListPromptResult(rawResult.get(crawlResultsName).get)
       asset = assets.find(_.id.value.toString == assetId).get
       _ <- showAssetChapters(asset)
+      _ <- view()
     yield ()
 
   private val crawlResultsName = "crawl-results"
