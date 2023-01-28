@@ -20,7 +20,7 @@ object Dependencies {
     val munit = "0.7.29"
     val munitCatsEffect = "1.0.7"
     val weaver = "0.8.1"
-
+    val consoleUi = "0.0.13"
   }
 
   object Libraries {
@@ -28,15 +28,21 @@ object Dependencies {
     val catsRetry = "com.github.cb372" %% "cats-retry" % V.catsRetry
     val scalaScraper = "net.ruippeixotog" %% "scala-scraper" % V.scalaScraper
     val scalaTime = "com.github.nscala-time" %% "nscala-time" % V.scalaTime
-    val woof = "org.legogroup" %% "woof-core" % V.woof
     val newType = ("io.estatico" %% "newtype" % V.newType)
       .cross(CrossVersion.for3Use2_13)
+    val ciris = "is.cir" %% "ciris" % V.ciris
+    val consoleUi = "de.codeshelf.consoleui" % "consoleui" % V.consoleUi
+
     val circe = "io.circe" %% "circe-core" % V.circe
     val circeGeneric = "io.circe" %% "circe-generic" % V.circe
     val circeParser = "io.circe" %% "circe-parser" % V.circe
+
     val sttp = "com.softwaremill.sttp.client3" %% "core" % V.sttp
     val sttpCats = "com.softwaremill.sttp.client3" %% "cats" % V.sttp
     val sttpCirce = "com.softwaremill.sttp.client3" %% "circe" % V.sttp
+
+    val woof = "org.legogroup" %% "woof-core" % V.woof
+    val slf4j = "org.slf4j" % "slf4j-simple" % V.slf4j
 
     val http4sEmberServer =
       "org.http4s" %% "http4s-ember-server" % V.http4s
@@ -52,11 +58,10 @@ object Dependencies {
     val tapirJsonCirce =
       "com.softwaremill.sttp.tapir" %% "tapir-json-circe" % V.tapir
 
-    val ciris = "is.cir" %% "ciris" % V.ciris
-    val slf4j = "org.slf4j" % "slf4j-simple" % V.slf4j
     val doobie = "org.tpolecat" %% "doobie-core" % V.doobie
     val doobieHikari = "org.tpolecat" %% "doobie-hikari" % V.doobie
     val sqliteJDB = "org.xerial" % "sqlite-jdbc" % V.sqliteJDB
+
     val munit = "org.scalameta" %% "munit" % V.munit % Test
     val munitCatsEffect =
       "org.typelevel" %% "munit-cats-effect-3" % V.munitCatsEffect % Test

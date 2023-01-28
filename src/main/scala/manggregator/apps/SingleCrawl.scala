@@ -43,9 +43,10 @@ object SingleCrawl:
     assets match
       case asset :: next =>
         for
-          _ <- Logger[IO].info(s"===== ${asset.name} =====")
+          _ <- Logger[IO].info(s"===== ${asset.name.value} =====")
           _ <- asset.chapters.traverse(chapter =>
-            Logger[IO].info(s"${chapter.no} | ${chapter.url}")
+            Logger[IO].info(s"${chapter.no.value} | ${chapter.url.value}")
           )
-        yield showRecentReleases(next)
+          _ <- showRecentReleases(next)
+        yield ()
       case Nil => IO.unit

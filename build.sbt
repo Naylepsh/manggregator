@@ -15,8 +15,8 @@ lazy val root = project
       Libraries.slf4j
     )
   )
-  .aggregate(crawler, library, api)
-  .dependsOn(crawler, library, api)
+  .aggregate(crawler, library, api, tui)
+  .dependsOn(crawler, library, api, tui)
 
 lazy val crawler = project
   .configs(IntegrationTest)
@@ -64,6 +64,16 @@ lazy val library = project
       Libraries.sqliteJDB
     )
   )
+
+lazy val tui = project
+  .settings(
+    name := "tui",
+    libraryDependencies ++= commonLibraries ++ Seq(
+      Libraries.consoleUi
+    )
+  )
+  .aggregate(crawler, library)
+  .dependsOn(crawler, library)
 
 lazy val allTestFrameworks =
   new {
