@@ -48,7 +48,7 @@ class MainMenuView[F[_]: Console: Sync](
         getDateInput(s"Enter min. release date ($dateStringFormat):")
       )
       assets <- assetService.findRecentReleases(DateReleased(minDate))
-      _ <- new CrawlResultsView[F](prompt, assets).view()
+      _ <- new CrawlResultsView[F](prompt, assets, this).view()
     yield ()
 
   private def buildActionsPrompt =

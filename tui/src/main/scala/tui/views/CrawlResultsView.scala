@@ -14,23 +14,29 @@ import de.codeshelf.consoleui.elements.PromptableElementIF
 
 class CrawlResultsView[F[_]: Sync: Console](
     prompt: ConsolePrompt,
-    assets: List[Asset]
+    assets: List[Asset],
+    previous: View[F]
 ) extends View[F]:
 
   // TODO: Handle unsafe `get`s
   def view(): F[Unit] =
     for
       rawResult <- showPrompt(prompt, buildAssetNamesPrompt)
-      assetId = getListPromptResult(rawResult.get(crawlResultsName).get)
+      result = getListPromptResult(rawResult.get(crawlResultsName).get)
       _ <- assets
-        .find(_.id.value.toString == assetId)
+        .find(_.id.value.toString == result)
         .map { asset =>
           showAssetChapters(asset) >> view()
         }
-        .getOrElse(exit)
+        .getOrElse(result match
+          case `goBackId` => goBack()
+          case _          => exit()
+        )
     yield ()
 
-  private val exit = Sync[F].unit
+  private def exit() = Sync[F].unit
+  private val goBackId = "go-back"
+  private def goBack() = previous.view()
 
   private val crawlResultsName = "crawl-results"
 
@@ -46,6 +52,9 @@ class CrawlResultsView[F[_]: Sync: Console](
       .foldLeft(header) { (builder, asset) =>
         builder.newItem(asset.id.value.toString).text(asset.name.value).add()
       }
+      .newItem(goBackId)
+      .text("back")
+      .add()
       .newItem("exit")
       .text("exit")
       .add()
