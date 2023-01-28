@@ -9,17 +9,28 @@ import org.fusesource.jansi.AnsiConsole
 import tui.views.MainMenuView
 import cats.implicits._
 import de.codeshelf.consoleui.prompt.ConsolePrompt
+import crawler.services.Crawler
+import crawler.domain.Library
 
 trait MakeTUI[F[_]]:
   def make(): Resource[F, View[F]]
 
 object MakeTUI:
-  def apply[F[_]: Sync: Console](assets: Assets[F]): MakeTUI[F] =
+  def apply[F[_]: Sync: Console](
+      assets: Assets[F],
+      crawler: Crawler[F],
+      crawlerLibrary: Library[F]
+  ): MakeTUI[F] =
     new MakeTUI[F]:
       override def make(): Resource[F, View[F]] =
         Resource.make(
           registerConsole().map(_ =>
-            new MainMenuView[F](new ConsolePrompt(), assets)
+            new MainMenuView[F](
+              new ConsolePrompt(),
+              assets,
+              crawler,
+              crawlerLibrary
+            )
           )
         )(_ => unregisterConsole())
 

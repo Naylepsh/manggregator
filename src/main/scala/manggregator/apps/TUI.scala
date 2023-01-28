@@ -22,7 +22,11 @@ object TUI:
             given Logger[IO] <- Entrypoints.logger()
             storage = Entrypoints.storage(xa)
             libraryServices = Entrypoints.libraryServices(storage)
-            _ <- MakeTUI(libraryServices.assets).make().use { _.view() }
+            library = Entrypoints.library(storage)
+            crawler = Entrypoints.crawler()
+            _ <- MakeTUI(libraryServices.assets, crawler, library).make().use {
+              _.view()
+            }
           yield ExitCode.Success
         }
     }

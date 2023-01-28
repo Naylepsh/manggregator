@@ -12,10 +12,14 @@ import scala.util.Try
 import tui.utils.retry.retryUntilSuccess
 import library.services.Assets
 import library.domain.chapter.DateReleased
+import crawler.services.Crawler
+import crawler.domain.Library
 
 class MainMenuView[F[_]: Console: Sync](
     prompt: ConsolePrompt,
-    assetService: Assets[F]
+    assetService: Assets[F],
+    crawlingService: Crawler[F],
+    crawlingLibrary: Library[F]
 ) extends View[F]:
 
   // TODO: Handle unsafe `get`s
@@ -39,8 +43,8 @@ class MainMenuView[F[_]: Console: Sync](
     "exit" -> Action(text = "exit", onSelect = () => Applicative[F].unit)
   )
 
-  // TODO:
-  private def triggerCrawl(): F[Unit] = Applicative[F].unit
+  private def triggerCrawl(): F[Unit] =
+    crawlingService.crawl().run(crawlingLibrary) >> view()
 
   private def browseRecentReleases(): F[Unit] =
     for
