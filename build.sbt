@@ -62,6 +62,9 @@ lazy val library = project
       Libraries.doobie,
       Libraries.doobieHikari,
       Libraries.sqliteJDB
+    ),
+    concurrentRestrictions := Seq(
+      Tags.limit(Tags.Test, 1),
     )
   )
 

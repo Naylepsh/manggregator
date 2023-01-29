@@ -15,6 +15,8 @@ object common:
     override def create(asset: CreateAsset): F[AssetId] =
       UUIDGen.randomUUID.map(AssetId.apply)
 
+    override def update(asset: UpdateAsset): F[Unit] = Applicative[F].unit
+
     override def findByName(name: AssetName): F[Option[Asset]] = None.pure
 
     override def findAll(): F[List[Asset]] = List.empty.pure

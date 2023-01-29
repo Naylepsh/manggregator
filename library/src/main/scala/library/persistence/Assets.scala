@@ -18,6 +18,7 @@ import library.domain.asset._
 
 trait Assets[F[_]]:
   def create(asset: CreateAsset): F[AssetId]
+  def update(asset: UpdateAsset): F[Unit]
   def findAll(): F[List[Asset]]
   def findManyByIds(ids: List[AssetId]): F[List[Asset]]
   def findByName(name: AssetName): F[Option[Asset]]
@@ -39,6 +40,19 @@ object Assets:
             )
           ).run.transact(xa)
         yield AssetId(id)
+
+      override def update(asset: UpdateAsset): F[Unit] =
+        AssetSQL
+          .update(
+            AssetRecord(
+              id = asset.id.value,
+              name = asset.name.value,
+              enabled = asset.enabled.value
+            )
+          )
+          .run
+          .transact(xa)
+          .void
 
       override def findManyByIds(ids: List[AssetId]): F[List[Asset]] =
         NonEmptyList.fromList(ids).fold(List.empty.pure) { ids =>
@@ -109,4 +123,11 @@ private object AssetSQL:
     sql"""
       INSERT INTO asset (id, name, enabled)
       VALUES (${record.id}, ${record.name}, ${record.enabled})
+    """.update
+
+  def update(record: AssetRecord): Update0 =
+    sql"""
+        UPDATE asset
+        SET name = ${record.name}, enabled = ${record.enabled}
+        WHERE id = ${record.id}
     """.update

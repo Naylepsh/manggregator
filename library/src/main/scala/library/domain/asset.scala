@@ -28,7 +28,9 @@ object asset:
       enabled: Enabled,
       aliases: List[Alias] = List(),
       chapters: List[Chapter] = List()
-  )
+  ):
+    def disable(): Asset =
+      this.copy(enabled = Enabled(false))
 
   def bindChaptersToAssets(
       assets: List[Asset],
@@ -50,5 +52,12 @@ object asset:
       enabled: Enabled
   )
 
+  case class UpdateAsset(
+      id: AssetId,
+      name: AssetName,
+      enabled: Enabled
+  )
+
   // --- Errors ---
   case class AssetAlreadyExists(assetName: AssetName) extends NoStackTrace
+  case class AssetDoesNotExist(assetName: AssetName) extends NoStackTrace

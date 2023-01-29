@@ -12,16 +12,14 @@ import library.config.types._
 import library.domain.asset._
 import library.domain.chapter._
 import java.util.Date
+import library.suite.DatabaseSuite
 
-object ChaptersSuite extends IOSuite:
+object ChaptersSuite extends DatabaseSuite:
   override type Res = HikariTransactor[IO]
   override def sharedResource: Resource[cats.effect.IO, Res] =
     databaseResource
-      .evalTap { xa =>
-        clearChapters(xa) *> clearAssets(xa)
-      }
 
-  test("Created chapters can be found") { xa =>
+  testWithCleanDb("Created chapters can be found") { xa =>
     val assetRepository = Assets.makeSQL(xa)
     val chapterRepository = Chapters.makeSQL(xa)
 
@@ -54,7 +52,7 @@ object ChaptersSuite extends IOSuite:
     )
   }
 
-  test(
+  testWithCleanDb(
     "Searching for recent released does not include records released before given date"
   ) { xa =>
     val assetRepository = Assets.makeSQL(xa)
@@ -85,18 +83,15 @@ object ChaptersSuite extends IOSuite:
       date: Date,
       assetId: AssetId
   ) =
-    chapterRepository.create(
-      List(
-        CreateChapter(
-          no = ChapterNo(no),
-          url = ChapterUrl(s"http://foo.bar/asset/$no"),
-          dateReleased = DateReleased(date),
-          assetId = assetId
+    chapterRepository
+      .create(
+        List(
+          CreateChapter(
+            no = ChapterNo(no),
+            url = ChapterUrl(s"http://foo.bar/asset/$no"),
+            dateReleased = DateReleased(date),
+            assetId = assetId
+          )
         )
       )
-    ).map(_.head)
-
-  private def clearChapters(xa: HikariTransactor[IO]) =
-    sql"""
-    DELETE FROM chapter
-    """.update.run.void.transact(xa)
+      .map(_.head)
