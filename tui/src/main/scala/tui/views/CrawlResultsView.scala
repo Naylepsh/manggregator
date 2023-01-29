@@ -1,16 +1,15 @@
 package tui.views
 
-import library.domain.asset.Asset
+import scala.jdk.CollectionConverters.*
+
+import cats.Applicative
 import cats.effect.kernel.Sync
 import cats.effect.std.Console
-import cats.Applicative
 import cats.implicits._
-import scala.jdk.CollectionConverters.*
-import de.codeshelf.consoleui.prompt.ConsolePrompt
-import de.codeshelf.consoleui.prompt.builder.ListPromptBuilder
-import de.codeshelf.consoleui.prompt.PromtResultItemIF
-import de.codeshelf.consoleui.prompt.ListResult
 import de.codeshelf.consoleui.elements.PromptableElementIF
+import de.codeshelf.consoleui.prompt.builder.ListPromptBuilder
+import de.codeshelf.consoleui.prompt.{ConsolePrompt, ListResult, PromtResultItemIF}
+import library.domain.asset.Asset
 
 class CrawlResultsView[F[_]: Sync: Console](
     prompt: ConsolePrompt,

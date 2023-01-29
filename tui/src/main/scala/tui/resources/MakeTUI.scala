@@ -1,16 +1,14 @@
 package tui.resources
 
-import cats.effect.kernel.Resource
-import tui.views.View
-import library.services.Assets
-import cats.effect.kernel.Sync
+import cats.effect.kernel.{Resource, Sync}
 import cats.effect.std.Console
-import org.fusesource.jansi.AnsiConsole
-import tui.views.MainMenuView
 import cats.implicits._
-import de.codeshelf.consoleui.prompt.ConsolePrompt
-import crawler.services.Crawler
 import crawler.domain.Library
+import crawler.services.Crawler
+import de.codeshelf.consoleui.prompt.ConsolePrompt
+import library.services.Assets
+import org.fusesource.jansi.AnsiConsole
+import tui.views.{MainMenuView, View}
 
 trait MakeTUI[F[_]]:
   def make(): Resource[F, View[F]]

@@ -1,19 +1,21 @@
 package tui.views
 
-import cats.effect.std.Console
-import cats.effect.kernel.Sync
-import cats.implicits._
-import de.codeshelf.consoleui.prompt.ConsolePrompt
-import scala.jdk.CollectionConverters.*
-import cats.Applicative
-import java.util.Date
 import java.text.SimpleDateFormat
+import java.util.Date
+
+import scala.jdk.CollectionConverters.*
 import scala.util.Try
-import tui.utils.retry.retryUntilSuccess
-import library.services.Assets
-import library.domain.chapter.DateReleased
-import crawler.services.Crawler
+
+import cats.Applicative
+import cats.effect.kernel.Sync
+import cats.effect.std.Console
+import cats.implicits._
 import crawler.domain.Library
+import crawler.services.Crawler
+import de.codeshelf.consoleui.prompt.ConsolePrompt
+import library.domain.chapter.DateReleased
+import library.services.Assets
+import tui.utils.retry.retryUntilSuccess
 
 class MainMenuView[F[_]: Console: Sync](
     prompt: ConsolePrompt,

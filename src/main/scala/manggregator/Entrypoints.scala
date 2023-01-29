@@ -16,6 +16,7 @@ import crawler.services._
 import crawler.services.httpclient.RetryingBackend
 import crawler.services.site_crawlers.MangakakalotCrawler
 import crawler.services.site_crawlers.mangadex.MangadexCrawler
+import crawler.services.site_crawlers.nyaa.NyaaCrawler
 import doobie.util.transactor.Transactor
 import library.domain.asset.AssetId
 import library.domain.chapter._
@@ -24,7 +25,6 @@ import library.persistence
 import library.persistence.Storage
 import library.services._
 import org.legogroup.woof.{_, given}
-import crawler.services.site_crawlers.nyaa.NyaaCrawler
 
 object Entrypoints:
   def logger(): IO[Logger[IO]] =

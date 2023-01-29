@@ -1,13 +1,11 @@
 package tui
 
-import cats.Applicative
-import de.codeshelf.consoleui.prompt.ConsolePrompt
-import de.codeshelf.consoleui.prompt.builder.ListPromptBuilder
-import de.codeshelf.consoleui.prompt.PromtResultItemIF
-import de.codeshelf.consoleui.prompt.ListResult
-import de.codeshelf.consoleui.elements.PromptableElementIF
 import scala.jdk.CollectionConverters.*
-import de.codeshelf.consoleui.prompt.InputResult
+
+import cats.Applicative
+import de.codeshelf.consoleui.elements.PromptableElementIF
+import de.codeshelf.consoleui.prompt._
+import de.codeshelf.consoleui.prompt.builder.ListPromptBuilder
 
 package object views {
   private def getListPromptResult(rawPromptResult: PromtResultItemIF): String =
