@@ -15,9 +15,6 @@ import java.util.Date
 import library.suite.DatabaseSuite
 
 object ChaptersSuite extends DatabaseSuite:
-  override type Res = HikariTransactor[IO]
-  override def sharedResource: Resource[cats.effect.IO, Res] =
-    databaseResource
 
   testWithCleanDb("Created chapters can be found") { xa =>
     val assetRepository = Assets.makeSQL(xa)

@@ -11,11 +11,6 @@ import library.domain.asset._
 import library.suite.DatabaseSuite
 
 object AssetsSuite extends DatabaseSuite:
-  override def maxParallelism = 1
-
-  override type Res = HikariTransactor[IO]
-  override def sharedResource: Resource[cats.effect.IO, Res] =
-    databaseResource
 
   testWithCleanDb("Created assets can be found") { xa =>
     val repository = Assets.makeSQL(xa)

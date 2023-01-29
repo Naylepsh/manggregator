@@ -11,14 +11,9 @@ import library.resources.database._
 import library.config.types._
 import library.domain.asset._
 import library.domain.page._
+import library.suite.DatabaseSuite
 
-object PagesSuite extends IOSuite:
-  override type Res = HikariTransactor[IO]
-  override def sharedResource: Resource[cats.effect.IO, Res] =
-    databaseResource
-      .evalTap { xa =>
-        clearPages(xa) *> clearAssets(xa)
-      }
+object PagesSuite extends DatabaseSuite:
 
   test("Created pages can be found") { xa =>
     val assetRepository = Assets.makeSQL(xa)
@@ -51,8 +46,3 @@ object PagesSuite extends IOSuite:
       pagesAfter.length == assetIdsSubset.length
     )
   }
-
-  private def clearPages(xa: HikariTransactor[IO]) =
-    sql"""
-    DELETE FROM chapters_page
-    """.update.run.void.transact(xa)
