@@ -22,7 +22,6 @@ class CrawlResultsView[F[_]: Sync: Console](
     previous: View[F]
 ) extends View[F]:
 
-  // TODO: Handle unsafe `get`s
   def view(): F[Unit] =
     val promptBuilder = prompt.getPromptBuilder()
     for
