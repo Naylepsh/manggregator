@@ -16,6 +16,7 @@ import de.codeshelf.consoleui.prompt.ConsolePrompt
 import library.domain.chapter.DateReleased
 import library.services.Assets
 import tui.utils.retry.retryUntilSuccess
+import tui.views.assetmanagement.MainAssetManagementView
 
 class MainMenuView[F[_]: Console: Sync](
     prompt: ConsolePrompt,
@@ -42,6 +43,10 @@ class MainMenuView[F[_]: Console: Sync](
       text = "Browse recent releases",
       onSelect = browseRecentReleases
     ),
+    "asset-management" -> Action(
+      text = "Manage assets",
+      onSelect = manageAssets
+    ),
     "exit" -> Action(text = "exit", onSelect = () => Applicative[F].unit)
   )
 
@@ -55,6 +60,13 @@ class MainMenuView[F[_]: Console: Sync](
       )
       assets <- assetService.findRecentReleases(DateReleased(minDate))
       _ <- new CrawlResultsView[F](prompt, assets, this).view()
+    yield ()
+
+  private def manageAssets(): F[Unit] =
+    for
+      assets <- assetService.findAll()
+      _ <- new MainAssetManagementView(prompt, assets, this, assetService)
+        .view()
     yield ()
 
   private def buildActionsPrompt =

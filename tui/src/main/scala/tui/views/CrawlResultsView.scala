@@ -8,8 +8,13 @@ import cats.effect.std.Console
 import cats.implicits._
 import de.codeshelf.consoleui.elements.PromptableElementIF
 import de.codeshelf.consoleui.prompt.builder.ListPromptBuilder
-import de.codeshelf.consoleui.prompt.{ConsolePrompt, ListResult, PromtResultItemIF}
+import de.codeshelf.consoleui.prompt.{
+  ConsolePrompt,
+  ListResult,
+  PromtResultItemIF
+}
 import library.domain.asset.Asset
+import tui.prompts.AssetPrompts.buildReleasesPrompt
 
 class CrawlResultsView[F[_]: Sync: Console](
     prompt: ConsolePrompt,
@@ -17,48 +22,26 @@ class CrawlResultsView[F[_]: Sync: Console](
     previous: View[F]
 ) extends View[F]:
 
-  // TODO: Handle unsafe `get`s
   def view(): F[Unit] =
+    val promptBuilder = prompt.getPromptBuilder()
     for
-      rawResult <- showPrompt(prompt, buildAssetNamesPrompt)
-      result = getListPromptResult(rawResult.get(crawlResultsName).get)
-      _ <- assets
-        .find(_.id.value.toString == result)
-        .map { asset =>
-          showAssetChapters(asset) >> view()
-        }
-        .getOrElse(result match
-          case `goBackId` => goBack()
-          case _          => exit()
-        )
+      rawResult <- showPrompt(
+        prompt,
+        releasesPrompt.combinePrompts(promptBuilder)
+      )
+      _ <- releasesPrompt.handle(rawResult).map(_.getOrElse(()))
     yield ()
 
-  private def exit() = Sync[F].unit
-  private val goBackId = "go-back"
-  private def goBack() = previous.view()
+  private val releasesPrompt =
+    buildReleasesPrompt(assets, onHandleAsset, previous)
 
-  private val crawlResultsName = "crawl-results"
-
-  private def buildAssetNamesPrompt =
-    val promptBuilder = prompt.getPromptBuilder()
-
-    val header = promptBuilder
-      .createListPrompt()
-      .name(crawlResultsName)
-      .message("Select an asset to see recent releases of:")
-
+  private def onHandleAsset(result: String): F[Unit] =
     assets
-      .foldLeft(header) { (builder, asset) =>
-        builder.newItem(asset.id.value.toString).text(asset.name.value).add()
-      }
-      .newItem(goBackId)
-      .text("back")
-      .add()
-      .newItem("exit")
-      .text("exit")
-      .add()
-      .addPrompt()
-      .build()
+      .find(_.id.value.toString == result)
+      .map { asset => showAssetChapters(asset) >> view() }
+      .getOrElse(exit())
+
+  private def exit() = Sync[F].unit
 
   private def showAssetChapters(asset: Asset): F[Unit] =
     asset.chapters.foldLeft(Applicative[F].unit) { (acc, chapter) =>
