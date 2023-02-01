@@ -11,13 +11,13 @@ import library.persistence.Storage
 trait Assets[F[_]]:
   def create(asset: CreateAsset): F[Either[AssetAlreadyExists, AssetId]]
   def update(asset: UpdateAsset): F[Either[AssetDoesNotExist, Unit]]
+  def findAll(): F[List[Asset]]
   def findManyWithChapters(assetIds: List[AssetId]): F[List[Asset]]
   def findRecentReleases(minDate: DateReleased): F[List[Asset]]
 
 object Assets:
   def make[F[_]: Monad](storage: Storage[F]): Assets[F] = new Assets[F]:
-
-    def create(
+    override def create(
         asset: CreateAsset
     ): F[Either[AssetAlreadyExists, AssetId]] =
       storage.assets.findByName(asset.name).flatMap {
@@ -25,14 +25,17 @@ object Assets:
         case None    => storage.assets.create(asset).map(_.asRight)
       }
 
-    def update(asset: UpdateAsset): F[Either[AssetDoesNotExist, Unit]] =
+    override def update(
+        asset: UpdateAsset
+    ): F[Either[AssetDoesNotExist, Unit]] =
       storage.assets.findByName(asset.name).flatMap {
-        case None        => storage.assets.update(asset).map(_.asRight)
-        case Some(value) => AssetDoesNotExist(asset.name).asLeft.pure
-
+        case Some(_) => storage.assets.update(asset).map(_.asRight)
+        case None    => AssetDoesNotExist(asset.name).asLeft.pure
       }
 
-    def findManyWithChapters(
+    override def findAll(): F[List[Asset]] = storage.assets.findAll()
+
+    override def findManyWithChapters(
         assetIds: List[AssetId]
     ): F[List[Asset]] =
       for
