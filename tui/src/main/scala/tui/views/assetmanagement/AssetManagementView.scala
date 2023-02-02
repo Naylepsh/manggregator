@@ -1,18 +1,14 @@
 package tui.views.assetmanagement
 
-import de.codeshelf.consoleui.prompt.ConsolePrompt
-import library.domain.asset.Asset
-import tui.views.View
-import tui.prompts.AssetPrompts.{Item, createItemsPrompt}
 import cats.Monad
 import cats.effect.kernel.Sync
-import tui.views.showPrompt
-import cats.implicits._
-import library.services.Assets
-import library.domain.asset.UpdateAsset
 import cats.effect.std.Console
 import cats.implicits._
-import library.domain.asset.AssetDoesNotExist
+import de.codeshelf.consoleui.prompt.ConsolePrompt
+import library.domain.asset.{Asset, AssetDoesNotExist, UpdateAsset}
+import library.services.Assets
+import tui.prompts.AssetPrompts.{Item, createItemsPrompt}
+import tui.views.{View, showPrompt}
 
 class AssetManagementView[F[_]: Sync: Console](
     prompt: ConsolePrompt,

@@ -1,10 +1,10 @@
 package tui.prompts
 
-import de.codeshelf.consoleui.prompt.ConsolePrompt
-import library.domain.asset.Asset
-import de.codeshelf.consoleui.prompt.builder.ListPromptBuilder
-import tui.prompts.handlers._
 import cats.Monad
+import de.codeshelf.consoleui.prompt.ConsolePrompt
+import de.codeshelf.consoleui.prompt.builder.ListPromptBuilder
+import library.domain.asset.Asset
+import tui.prompts.handlers._
 import tui.views.View
 
 object AssetPrompts:

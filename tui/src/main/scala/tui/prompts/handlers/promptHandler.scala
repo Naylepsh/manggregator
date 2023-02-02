@@ -1,14 +1,13 @@
 package tui.prompts.handlers
 
-import de.codeshelf.consoleui.prompt.PromtResultItemIF
+import scala.collection.mutable
+import scala.util.Try
+
 import cats.Monad
 import cats.implicits._
-import de.codeshelf.consoleui.prompt.builder.ListPromptBuilder
-import de.codeshelf.consoleui.prompt.ListResult
-import scala.util.Try
 import de.codeshelf.consoleui.elements.PromptableElementIF
-import de.codeshelf.consoleui.prompt.builder.PromptBuilder
-import scala.collection.mutable
+import de.codeshelf.consoleui.prompt.builder.{ListPromptBuilder, PromptBuilder}
+import de.codeshelf.consoleui.prompt.{ListResult, PromtResultItemIF}
 
 case class SinglePropHandler[F[_], A](
     addToPrompt: (A) => A,
