@@ -12,6 +12,7 @@ import library.services.Assets
 import library.domain.asset.UpdateAsset
 import cats.effect.std.Console
 import cats.implicits._
+import library.domain.asset.AssetDoesNotExist
 
 class AssetManagementView[F[_]: Sync: Console](
     prompt: ConsolePrompt,
@@ -19,6 +20,7 @@ class AssetManagementView[F[_]: Sync: Console](
     goBack: View[F],
     assetsService: Assets[F]
 ) extends View[F]:
+  import AssetManagementView._
 
   override def view(): F[Unit] =
     val promptBuilder = prompt.getPromptBuilder()
@@ -30,29 +32,9 @@ class AssetManagementView[F[_]: Sync: Console](
       _ <- menuPrompt.handle(rawResult).map(_.getOrElse(()))
     yield ()
 
-  private case class Action(text: String, handle: String => F[Unit])
   private val actions = Map(
-    "disable" -> Action(
-      text = "Disable",
-      handle = _ => disableAsset() >> view()
-    )
+    "toggle" -> inferToggle(assetsService, asset, goBack)
   )
-
-  private def disableAsset(): F[Unit] =
-    val disabledAsset = asset.disable()
-    assetsService
-      .update(
-        UpdateAsset(
-          id = disabledAsset.id,
-          name = disabledAsset.name,
-          enabled = disabledAsset.enabled
-        )
-      )
-      .flatMap(_ match
-        case Left(value) =>
-          Console[F].println(s"Could not disable due to $value")
-        case Right(value) => goBack.view()
-      )
 
   private val menuPrompt = createItemsPrompt(
     "manage-asset",
@@ -64,3 +46,39 @@ class AssetManagementView[F[_]: Sync: Console](
       actions.get(result).map(_.handle(result)).getOrElse(Sync[F].unit),
     goBack
   )
+
+object AssetManagementView:
+  private case class Action[F[_]](text: String, handle: String => F[Unit])
+
+  private def inferToggle[F[_]: Monad: Console](
+      assets: Assets[F],
+      asset: Asset,
+      goBack: View[F]
+  ): Action[F] =
+    val (text, handle) =
+      if (asset.enabled.value)
+        ("Disable", () => update(assets, asset.disable()))
+      else
+        ("Enable", () => update(assets, asset.enable()))
+    Action(
+      text,
+      _ =>
+        handle().flatMap(_ match
+          case Left(value) =>
+            Console[F].println(s"Could not disable due to $value")
+          case Right(value) => goBack.view()
+        )
+    )
+
+  private def update[F[_]](
+      assets: Assets[F],
+      asset: Asset
+  ): F[Either[AssetDoesNotExist, Unit]] =
+    assets
+      .update(
+        UpdateAsset(
+          id = asset.id,
+          name = asset.name,
+          enabled = asset.enabled
+        )
+      )
