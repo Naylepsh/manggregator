@@ -17,6 +17,7 @@ import library.domain.chapter.DateReleased
 import library.services.Assets
 import tui.utils.retry.retryUntilSuccess
 import tui.views.assetmanagement.MainAssetManagementView
+import tui.prompts.InputPrompts.getInput
 
 class MainMenuView[F[_]: Console: Sync](
     prompt: ConsolePrompt,
@@ -63,11 +64,7 @@ class MainMenuView[F[_]: Console: Sync](
     yield ()
 
   private def manageAssets(): F[Unit] =
-    for
-      assets <- assetService.findAll()
-      _ <- new MainAssetManagementView(prompt, assets, this, assetService)
-        .view()
-    yield ()
+    new MainAssetManagementView(prompt, this, assetService).view()
 
   private def buildActionsPrompt =
     val promptBuilder = prompt.getPromptBuilder()
@@ -89,22 +86,8 @@ class MainMenuView[F[_]: Console: Sync](
   private val dateStringFormat = "yyyy-MM-dd"
   private val format = new SimpleDateFormat(dateStringFormat)
   private def getDateInput(message: String): F[Either[Throwable, Date]] =
-    getInput(message).flatMap { input =>
+    getInput(prompt, message).flatMap { input =>
       Try(format.parse(input)).toEither match
         case Left(reason) => Console[F].println(reason) *> reason.asLeft.pure
         case Right(value) => value.asRight[Throwable].pure
-    }
-
-  private def getInput(message: String): F[String] =
-    val promptBuilder = prompt.getPromptBuilder()
-    val promptId = "input"
-    val inputPrompt = promptBuilder
-      .createInputPrompt()
-      .name(promptId)
-      .message(message)
-      .addPrompt()
-      .build()
-
-    Sync[F].pure(prompt.prompt(inputPrompt)).map { rawResult =>
-      getInputPromptResult(rawResult.get(promptId))
     }
