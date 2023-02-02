@@ -8,16 +8,15 @@ import de.codeshelf.consoleui.prompt.ConsolePrompt
 import library.domain.asset.{Asset, AssetDoesNotExist, UpdateAsset}
 import library.services.Assets
 import tui.prompts.AssetPrompts.{Item, createItemsPrompt}
+import tui.prompts.MenuPrompt
 import tui.views.{View, showPrompt}
 
 class AssetManagementView[F[_]: Sync: Console](
     prompt: ConsolePrompt,
     asset: Asset,
     goBack: View[F],
-    assetsService: Assets[F]
+    assets: Assets[F]
 ) extends View[F]:
-  import AssetManagementView._
-
   override def view(): F[Unit] =
     val promptBuilder = prompt.getPromptBuilder()
     for
@@ -29,34 +28,23 @@ class AssetManagementView[F[_]: Sync: Console](
     yield ()
 
   private val actions = Map(
-    "toggle" -> inferToggle(assetsService, asset, goBack)
+    "toggle" -> inferToggle()
   )
 
-  private val menuPrompt = createItemsPrompt(
+  private val menuPrompt = MenuPrompt.make(
     "manage-asset",
     "Choose an asset to manage:",
-    actions.map { case (key, action) =>
-      Item(id = key, text = action.text)
-    }.toList,
-    (result) =>
-      actions.get(result).map(_.handle(result)).getOrElse(Sync[F].unit),
+    actions,
     goBack
   )
 
-object AssetManagementView:
-  private case class Action[F[_]](text: String, handle: String => F[Unit])
-
-  private def inferToggle[F[_]: Monad: Console](
-      assets: Assets[F],
-      asset: Asset,
-      goBack: View[F]
-  ): Action[F] =
+  private def inferToggle(): MenuPrompt.Action[F] =
     val (text, handle) =
       if (asset.enabled.value)
-        ("Disable", () => update(assets, asset.disable()))
+        ("Disable", () => update(asset.disable()))
       else
-        ("Enable", () => update(assets, asset.enable()))
-    Action(
+        ("Enable", () => update(asset.enable()))
+    MenuPrompt.Action(
       text,
       _ =>
         handle().flatMap(_ match
@@ -66,10 +54,7 @@ object AssetManagementView:
         )
     )
 
-  private def update[F[_]](
-      assets: Assets[F],
-      asset: Asset
-  ): F[Either[AssetDoesNotExist, Unit]] =
+  private def update(asset: Asset): F[Either[AssetDoesNotExist, Unit]] =
     assets
       .update(
         UpdateAsset(

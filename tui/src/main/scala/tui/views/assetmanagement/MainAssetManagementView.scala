@@ -9,6 +9,7 @@ import library.domain.asset.Asset
 import library.services.Assets
 import tui.views.{View, showPrompt}
 import tui.prompts.AssetPrompts.{Item, createItemsPrompt}
+import tui.prompts.MenuPrompt
 
 class MainAssetManagementView[F[_]: Sync: Console](
     prompt: ConsolePrompt,
@@ -27,11 +28,11 @@ class MainAssetManagementView[F[_]: Sync: Console](
     yield ()
 
   private val actions = Map(
-    "create" -> Action(
+    "create" -> MenuPrompt.Action(
       text = "Create a new asset:",
       handle = _ => new CreateAssetView[F](prompt, this, assetsService).view()
     ),
-    "edit" -> Action(
+    "edit" -> MenuPrompt.Action(
       text = "Edit an existing asset:",
       handle = _ =>
         assetsService.findAll().flatMap { assets =>
@@ -40,15 +41,9 @@ class MainAssetManagementView[F[_]: Sync: Console](
     )
   )
 
-  private case class Action[F[_]](text: String, handle: String => F[Unit])
-
-  private val menuPrompt = createItemsPrompt(
+  private val menuPrompt = MenuPrompt.make(
     "manage-assets",
     "Choose an action:",
-    actions.map { case (key, action) =>
-      Item(id = key, text = action.text)
-    }.toList,
-    (result) =>
-      actions.get(result).map(_.handle(result)).getOrElse(Sync[F].unit),
+    actions,
     goBack
   )
