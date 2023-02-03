@@ -32,6 +32,9 @@ object asset:
     def disable(): Asset =
       this.copy(enabled = Enabled(false))
 
+    def enable(): Asset =
+      this.copy(enabled = Enabled(true))
+
   def bindChaptersToAssets(
       assets: List[Asset],
       chapters: List[Chapter]

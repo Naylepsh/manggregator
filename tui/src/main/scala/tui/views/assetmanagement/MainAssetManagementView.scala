@@ -1,21 +1,22 @@
 package tui.views.assetmanagement
 
-import de.codeshelf.consoleui.prompt.ConsolePrompt
-import library.domain.asset.Asset
-import tui.views.View
-import tui.prompts.AssetPrompts.createAssetNamePrompt
 import cats.Monad
 import cats.effect.kernel.Sync
-import tui.views.showPrompt
-import cats.implicits._
-import library.services.Assets
 import cats.effect.std.Console
+import cats.implicits._
+import de.codeshelf.consoleui.prompt.ConsolePrompt
+import library.domain.asset.Asset
+import library.services.Assets
+import tui.views.{View, showPrompt}
+import tui.prompts.AssetPrompts.{Item, createItemsPrompt}
+import tui.prompts.MenuPrompt
+import library.services.Pages
 
 class MainAssetManagementView[F[_]: Sync: Console](
     prompt: ConsolePrompt,
-    assets: List[Asset],
     goBack: View[F],
-    assetsService: Assets[F]
+    assetsService: Assets[F],
+    pagesService: Pages[F]
 ) extends View[F]:
 
   override def view(): F[Unit] =
@@ -28,18 +29,29 @@ class MainAssetManagementView[F[_]: Sync: Console](
       _ <- menuPrompt.handle(rawResult).map(_.getOrElse(()))
     yield ()
 
-  private val menuPrompt = createAssetNamePrompt(
-    "manage-asset-main",
-    "Choose an asset to manage:",
-    assets,
-    handle = pickAssetToManage,
-    viewToGoBackTo = goBack
+  private val actions = Map(
+    "create" -> MenuPrompt.Action(
+      text = "Create a new asset",
+      handle = _ => new CreateAssetView[F](prompt, this, assetsService).view()
+    ),
+    "edit" -> MenuPrompt.Action(
+      text = "Edit an existing asset",
+      handle = _ =>
+        assetsService.findAll().flatMap { assets =>
+          new EditAssetsView[F](
+            prompt,
+            assets,
+            this,
+            assetsService,
+            pagesService
+          ).view()
+        }
+    )
   )
 
-  private def pickAssetToManage(result: String) =
-    assets
-      .find(_.id.value.toString == result)
-      .map { asset =>
-        new AssetManagementView(prompt, asset, this, assetsService).view()
-      }
-      .getOrElse(Sync[F].unit)
+  private val menuPrompt = MenuPrompt.make(
+    "manage-assets",
+    "Choose an action:",
+    actions,
+    goBack
+  )

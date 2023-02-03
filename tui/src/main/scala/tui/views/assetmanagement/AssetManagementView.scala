@@ -1,25 +1,24 @@
 package tui.views.assetmanagement
 
-import de.codeshelf.consoleui.prompt.ConsolePrompt
-import library.domain.asset.Asset
-import tui.views.View
-import tui.prompts.AssetPrompts.{Item, createItemsPrompt}
 import cats.Monad
 import cats.effect.kernel.Sync
-import tui.views.showPrompt
-import cats.implicits._
-import library.services.Assets
-import library.domain.asset.UpdateAsset
 import cats.effect.std.Console
 import cats.implicits._
+import de.codeshelf.consoleui.prompt.ConsolePrompt
+import library.domain.asset.{Asset, AssetDoesNotExist, UpdateAsset}
+import tui.prompts.AssetPrompts.{Item, createItemsPrompt}
+import tui.prompts.MenuPrompt
+import tui.views.{View, showPrompt}
+import library.services.Assets
+import library.services.Pages
 
 class AssetManagementView[F[_]: Sync: Console](
     prompt: ConsolePrompt,
     asset: Asset,
     goBack: View[F],
-    assetsService: Assets[F]
+    assets: Assets[F],
+    pages: Pages[F]
 ) extends View[F]:
-
   override def view(): F[Unit] =
     val promptBuilder = prompt.getPromptBuilder()
     for
@@ -30,37 +29,46 @@ class AssetManagementView[F[_]: Sync: Console](
       _ <- menuPrompt.handle(rawResult).map(_.getOrElse(()))
     yield ()
 
-  private case class Action(text: String, handle: String => F[Unit])
   private val actions = Map(
-    "disable" -> Action(
-      text = "Disable",
-      handle = _ => disableAsset() >> view()
-    )
+    "toggle" -> inferToggle(),
+    "add-pages" -> goToAddChapterPageView()
   )
 
-  private def disableAsset(): F[Unit] =
-    val disabledAsset = asset.disable()
-    assetsService
-      .update(
-        UpdateAsset(
-          id = disabledAsset.id,
-          name = disabledAsset.name,
-          enabled = disabledAsset.enabled
-        )
-      )
-      .flatMap(_ match
-        case Left(value) =>
-          Console[F].println(s"Could not disable due to $value")
-        case Right(value) => goBack.view()
-      )
-
-  private val menuPrompt = createItemsPrompt(
+  private val menuPrompt = MenuPrompt.make(
     "manage-asset",
-    "Choose an asset to manage:",
-    actions.map { case (key, action) =>
-      Item(id = key, text = action.text)
-    }.toList,
-    (result) =>
-      actions.get(result).map(_.handle(result)).getOrElse(Sync[F].unit),
+    "Pick an action:",
+    actions,
     goBack
   )
+
+  private def inferToggle(): MenuPrompt.Action[F] =
+    val (text, handle) =
+      if (asset.enabled.value)
+        ("Disable", () => update(asset.disable()))
+      else
+        ("Enable", () => update(asset.enable()))
+    MenuPrompt.Action(
+      text,
+      _ =>
+        handle().flatMap(_ match
+          case Left(value) =>
+            Console[F].println(s"Could not disable due to $value")
+          case Right(value) => goBack.view()
+        )
+    )
+
+  private def update(asset: Asset): F[Either[AssetDoesNotExist, Unit]] =
+    assets
+      .update(
+        UpdateAsset(
+          id = asset.id,
+          name = asset.name,
+          enabled = asset.enabled
+        )
+      )
+
+  private def goToAddChapterPageView(): MenuPrompt.Action[F] =
+    MenuPrompt.Action(
+      text = "Add chapters page",
+      handle = _ => new AddChapterPageView[F](prompt, asset, pages, this).view()
+    )

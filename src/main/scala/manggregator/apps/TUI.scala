@@ -24,7 +24,12 @@ object TUI:
             libraryServices = Entrypoints.libraryServices(storage)
             library = Entrypoints.library(storage)
             crawler = Entrypoints.crawler()
-            _ <- MakeTUI(libraryServices.assets, crawler, library).make().use {
+            _ <- MakeTUI(
+              libraryServices.assets,
+              libraryServices.pages,
+              crawler,
+              library
+            ).make().use {
               _.view()
             }
           yield ExitCode.Success

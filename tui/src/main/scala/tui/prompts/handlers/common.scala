@@ -1,10 +1,10 @@
 package tui.prompts.handlers
 
-import tui.views.View
-import de.codeshelf.consoleui.prompt.builder.ListPromptBuilder
-import de.codeshelf.consoleui.prompt.PromtResultItemIF
-import cats.implicits._
 import cats.Applicative
+import cats.implicits._
+import de.codeshelf.consoleui.prompt.PromtResultItemIF
+import de.codeshelf.consoleui.prompt.builder.ListPromptBuilder
+import tui.views.View
 
 private val backId = "back"
 def goBackHandler[F[_]](

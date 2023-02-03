@@ -7,6 +7,7 @@ import crawler.domain.Library
 import crawler.services.Crawler
 import de.codeshelf.consoleui.prompt.ConsolePrompt
 import library.services.Assets
+import library.services.Pages
 import org.fusesource.jansi.AnsiConsole
 import tui.views.{MainMenuView, View}
 
@@ -16,6 +17,7 @@ trait MakeTUI[F[_]]:
 object MakeTUI:
   def apply[F[_]: Sync: Console](
       assets: Assets[F],
+      pages: Pages[F],
       crawler: Crawler[F],
       crawlerLibrary: Library[F]
   ): MakeTUI[F] =
@@ -26,6 +28,7 @@ object MakeTUI:
             new MainMenuView[F](
               new ConsolePrompt(),
               assets,
+              pages,
               crawler,
               crawlerLibrary
             )
