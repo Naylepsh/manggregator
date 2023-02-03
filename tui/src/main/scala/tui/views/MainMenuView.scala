@@ -15,6 +15,7 @@ import crawler.services.Crawler
 import de.codeshelf.consoleui.prompt.ConsolePrompt
 import library.domain.chapter.DateReleased
 import library.services.Assets
+import library.services.Pages
 import tui.utils.retry.retryUntilSuccess
 import tui.views.assetmanagement.MainAssetManagementView
 import tui.prompts.InputPrompts.getInput
@@ -22,6 +23,7 @@ import tui.prompts.InputPrompts.getInput
 class MainMenuView[F[_]: Console: Sync](
     prompt: ConsolePrompt,
     assetService: Assets[F],
+    pagesService: Pages[F],
     crawlingService: Crawler[F],
     crawlingLibrary: Library[F]
 ) extends View[F]:
@@ -64,7 +66,7 @@ class MainMenuView[F[_]: Console: Sync](
     yield ()
 
   private def manageAssets(): F[Unit] =
-    new MainAssetManagementView(prompt, this, assetService).view()
+    new MainAssetManagementView(prompt, this, assetService, pagesService).view()
 
   private def buildActionsPrompt =
     val promptBuilder = prompt.getPromptBuilder()

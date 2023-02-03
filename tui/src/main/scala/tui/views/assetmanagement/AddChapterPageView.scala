@@ -1,3 +1,5 @@
+package tui.views.assetmanagement
+
 import de.codeshelf.consoleui.prompt.ConsolePrompt
 import cats.effect.kernel.Sync
 import tui.views.View

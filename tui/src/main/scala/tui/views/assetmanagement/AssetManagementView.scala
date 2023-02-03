@@ -6,16 +6,18 @@ import cats.effect.std.Console
 import cats.implicits._
 import de.codeshelf.consoleui.prompt.ConsolePrompt
 import library.domain.asset.{Asset, AssetDoesNotExist, UpdateAsset}
-import library.services.Assets
 import tui.prompts.AssetPrompts.{Item, createItemsPrompt}
 import tui.prompts.MenuPrompt
 import tui.views.{View, showPrompt}
+import library.services.Assets
+import library.services.Pages
 
 class AssetManagementView[F[_]: Sync: Console](
     prompt: ConsolePrompt,
     asset: Asset,
     goBack: View[F],
-    assets: Assets[F]
+    assets: Assets[F],
+    pages: Pages[F]
 ) extends View[F]:
   override def view(): F[Unit] =
     val promptBuilder = prompt.getPromptBuilder()
@@ -28,12 +30,13 @@ class AssetManagementView[F[_]: Sync: Console](
     yield ()
 
   private val actions = Map(
-    "toggle" -> inferToggle()
+    "toggle" -> inferToggle(),
+    "add-pages" -> goToAddChapterPageView()
   )
 
   private val menuPrompt = MenuPrompt.make(
     "manage-asset",
-    "Choose an asset to manage:",
+    "Pick an action:",
     actions,
     goBack
   )
@@ -63,3 +66,9 @@ class AssetManagementView[F[_]: Sync: Console](
           enabled = asset.enabled
         )
       )
+
+  private def goToAddChapterPageView(): MenuPrompt.Action[F] =
+    MenuPrompt.Action(
+      text = "Add chapters page",
+      handle = _ => new AddChapterPageView[F](prompt, asset, pages, this).view()
+    )

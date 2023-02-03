@@ -7,6 +7,7 @@ import cats.implicits._
 import de.codeshelf.consoleui.prompt.ConsolePrompt
 import library.domain.asset.Asset
 import library.services.Assets
+import library.services.Pages
 import tui.prompts.AssetPrompts.createAssetNamePrompt
 import tui.views.{View, showPrompt}
 
@@ -14,7 +15,8 @@ class EditAssetsView[F[_]: Sync: Console](
     prompt: ConsolePrompt,
     assets: List[Asset],
     goBack: View[F],
-    assetsService: Assets[F]
+    assetsService: Assets[F],
+    pagesService: Pages[F]
 ) extends View[F]:
 
   override def view(): F[Unit] =
@@ -29,7 +31,7 @@ class EditAssetsView[F[_]: Sync: Console](
 
   private val menuPrompt = createAssetNamePrompt(
     "edit-assets",
-    "Choose an asset to edit:",
+    "Choose an asset to edit",
     assets,
     handle = pickAssetToEdit,
     viewToGoBackTo = goBack
@@ -39,6 +41,12 @@ class EditAssetsView[F[_]: Sync: Console](
     assets
       .find(_.id.value.toString == result)
       .map { asset =>
-        new AssetManagementView(prompt, asset, this, assetsService).view()
+        new AssetManagementView(
+          prompt,
+          asset,
+          this,
+          assetsService,
+          pagesService
+        ).view()
       }
       .getOrElse(Sync[F].unit)

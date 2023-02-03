@@ -10,11 +10,13 @@ import library.services.Assets
 import tui.views.{View, showPrompt}
 import tui.prompts.AssetPrompts.{Item, createItemsPrompt}
 import tui.prompts.MenuPrompt
+import library.services.Pages
 
 class MainAssetManagementView[F[_]: Sync: Console](
     prompt: ConsolePrompt,
     goBack: View[F],
-    assetsService: Assets[F]
+    assetsService: Assets[F],
+    pagesService: Pages[F]
 ) extends View[F]:
 
   override def view(): F[Unit] =
@@ -29,14 +31,20 @@ class MainAssetManagementView[F[_]: Sync: Console](
 
   private val actions = Map(
     "create" -> MenuPrompt.Action(
-      text = "Create a new asset:",
+      text = "Create a new asset",
       handle = _ => new CreateAssetView[F](prompt, this, assetsService).view()
     ),
     "edit" -> MenuPrompt.Action(
-      text = "Edit an existing asset:",
+      text = "Edit an existing asset",
       handle = _ =>
         assetsService.findAll().flatMap { assets =>
-          new EditAssetsView[F](prompt, assets, this, assetsService).view()
+          new EditAssetsView[F](
+            prompt,
+            assets,
+            this,
+            assetsService,
+            pagesService
+          ).view()
         }
     )
   )
