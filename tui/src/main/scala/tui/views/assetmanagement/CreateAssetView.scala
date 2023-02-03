@@ -33,14 +33,3 @@ class CreateAssetView[F[_]: Sync: Console](
     yield ()
 
   private def getNameInput() = getInput(prompt, "Enter the name:")
-
-  // TODO: use for sites validation
-  private def getValidatedInput[A](
-      message: String,
-      validate: String => Either[Throwable, A]
-  ) =
-    getInput(prompt, message).flatMap { input =>
-      validate(input) match
-        case Left(reason) => Console[F].println(reason) *> reason.asLeft.pure
-        case Right(value) => value.asRight[Throwable].pure
-    }
