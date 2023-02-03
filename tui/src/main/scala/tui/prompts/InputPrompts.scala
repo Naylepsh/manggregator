@@ -1,11 +1,9 @@
 package tui.prompts
 
-import de.codeshelf.consoleui.prompt.ConsolePrompt
 import cats.effect.kernel.Sync
-import cats.implicits._
-import de.codeshelf.consoleui.prompt.PromtResultItemIF
-import de.codeshelf.consoleui.prompt.InputResult
 import cats.effect.std.Console
+import cats.implicits._
+import de.codeshelf.consoleui.prompt.{ConsolePrompt, InputResult, PromtResultItemIF}
 
 object InputPrompts:
   def getValidatedInput[F[_]: Sync: Console, A](

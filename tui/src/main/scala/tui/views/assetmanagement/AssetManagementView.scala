@@ -6,11 +6,10 @@ import cats.effect.std.Console
 import cats.implicits._
 import de.codeshelf.consoleui.prompt.ConsolePrompt
 import library.domain.asset.{Asset, AssetDoesNotExist, UpdateAsset}
+import library.services.{Assets, Pages}
 import tui.prompts.AssetPrompts.{Item, createItemsPrompt}
 import tui.prompts.MenuPrompt
 import tui.views.{View, showPrompt}
-import library.services.Assets
-import library.services.Pages
 
 class AssetManagementView[F[_]: Sync: Console](
     prompt: ConsolePrompt,

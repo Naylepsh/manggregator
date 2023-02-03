@@ -6,8 +6,7 @@ import cats.implicits._
 import crawler.domain.Library
 import crawler.services.Crawler
 import de.codeshelf.consoleui.prompt.ConsolePrompt
-import library.services.Assets
-import library.services.Pages
+import library.services.{Assets, Pages}
 import org.fusesource.jansi.AnsiConsole
 import tui.views.{MainMenuView, View}
 

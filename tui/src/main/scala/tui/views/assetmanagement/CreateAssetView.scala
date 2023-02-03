@@ -1,15 +1,13 @@
 package tui.views.assetmanagement
 
 import cats.effect.kernel.Sync
-import de.codeshelf.consoleui.prompt.ConsolePrompt
-import tui.views.View
-import tui.prompts.InputPrompts.getInput
-import cats.implicits._
 import cats.effect.std.Console
+import cats.implicits._
+import de.codeshelf.consoleui.prompt.ConsolePrompt
+import library.domain.asset.{AssetName, CreateAsset, Enabled}
 import library.services.Assets
-import library.domain.asset.CreateAsset
-import library.domain.asset.AssetName
-import library.domain.asset.Enabled
+import tui.prompts.InputPrompts.getInput
+import tui.views.View
 
 class CreateAssetView[F[_]: Sync: Console](
     prompt: ConsolePrompt,

@@ -1,19 +1,19 @@
 package tui.views.assetmanagement
 
-import de.codeshelf.consoleui.prompt.ConsolePrompt
+import java.net.URI
+
+import scala.util.Try
+
 import cats.effect.kernel.Sync
-import tui.views.View
+import cats.effect.std.Console
+import cats.implicits._
+import de.codeshelf.consoleui.prompt.ConsolePrompt
 import library.domain.asset.Asset
+import library.domain.page.{CreateChaptersPage, PageUrl, Site}
 import library.services.Pages
 import tui.prompts.InputPrompts.getValidatedInput
-import library.domain.page.Site
-import cats.effect.std.Console
-import library.domain.page.PageUrl
-import scala.util.Try
-import java.net.URI
 import tui.utils.retry.retryUntilSuccess
-import cats.implicits._
-import library.domain.page.CreateChaptersPage
+import tui.views.View
 
 class AddChapterPageView[F[_]: Sync: Console](
     prompt: ConsolePrompt,

@@ -6,8 +6,7 @@ import cats.effect.std.Console
 import cats.implicits._
 import de.codeshelf.consoleui.prompt.ConsolePrompt
 import library.domain.asset.Asset
-import library.services.Assets
-import library.services.Pages
+import library.services.{Assets, Pages}
 import tui.prompts.AssetPrompts.createAssetNamePrompt
 import tui.views.{View, showPrompt}
 

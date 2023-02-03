@@ -14,11 +14,10 @@ import crawler.domain.Library
 import crawler.services.Crawler
 import de.codeshelf.consoleui.prompt.ConsolePrompt
 import library.domain.chapter.DateReleased
-import library.services.Assets
-import library.services.Pages
+import library.services.{Assets, Pages}
+import tui.prompts.InputPrompts.getInput
 import tui.utils.retry.retryUntilSuccess
 import tui.views.assetmanagement.MainAssetManagementView
-import tui.prompts.InputPrompts.getInput
 
 class MainMenuView[F[_]: Console: Sync](
     prompt: ConsolePrompt,

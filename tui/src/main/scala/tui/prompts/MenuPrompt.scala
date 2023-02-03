@@ -1,9 +1,9 @@
 package tui.prompts
 
-import tui.views.View
-import tui.prompts.AssetPrompts.{Item, createItemsPrompt}
 import cats.effect.kernel.Sync
 import cats.implicits._
+import tui.prompts.AssetPrompts.{Item, createItemsPrompt}
+import tui.views.View
 
 object MenuPrompt:
   case class Action[F[_]](text: String, handle: String => F[Unit])
