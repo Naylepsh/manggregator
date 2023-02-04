@@ -17,16 +17,16 @@ import library.domain.asset.Asset
 import tui.prompts.AssetPrompts.buildReleasesPrompt
 
 class CrawlResultsView[F[_]: Sync: Console](
-    prompt: ConsolePrompt,
+    context: Context[F],
     assets: List[Asset],
     previous: View[F]
 ) extends View[F]:
 
   def view(): F[Unit] =
-    val promptBuilder = prompt.getPromptBuilder()
+    val promptBuilder = context.prompt.getPromptBuilder()
     for
       rawResult <- showPrompt(
-        prompt,
+        context.prompt,
         releasesPrompt.combinePrompts(promptBuilder)
       )
       _ <- releasesPrompt.handle(rawResult).map(_.getOrElse(()))

@@ -7,18 +7,17 @@ import de.codeshelf.consoleui.prompt.ConsolePrompt
 import library.domain.asset.{AssetName, CreateAsset, Enabled}
 import library.services.Assets
 import tui.prompts.InputPrompts.getInput
-import tui.views.View
+import tui.views.{Context, View}
 
 class CreateAssetView[F[_]: Sync: Console](
-    prompt: ConsolePrompt,
-    goBack: View[F],
-    assets: Assets[F]
+    context: Context[F],
+    goBack: View[F]
 ) extends View[F]:
   override def view(): F[Unit] =
-    val promptBuilder = prompt.getPromptBuilder()
+    val promptBuilder = context.prompt.getPromptBuilder()
     for
       name <- getNameInput()
-      _ <- assets
+      _ <- context.services.assets
         .create(
           CreateAsset(name = AssetName(name), enabled = Enabled(true))
         )
@@ -30,4 +29,4 @@ class CreateAssetView[F[_]: Sync: Console](
       _ <- goBack.view()
     yield ()
 
-  private def getNameInput() = getInput(prompt, "Enter the name:")
+  private def getNameInput() = getInput(context.prompt, "Enter the name:")

@@ -13,24 +13,25 @@ import library.domain.page.{CreateChaptersPage, PageUrl, Site}
 import library.services.Pages
 import tui.prompts.InputPrompts.getValidatedInput
 import tui.utils.retry.retryUntilSuccess
-import tui.views.View
+import tui.views.{Context, View}
 
 class AddChapterPageView[F[_]: Sync: Console](
-    prompt: ConsolePrompt,
+    context: Context[F],
     asset: Asset,
-    pages: Pages[F],
     viewToGoBackTo: View[F]
 ) extends View[F]:
   override def view(): F[Unit] =
     for
       site <- retryUntilSuccess(getSiteInput())
       url <- retryUntilSuccess(getChapterPageInput())
-      _ <- pages.create(CreateChaptersPage(site, url, asset.id))
+      _ <- context.services.pages.create(
+        CreateChaptersPage(site, url, asset.id)
+      )
       _ <- viewToGoBackTo.view()
     yield ()
 
   private def getSiteInput() =
-    getValidatedInput(prompt, "Enter the site:", validateSite)
+    getValidatedInput(context.prompt, "Enter the site:", validateSite)
   private def validateSite(input: String): Either[String, Site] =
     Either.cond(
       validSites.contains(input),
@@ -42,7 +43,11 @@ class AddChapterPageView[F[_]: Sync: Console](
   private val validSites = List("nyaa", "mangakakalot", "mangadex")
 
   private def getChapterPageInput() =
-    getValidatedInput(prompt, "Enter the chapter url:", validateChapterUrl)
+    getValidatedInput(
+      context.prompt,
+      "Enter the chapter url:",
+      validateChapterUrl
+    )
   private def validateChapterUrl(input: String): Either[String, PageUrl] =
     Either.cond(isUrl(input), PageUrl(input), s"$input is not a valid url")
 

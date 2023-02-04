@@ -9,20 +9,18 @@ import library.domain.asset.{Asset, AssetDoesNotExist, UpdateAsset}
 import library.services.{Assets, Pages}
 import tui.prompts.AssetPrompts.{Item, createItemsPrompt}
 import tui.prompts.MenuPrompt
-import tui.views.{View, showPrompt}
+import tui.views.{Context, View, showPrompt}
 
 class AssetManagementView[F[_]: Sync: Console](
-    prompt: ConsolePrompt,
+    context: Context[F],
     asset: Asset,
-    goBack: View[F],
-    assets: Assets[F],
-    pages: Pages[F]
+    goBack: View[F]
 ) extends View[F]:
   override def view(): F[Unit] =
-    val promptBuilder = prompt.getPromptBuilder()
+    val promptBuilder = context.prompt.getPromptBuilder()
     for
       rawResult <- showPrompt(
-        prompt,
+        context.prompt,
         menuPrompt.combinePrompts(promptBuilder)
       )
       _ <- menuPrompt.handle(rawResult).map(_.getOrElse(()))
@@ -57,7 +55,7 @@ class AssetManagementView[F[_]: Sync: Console](
     )
 
   private def update(asset: Asset): F[Either[AssetDoesNotExist, Unit]] =
-    assets
+    context.services.assets
       .update(
         UpdateAsset(
           id = asset.id,
@@ -69,5 +67,5 @@ class AssetManagementView[F[_]: Sync: Console](
   private def goToAddChapterPageView(): MenuPrompt.Action[F] =
     MenuPrompt.Action(
       text = "Add chapters page",
-      handle = _ => new AddChapterPageView[F](prompt, asset, pages, this).view()
+      handle = _ => new AddChapterPageView[F](context, asset, this).view()
     )

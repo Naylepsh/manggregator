@@ -8,7 +8,7 @@ import crawler.services.Crawler
 import de.codeshelf.consoleui.prompt.ConsolePrompt
 import library.services.{Assets, Pages}
 import org.fusesource.jansi.AnsiConsole
-import tui.views.{MainMenuView, View}
+import tui.views.{Context, MainMenuView, Services, View}
 
 trait MakeTUI[F[_]]:
   def make(): Resource[F, View[F]]
@@ -25,11 +25,15 @@ object MakeTUI:
         Resource.make(
           registerConsole().map(_ =>
             new MainMenuView[F](
-              new ConsolePrompt(),
-              assets,
-              pages,
-              crawler,
-              crawlerLibrary
+              Context(
+                new ConsolePrompt(),
+                Services(
+                  assets,
+                  pages,
+                  crawler,
+                  crawlerLibrary
+                )
+              )
             )
           )
         )(_ => unregisterConsole())

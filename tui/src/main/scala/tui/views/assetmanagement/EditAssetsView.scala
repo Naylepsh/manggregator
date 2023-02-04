@@ -8,21 +8,19 @@ import de.codeshelf.consoleui.prompt.ConsolePrompt
 import library.domain.asset.Asset
 import library.services.{Assets, Pages}
 import tui.prompts.AssetPrompts.createAssetNamePrompt
-import tui.views.{View, showPrompt}
+import tui.views.{Context, View, showPrompt}
 
 class EditAssetsView[F[_]: Sync: Console](
-    prompt: ConsolePrompt,
+    context: Context[F],
     assets: List[Asset],
-    goBack: View[F],
-    assetsService: Assets[F],
-    pagesService: Pages[F]
+    goBack: View[F]
 ) extends View[F]:
 
   override def view(): F[Unit] =
-    val promptBuilder = prompt.getPromptBuilder()
+    val promptBuilder = context.prompt.getPromptBuilder()
     for
       rawResult <- showPrompt(
-        prompt,
+        context.prompt,
         menuPrompt.combinePrompts(promptBuilder)
       )
       _ <- menuPrompt.handle(rawResult).map(_.getOrElse(()))
@@ -41,11 +39,9 @@ class EditAssetsView[F[_]: Sync: Console](
       .find(_.id.value.toString == result)
       .map { asset =>
         new AssetManagementView(
-          prompt,
+          context,
           asset,
-          this,
-          assetsService,
-          pagesService
+          this
         ).view()
       }
       .getOrElse(Sync[F].unit)

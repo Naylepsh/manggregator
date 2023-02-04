@@ -9,20 +9,18 @@ import library.domain.asset.Asset
 import library.services.{Assets, Pages}
 import tui.prompts.AssetPrompts.{Item, createItemsPrompt}
 import tui.prompts.MenuPrompt
-import tui.views.{View, showPrompt}
+import tui.views.{Context, View, showPrompt}
 
 class MainAssetManagementView[F[_]: Sync: Console](
-    prompt: ConsolePrompt,
-    goBack: View[F],
-    assetsService: Assets[F],
-    pagesService: Pages[F]
+    context: Context[F],
+    goBack: View[F]
 ) extends View[F]:
 
   override def view(): F[Unit] =
-    val promptBuilder = prompt.getPromptBuilder()
+    val promptBuilder = context.prompt.getPromptBuilder()
     for
       rawResult <- showPrompt(
-        prompt,
+        context.prompt,
         menuPrompt.combinePrompts(promptBuilder)
       )
       _ <- menuPrompt.handle(rawResult).map(_.getOrElse(()))
@@ -31,18 +29,16 @@ class MainAssetManagementView[F[_]: Sync: Console](
   private val actions = Map(
     "create" -> MenuPrompt.Action(
       text = "Create a new asset",
-      handle = _ => new CreateAssetView[F](prompt, this, assetsService).view()
+      handle = _ => new CreateAssetView[F](context, this).view()
     ),
     "edit" -> MenuPrompt.Action(
       text = "Edit an existing asset",
       handle = _ =>
-        assetsService.findAll().flatMap { assets =>
+        context.services.assets.findAll().flatMap { assets =>
           new EditAssetsView[F](
-            prompt,
+            context,
             assets,
-            this,
-            assetsService,
-            pagesService
+            this
           ).view()
         }
     )
