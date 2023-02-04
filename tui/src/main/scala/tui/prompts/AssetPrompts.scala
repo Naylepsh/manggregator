@@ -31,9 +31,11 @@ object AssetPrompts:
     createItemsPrompt(
       promptName,
       promptMessage,
-      assets.map(asset =>
-        Item(id = asset.id.value.toString, text = asset.name.value)
-      ),
+      assets
+        .sortBy(_.name.value)
+        .map(asset =>
+          Item(id = asset.id.value.toString, text = asset.name.value)
+        ),
       handle,
       viewToGoBackTo
     )
