@@ -8,7 +8,7 @@ import crawler.services.Crawler
 import de.codeshelf.consoleui.prompt.ConsolePrompt
 import library.services.{Assets, Pages}
 import org.fusesource.jansi.AnsiConsole
-import tui.views.{Context, MainMenuView, Services, View}
+import tui.views._
 
 trait MakeTUI[F[_]]:
   def make(): Resource[F, View[F]]
