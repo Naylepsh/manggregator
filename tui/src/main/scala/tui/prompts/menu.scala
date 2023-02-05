@@ -2,10 +2,10 @@ package tui.prompts
 
 import cats.effect.kernel.Sync
 import cats.implicits._
-import tui.views.View
-import tui.prompts.list.{Item, createItemsSubHandler, runOnInputFromList}
-import tui.prompts.handlers.{exitHandler, goBackHandler}
 import de.codeshelf.consoleui.prompt.ConsolePrompt
+import tui.prompts.handlers.{exitHandler, goBackHandler}
+import tui.prompts.list.{Item, createItemsSubHandler, runOnInputFromList}
+import tui.views.View
 
 object menu:
   case class Action[F[_]](text: String, handle: String => F[Unit])

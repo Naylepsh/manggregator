@@ -1,13 +1,13 @@
 package tui.prompts
 
+import cats.effect.kernel.Sync
+import cats.implicits._
 import de.codeshelf.consoleui.prompt.ConsolePrompt
 import de.codeshelf.consoleui.prompt.builder.ListPromptBuilder
 import library.domain.asset.Asset
 import tui.prompts.handlers._
-import tui.views.View
-import cats.implicits._
 import tui.prompts.menu
-import cats.effect.kernel.Sync
+import tui.views.View
 
 object asset:
   def makeBuildReleasesMenu[F[_]: Sync](

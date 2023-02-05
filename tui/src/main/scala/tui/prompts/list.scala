@@ -2,12 +2,12 @@ package tui.prompts
 
 import scala.jdk.CollectionConverters.*
 
-import tui.prompts.handlers._
-import de.codeshelf.consoleui.prompt.ConsolePrompt
-import de.codeshelf.consoleui.prompt.builder.ListPromptBuilder
 import cats.Monad
 import cats.effect.Sync
 import cats.implicits._
+import de.codeshelf.consoleui.prompt.ConsolePrompt
+import de.codeshelf.consoleui.prompt.builder.ListPromptBuilder
+import tui.prompts.handlers._
 
 object list:
   case class Item(id: String, text: String)

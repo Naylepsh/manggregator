@@ -3,13 +3,12 @@ package tui
 import scala.jdk.CollectionConverters.*
 
 import cats.Applicative
-import de.codeshelf.consoleui.elements.PromptableElementIF
-import de.codeshelf.consoleui.prompt._
-import de.codeshelf.consoleui.prompt.builder.ListPromptBuilder
-import library.services.{Assets, Pages}
-import de.codeshelf.consoleui.prompt.ConsolePrompt
 import crawler.domain.Library
 import crawler.services.Crawler
+import de.codeshelf.consoleui.elements.PromptableElementIF
+import de.codeshelf.consoleui.prompt.builder.ListPromptBuilder
+import de.codeshelf.consoleui.prompt.{ConsolePrompt, _}
+import library.services.{Assets, Pages}
 
 package object views {
   case class Services[F[_]](
