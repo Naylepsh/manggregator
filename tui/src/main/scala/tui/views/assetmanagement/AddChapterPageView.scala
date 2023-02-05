@@ -12,8 +12,9 @@ import library.domain.asset.Asset
 import library.domain.page.{CreateChaptersPage, PageUrl, Site}
 import library.services.Pages
 import tui.prompts.InputPrompts.getValidatedInput
+import tui.prompts.AssetPrompts.createItemsFormPrompt
 import tui.utils.retry.retryUntilSuccess
-import tui.views.{Context, View}
+import tui.views.{Context, View, showPrompt}
 
 class AddChapterPageView[F[_]: Sync: Console](
     context: Context[F],
@@ -21,8 +22,13 @@ class AddChapterPageView[F[_]: Sync: Console](
     viewToGoBackTo: View[F]
 ) extends View[F]:
   override def view(): F[Unit] =
+    val promptBuilder = context.prompt.getPromptBuilder()
     for
-      site <- retryUntilSuccess(getSiteInput())
+      rawSite <- showPrompt(
+        context.prompt,
+        getSite.combinePrompts(promptBuilder)
+      )
+      site <- getSite.handle(rawSite).map(_.map(Site.apply).get)
       url <- retryUntilSuccess(getChapterPageInput())
       _ <- context.services.pages.create(
         CreateChaptersPage(site, url, asset.id)
@@ -30,17 +36,9 @@ class AddChapterPageView[F[_]: Sync: Console](
       _ <- viewToGoBackTo.view()
     yield ()
 
-  private def getSiteInput() =
-    getValidatedInput(context.prompt, "Enter the site:", validateSite)
-  private def validateSite(input: String): Either[String, Site] =
-    Either.cond(
-      validSites.contains(input),
-      Site(input),
-      s"$input is not a supported site"
-    )
-
   // TODO: get this stuff from database? Or from main app?
   private val validSites = List("nyaa", "mangakakalot", "mangadex")
+  private val getSite = createItemsFormPrompt("Enter the site:", validSites)
 
   private def getChapterPageInput() =
     getValidatedInput(

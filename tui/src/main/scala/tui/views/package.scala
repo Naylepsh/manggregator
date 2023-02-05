@@ -27,7 +27,7 @@ package object views {
   private def getListPromptResult(rawPromptResult: PromtResultItemIF): String =
     rawPromptResult.asInstanceOf[ListResult].getSelectedId()
 
-  private def showPrompt[F[_]: Applicative](
+  def showPrompt[F[_]: Applicative](
       prompt: ConsolePrompt,
       prompts: java.util.List[PromptableElementIF]
   ): F[scala.collection.mutable.Map[String, ? <: PromtResultItemIF]] =

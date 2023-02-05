@@ -10,7 +10,7 @@ private val backId = "back"
 def goBackHandler[F[_]](
     viewToGoBackTo: View[F]
 ) =
-  SinglePropHandler[F, ListPromptBuilder](
+  SinglePropHandler[F, ListPromptBuilder, Unit](
     addToPrompt =
       (promptBuilder) => promptBuilder.newItem(backId).text(backId).add(),
     check = (result) => result == backId,
@@ -19,7 +19,7 @@ def goBackHandler[F[_]](
 
 private val exitId = "exit"
 def exitHandler[F[_]: Applicative]() =
-  SinglePropHandler[F, ListPromptBuilder](
+  SinglePropHandler[F, ListPromptBuilder, Unit](
     addToPrompt =
       (promptBuilder) => promptBuilder.newItem(exitId).text(exitId).add(),
     check = (result) => result == exitId,

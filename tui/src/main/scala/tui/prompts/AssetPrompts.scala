@@ -6,6 +6,7 @@ import de.codeshelf.consoleui.prompt.builder.ListPromptBuilder
 import library.domain.asset.Asset
 import tui.prompts.handlers._
 import tui.views.View
+import cats.implicits._
 
 object AssetPrompts:
   def buildReleasesPrompt[F[_]: Monad](
@@ -42,6 +43,19 @@ object AssetPrompts:
 
   case class Item(id: String, text: String)
 
+  def createItemsFormPrompt[F[_]: Monad](
+      promptMessage: String,
+      items: List[String]
+  ) =
+    val subHandler =
+      createItemsSubHandler(items.map(i => Item(i, i)), handle = _.pure)
+
+    makeListHandler(
+      List(subHandler),
+      "list-form-input",
+      promptMessage
+    )
+
   def createItemsPrompt[F[_]: Monad](
       promptName: String,
       promptMessage: String,
@@ -61,11 +75,11 @@ object AssetPrompts:
       promptMessage
     )
 
-  def createItemsSubHandler[F[_]](
+  def createItemsSubHandler[F[_], Output](
       items: List[Item],
-      handle: String => F[Unit]
-  ): SinglePropHandler[F, ListPromptBuilder] =
-    SinglePropHandler[F, ListPromptBuilder](
+      handle: String => F[Output]
+  ): SinglePropHandler[F, ListPromptBuilder, Output] =
+    SinglePropHandler[F, ListPromptBuilder, Output](
       addToPrompt = (builder) =>
         items
           .foldLeft(builder) { (builder, item) =>
