@@ -17,28 +17,34 @@ object list:
       message: String,
       choices: List[String]
   ): F[String] =
+    val subHandlers = List(
+      createItemsSubHandler(choices.map(x => Item(x, x)), handle = _.pure)
+    )
+    val handler = makeListHandler(subHandlers, "list-form-input", message)
+
+    executeHandler(prompt, handler)
+
+  def runOnInputFromList[F[_]: Sync](
+      prompt: ConsolePrompt,
+      message: String,
+      handlers: List[SinglePropHandler[F, ListPromptBuilder, Unit]]
+  ): F[Unit] =
+    val handler = makeListHandler(handlers, "list-input", message)
+
+    executeHandler(prompt, handler)
+
+  private def executeHandler[F[_]: Sync, Output](
+      prompt: ConsolePrompt,
+      handler: Handler[F, ListPromptBuilder, Output]
+  ) =
     val builder = prompt.getPromptBuilder()
-    val handler = createListFormPrompt(message, choices)
 
     for
       rawResult <- prompt.prompt(handler.combinePrompts(builder)).asScala.pure
       result <- handler.handle(rawResult).map(_.get)
     yield result
 
-  private def createListFormPrompt[F[_]: Monad](
-      promptMessage: String,
-      items: List[String]
-  ): Handler[F, ListPromptBuilder, String] =
-    val subHandler =
-      createItemsSubHandler(items.map(i => Item(i, i)), handle = _.pure)
-
-    makeListHandler(
-      List(subHandler),
-      "list-form-input",
-      promptMessage
-    )
-
-  private def createItemsSubHandler[F[_], Output](
+  def createItemsSubHandler[F[_], Output](
       items: List[Item],
       handle: String => F[Output]
   ): SinglePropHandler[F, ListPromptBuilder, Output] =

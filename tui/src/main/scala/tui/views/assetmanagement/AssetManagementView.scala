@@ -8,7 +8,7 @@ import de.codeshelf.consoleui.prompt.ConsolePrompt
 import library.domain.asset.{Asset, AssetDoesNotExist, UpdateAsset}
 import library.services.{Assets, Pages}
 import tui.prompts.AssetPrompts.{Item, createItemsPrompt}
-import tui.prompts.MenuPrompt
+import tui.prompts.menu
 import tui.views.{Context, View, showPrompt}
 
 class AssetManagementView[F[_]: Sync: Console](
@@ -17,34 +17,20 @@ class AssetManagementView[F[_]: Sync: Console](
     goBack: View[F]
 ) extends View[F]:
   override def view(): F[Unit] =
-    val promptBuilder = context.prompt.getPromptBuilder()
-    for
-      rawResult <- showPrompt(
-        context.prompt,
-        menuPrompt.combinePrompts(promptBuilder)
-      )
-      _ <- menuPrompt.handle(rawResult).map(_.getOrElse(()))
-    yield ()
+    menu.make(context.prompt, "Pick an action:", actions, goBack)
 
   private val actions = Map(
     "toggle" -> inferToggle(),
     "add-pages" -> goToAddChapterPageView()
   )
 
-  private val menuPrompt = MenuPrompt.make(
-    "manage-asset",
-    "Pick an action:",
-    actions,
-    goBack
-  )
-
-  private def inferToggle(): MenuPrompt.Action[F] =
+  private def inferToggle(): menu.Action[F] =
     val (text, handle) =
       if (asset.enabled.value)
         ("Disable", () => update(asset.disable()))
       else
         ("Enable", () => update(asset.enable()))
-    MenuPrompt.Action(
+    menu.Action(
       text,
       _ =>
         handle().flatMap(_ match
@@ -64,8 +50,8 @@ class AssetManagementView[F[_]: Sync: Console](
         )
       )
 
-  private def goToAddChapterPageView(): MenuPrompt.Action[F] =
-    MenuPrompt.Action(
+  private def goToAddChapterPageView(): menu.Action[F] =
+    menu.Action(
       text = "Add chapters page",
       handle = _ => new AddChapterPageView[F](context, asset, this).view()
     )
