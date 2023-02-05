@@ -13,7 +13,6 @@ import library.domain.page.{CreateChaptersPage, PageUrl, Site}
 import library.services.Pages
 import tui.prompts.list.getInputFromList
 import tui.prompts.InputPrompts.getValidatedInput
-import tui.prompts.AssetPrompts.createItemsFormPrompt
 import tui.utils.retry.retryUntilSuccess
 import tui.views.{Context, View, showPrompt}
 

@@ -2,7 +2,6 @@ package tui.prompts
 
 import cats.effect.kernel.Sync
 import cats.implicits._
-import tui.prompts.AssetPrompts.createItemsPrompt
 import tui.views.View
 import tui.prompts.list.{Item, createItemsSubHandler, runOnInputFromList}
 import tui.prompts.handlers.{exitHandler, goBackHandler}

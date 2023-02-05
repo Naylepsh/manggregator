@@ -7,7 +7,6 @@ import cats.implicits._
 import de.codeshelf.consoleui.prompt.ConsolePrompt
 import library.domain.asset.Asset
 import library.services.{Assets, Pages}
-import tui.prompts.AssetPrompts.{Item, createItemsPrompt}
 import tui.prompts.menu
 import tui.views.{Context, View, showPrompt}
 

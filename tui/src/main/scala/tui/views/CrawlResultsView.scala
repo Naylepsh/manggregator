@@ -14,7 +14,7 @@ import de.codeshelf.consoleui.prompt.{
   PromtResultItemIF
 }
 import library.domain.asset.Asset
-import tui.prompts.AssetPrompts.buildReleasesPrompt
+import tui.prompts.asset.makeAssetNameMenu
 
 class CrawlResultsView[F[_]: Sync: Console](
     context: Context[F],
@@ -23,25 +23,16 @@ class CrawlResultsView[F[_]: Sync: Console](
 ) extends View[F]:
 
   def view(): F[Unit] =
-    val promptBuilder = context.prompt.getPromptBuilder()
-    for
-      rawResult <- showPrompt(
-        context.prompt,
-        releasesPrompt.combinePrompts(promptBuilder)
-      )
-      _ <- releasesPrompt.handle(rawResult).map(_.getOrElse(()))
-    yield ()
+    makeAssetNameMenu(
+      context.prompt,
+      "Select an asset to see recent releases of:",
+      assets,
+      onHandleAsset,
+      previous
+    )
 
-  private val releasesPrompt =
-    buildReleasesPrompt(assets, onHandleAsset, previous)
-
-  private def onHandleAsset(result: String): F[Unit] =
-    assets
-      .find(_.id.value.toString == result)
-      .map { asset => showAssetChapters(asset) >> view() }
-      .getOrElse(exit())
-
-  private def exit() = Sync[F].unit
+  private def onHandleAsset(asset: Asset): F[Unit] =
+    showAssetChapters(asset) >> view()
 
   private def showAssetChapters(asset: Asset): F[Unit] =
     asset.chapters.foldLeft(Applicative[F].unit) { (acc, chapter) =>
