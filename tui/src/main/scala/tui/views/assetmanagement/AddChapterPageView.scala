@@ -11,6 +11,7 @@ import de.codeshelf.consoleui.prompt.ConsolePrompt
 import library.domain.asset.Asset
 import library.domain.page.{CreateChaptersPage, PageUrl, Site}
 import library.services.Pages
+import tui.prompts.list.getInputFromList
 import tui.prompts.InputPrompts.getValidatedInput
 import tui.prompts.AssetPrompts.createItemsFormPrompt
 import tui.utils.retry.retryUntilSuccess
@@ -24,11 +25,8 @@ class AddChapterPageView[F[_]: Sync: Console](
   override def view(): F[Unit] =
     val promptBuilder = context.prompt.getPromptBuilder()
     for
-      rawSite <- showPrompt(
-        context.prompt,
-        getSite.combinePrompts(promptBuilder)
-      )
-      site <- getSite.handle(rawSite).map(_.map(Site.apply).get)
+      site <- getInputFromList(context.prompt, "Enter the site:", validSites)
+        .map(Site.apply)
       url <- retryUntilSuccess(getChapterPageInput())
       _ <- context.services.pages.create(
         CreateChaptersPage(site, url, asset.id)
@@ -38,7 +36,6 @@ class AddChapterPageView[F[_]: Sync: Console](
 
   // TODO: get this stuff from database? Or from main app?
   private val validSites = List("nyaa", "mangakakalot", "mangadex")
-  private val getSite = createItemsFormPrompt("Enter the site:", validSites)
 
   private def getChapterPageInput() =
     getValidatedInput(
