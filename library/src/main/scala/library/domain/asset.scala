@@ -26,8 +26,7 @@ object asset:
       id: AssetId,
       name: AssetName,
       enabled: Enabled,
-      aliases: List[Alias] = List(),
-      chapters: List[Chapter] = List()
+      aliases: List[Alias] = List()
   ):
     def disable(): Asset =
       this.copy(enabled = Enabled(false))
@@ -35,21 +34,7 @@ object asset:
     def enable(): Asset =
       this.copy(enabled = Enabled(true))
 
-  def bindChaptersToAssets(
-      assets: List[Asset],
-      chapters: List[Chapter]
-  ): List[Asset] =
-    val acc = MutableMap[AssetId, List[Chapter]]()
-
-    chapters.foreach { chapter =>
-      val otherChapters = acc.getOrElse(chapter.assetId, List())
-      acc.addOne(chapter.assetId -> (chapter :: otherChapters))
-    }
-
-    assets.map { asset =>
-      asset.copy(chapters = acc.getOrElse(asset.id, List()))
-    }
-
+  // commands
   case class CreateAsset(
       name: AssetName,
       enabled: Enabled
@@ -60,6 +45,27 @@ object asset:
       name: AssetName,
       enabled: Enabled
   )
+
+  // reads
+  case class AssetSummary(
+      asset: Asset,
+      chapters: List[Chapter]
+  )
+  object AssetSummary:
+    def apply(
+        assets: List[Asset],
+        chapters: List[Chapter]
+    ): List[AssetSummary] =
+      val acc = MutableMap[AssetId, List[Chapter]]()
+
+      chapters.foreach { chapter =>
+        val otherChapters = acc.getOrElse(chapter.assetId, List())
+        acc.addOne(chapter.assetId -> (chapter :: otherChapters))
+      }
+
+      assets.map { asset =>
+        AssetSummary(asset, acc.getOrElse(asset.id, List()))
+      }
 
   // --- Errors ---
   case class AssetAlreadyExists(assetName: AssetName) extends NoStackTrace

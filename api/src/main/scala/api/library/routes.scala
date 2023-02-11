@@ -71,7 +71,7 @@ object routes:
         endpoints.getAssetsChaptersEndpoint.serverLogic((ids) =>
           props.assets
             .findManyWithChapters(ids.map(AssetId.apply))
-            .map(_.asRight[String])
+            .map(_.map(AssetSummaryResponse.apply).asRight[String])
         )
       )
     }
@@ -80,11 +80,11 @@ object routes:
       : Reader[Services[F], HttpRoutes[F]] =
     Reader { props =>
       Http4sServerInterpreter[F]().toRoutes(
-        endpoints.getAssetsWithRecentChapterReleasesEndpoint.serverLogic(
-          (minDate) =>
+        endpoints.getAssetsWithRecentChapterReleasesEndpoint
+          .serverLogic((minDate) =>
             props.assets
               .findRecentReleases(DateReleased(minDate))
-              .map(_.asRight[String])
-        )
+              .map(_.map(AssetSummaryResponse.apply).asRight[String])
+          )
       )
     }

@@ -13,28 +13,35 @@ import de.codeshelf.consoleui.prompt.{
   ListResult,
   PromtResultItemIF
 }
-import library.domain.asset.Asset
+import library.domain.asset.AssetSummary
 import tui.prompts.asset.makeAssetNameMenu
+import tui.prompts.menu
 
 class CrawlResultsView[F[_]: Sync: Console](
     context: Context[F],
-    assets: List[Asset],
+    assets: List[AssetSummary],
     previous: View[F]
 ) extends View[F]:
 
   def view(): F[Unit] =
-    makeAssetNameMenu(
+    menu.make(
       context.prompt,
       "Select an asset to see recent releases of:",
-      assets,
-      onHandleAsset,
+      actions,
       previous
     )
 
-  private def onHandleAsset(asset: Asset): F[Unit] =
-    showAssetChapters(asset) >> view()
+  private val actions = assets
+    .map(summary =>
+      summary.asset.id.value.toString -> menu
+        .Action(
+          text = summary.asset.name.value,
+          handle = _ => showAssetChapters(summary) >> view()
+        )
+    )
+    .toMap
 
-  private def showAssetChapters(asset: Asset): F[Unit] =
-    asset.chapters.foldLeft(Applicative[F].unit) { (acc, chapter) =>
+  private def showAssetChapters(summary: AssetSummary): F[Unit] =
+    summary.chapters.foldLeft(Applicative[F].unit) { (acc, chapter) =>
       acc *> Console[F].println(s"${chapter.no.value} | ${chapter.url.value}")
     }
