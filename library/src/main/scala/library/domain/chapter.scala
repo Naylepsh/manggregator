@@ -19,11 +19,15 @@ object chapter:
   @newtype
   case class DateReleased(value: Date)
 
+  @newtype
+  case class Seen(value: Boolean)
+
   case class Chapter(
       id: ChapterId,
       no: ChapterNo,
       url: ChapterUrl,
       dateReleased: DateReleased,
+      seen: Seen,
       assetId: AssetId
   )
 
@@ -33,7 +37,9 @@ object chapter:
       url: ChapterUrl,
       dateReleased: DateReleased,
       assetId: AssetId
-  )
+  ):
+    val seen = Seen(false)
+
   object CreateChapter:
     def discardIfIn(
         all: List[CreateChapter],

@@ -47,6 +47,7 @@ object ChaptersSuite:
     DateReleased(
       Date.from(Instant.parse("2022-11-06T12:52:54.966933505Z"))
     ),
+    Seen(false),
     AssetId(UUID.fromString("0aed43c4-9be6-4d86-b418-dd0844d5a28b"))
   )
 

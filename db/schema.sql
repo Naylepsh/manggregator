@@ -9,7 +9,7 @@ CREATE TABLE chapter (
   no text not null,
   url text not null,
   dateReleased text not null,
-  assetId uuid not null,
+  assetId uuid not null, seen integer not null default 0,
 
   foreign key (assetId) references asset (id)
 );
@@ -23,4 +23,5 @@ CREATE TABLE chapters_page (
 );
 -- Dbmate schema migrations
 INSERT INTO "schema_migrations" (version) VALUES
-  ('20221129182103');
+  ('20221129182103'),
+  ('20230212125338');
