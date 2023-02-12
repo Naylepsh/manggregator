@@ -19,6 +19,7 @@ import library.domain.chapter._
 
 trait Chapters[F[_]]:
   def create(chapters: List[CreateChapter]): F[List[ChapterId]]
+  def markAsSeen(ids: List[ChapterId]): F[Unit]
   def findByAssetIds(ids: List[AssetId]): F[List[Chapter]]
   def findRecentReleases(minDateReleased: DateReleased): F[List[Chapter]]
 
@@ -39,12 +40,18 @@ object Chapters:
                 no = chapter.no.value,
                 url = chapter.url.value,
                 dateReleased = dateToString(chapter.dateReleased.value),
+                seen = chapter.seen.value,
                 assetId = chapter.assetId.value
               )
             }
           }
           res <- insert.updateMany(records).transact(xa)
         yield records.map(chapter => ChapterId(chapter.id)).toList
+
+      override def markAsSeen(ids: List[ChapterId]): F[Unit] =
+        NonEmptyList.fromList(ids).fold(Applicative[F].unit) { ids =>
+          ChaptersSQL.markAsSeen(ids.map(_.value)).run.void.transact(xa)
+        }
 
       override def findByAssetIds(ids: List[AssetId]): F[List[Chapter]] =
         NonEmptyList.fromList(ids).fold(List.empty.pure) { ids =>
@@ -73,6 +80,7 @@ object ChaptersSQL:
       no: String,
       url: String,
       dateReleased: String,
+      seen: Boolean,
       assetId: UUID
   )
   object ChapterRecord:
@@ -84,18 +92,19 @@ object ChaptersSQL:
         no = ChapterNo(record.no),
         url = ChapterUrl(record.url),
         dateReleased = DateReleased(format.parse(record.dateReleased)),
+        seen = Seen(record.seen),
         assetId = AssetId(record.assetId)
       )
 
   val insert = Update[ChapterRecord]("""
-    INSERT INTO chapter (id, no, url, dateReleased, assetId)
-    VALUES (?, ?, ?, ?, ?)
+    INSERT INTO chapter (id, no, url, dateReleased, seen, assetId)
+    VALUES (?, ?, ?, ?, ?, ?)
   """)
 
   def selectByAssetIds(assetIds: NonEmptyList[UUID]): Query0[ChapterRecord] =
     (
       sql"""
-        SELECT * FROM chapter
+        SELECT id, no, url, dateReleased, seen, assetId FROM chapter
         WHERE """ ++ Fragments.in(fr"assetId", assetIds)
     ).query[ChapterRecord]
 
@@ -103,6 +112,12 @@ object ChaptersSQL:
       minDateReleased: String
   ): Query0[ChapterRecord] =
     sql"""
-        SELECT * FROM chapter
+        SELECT id, no, url, dateReleased, seen, assetId FROM chapter
         WHERE dateReleased >= $minDateReleased
     """.query
+
+  def markAsSeen(ids: NonEmptyList[UUID]): Update0 =
+    (sql"""
+        UPDATE chapter
+        SET seen = 1
+        WHERE """ ++ Fragments.in(fr"id", ids)).update

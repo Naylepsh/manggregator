@@ -27,6 +27,7 @@ object TUI:
             _ <- MakeTUI(
               libraryServices.assets,
               libraryServices.pages,
+              libraryServices.chapters,
               crawler,
               library
             ).make().use {

@@ -14,7 +14,7 @@ import library.services.Pages
 import tui.prompts.InputPrompts.getValidatedInput
 import tui.prompts.list.getInputFromList
 import tui.utils.retry.retryUntilSuccess
-import tui.views.{Context, View, showPrompt}
+import tui.views.{Context, View}
 
 class AddChapterPageView[F[_]: Sync: Console](
     context: Context[F],

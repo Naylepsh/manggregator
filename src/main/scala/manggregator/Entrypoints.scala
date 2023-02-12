@@ -89,7 +89,8 @@ object Entrypoints:
 
   def libraryServices(storage: Storage[IO]): Services[IO] = Services(
     Assets.make(storage),
-    Pages.make(storage)
+    Pages.make(storage),
+    Chapters.make(storage.chapters)
   )
 
   def http(

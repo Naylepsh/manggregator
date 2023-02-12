@@ -8,12 +8,13 @@ import crawler.services.Crawler
 import de.codeshelf.consoleui.elements.PromptableElementIF
 import de.codeshelf.consoleui.prompt.builder.ListPromptBuilder
 import de.codeshelf.consoleui.prompt.{ConsolePrompt, _}
-import library.services.{Assets, Pages}
+import library.services.{Assets, Chapters, Pages}
 
 package object views {
   case class Services[F[_]](
       assets: Assets[F],
       pages: Pages[F],
+      chapters: Chapters[F],
       crawler: Crawler[F],
       crawlerLibrary: Library[F]
   )

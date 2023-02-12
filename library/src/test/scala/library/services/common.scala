@@ -41,6 +41,8 @@ object common:
     override def create(chapters: List[CreateChapter]): F[List[ChapterId]] =
       List.empty.pure
 
+    override def markAsSeen(ids: List[ChapterId]): F[Unit] = Applicative[F].unit
+
     override def findByAssetIds(ids: List[AssetId]): F[List[Chapter]] =
       List.empty.pure
 

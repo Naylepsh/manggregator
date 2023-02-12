@@ -8,7 +8,7 @@ import de.codeshelf.consoleui.prompt.ConsolePrompt
 import library.domain.asset.Asset
 import library.services.{Assets, Pages}
 import tui.prompts.asset.makeAssetNameMenu
-import tui.views.{Context, View, showPrompt}
+import tui.views.{Context, View}
 
 class EditAssetsView[F[_]: Sync: Console](
     context: Context[F],
