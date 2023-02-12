@@ -20,7 +20,11 @@ import org.http4s.HttpRoutes
 import sttp.tapir.server.http4s.Http4sServerInterpreter
 
 object routes:
-  case class Services[F[_]](assets: Assets[F], pages: Pages[F])
+  case class Services[F[_]](
+      assets: Assets[F],
+      pages: Pages[F],
+      chapters: Chapters[F]
+  )
 
   def all[F[_]: Async](props: Services[F]): HttpRoutes[F] =
     NonEmptyList

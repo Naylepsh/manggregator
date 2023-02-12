@@ -19,6 +19,7 @@ import library.domain.chapter._
 
 trait Chapters[F[_]]:
   def create(chapters: List[CreateChapter]): F[List[ChapterId]]
+  def markAsSeen(ids: List[ChapterId]): F[Unit]
   def findByAssetIds(ids: List[AssetId]): F[List[Chapter]]
   def findRecentReleases(minDateReleased: DateReleased): F[List[Chapter]]
 
@@ -46,6 +47,11 @@ object Chapters:
           }
           res <- insert.updateMany(records).transact(xa)
         yield records.map(chapter => ChapterId(chapter.id)).toList
+
+      override def markAsSeen(ids: List[ChapterId]): F[Unit] =
+        NonEmptyList.fromList(ids).fold(Applicative[F].unit) { ids =>
+          ChaptersSQL.markAsSeen(ids.map(_.value)).run.void.transact(xa)
+        }
 
       override def findByAssetIds(ids: List[AssetId]): F[List[Chapter]] =
         NonEmptyList.fromList(ids).fold(List.empty.pure) { ids =>
@@ -109,3 +115,9 @@ object ChaptersSQL:
         SELECT id, no, url, dateReleased, seen, assetId FROM chapter
         WHERE dateReleased >= $minDateReleased
     """.query
+
+  def markAsSeen(ids: NonEmptyList[UUID]): Update0 =
+    (sql"""
+        UPDATE chapter
+        SET seen = 1
+        WHERE """ ++ Fragments.in(fr"id", ids)).update

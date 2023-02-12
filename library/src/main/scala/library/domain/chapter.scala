@@ -2,6 +2,8 @@ package library.domain
 
 import java.util.{Date, UUID}
 
+import scala.util.Try
+
 import io.estatico.newtype.macros.newtype
 
 object chapter:
@@ -9,6 +11,12 @@ object chapter:
 
   @newtype
   case class ChapterId(value: UUID)
+  object ChapterId:
+    def apply(value: String): Either[String, ChapterId] =
+      Try(UUID.fromString(value)).toEither
+        .map(ChapterId.apply)
+        .left
+        .map(_.toString)
 
   @newtype
   case class ChapterNo(value: String)
@@ -29,7 +37,8 @@ object chapter:
       dateReleased: DateReleased,
       seen: Seen,
       assetId: AssetId
-  )
+  ):
+    def markAsSeen(): Chapter = this.copy(seen = Seen(true))
 
   // --- Commands ---
   case class CreateChapter(

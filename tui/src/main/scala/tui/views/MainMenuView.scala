@@ -18,6 +18,7 @@ import library.services.{Assets, Pages}
 import tui.prompts.InputPrompts.getInput
 import tui.utils.retry.retryUntilSuccess
 import tui.views.assetmanagement.MainAssetManagementView
+import tui.views.crawlresults.CrawlResultsView
 
 class MainMenuView[F[_]: Console: Sync](
     context: Context[F]
@@ -61,7 +62,7 @@ class MainMenuView[F[_]: Console: Sync](
       assets <- context.services.assets.findRecentReleases(
         DateReleased(minDate)
       )
-      _ <- new CrawlResultsView[F](context, assets, this).view()
+      _ <- new CrawlResultsView(context, assets, this).view()
     yield ()
 
   private def manageAssets(): F[Unit] =
