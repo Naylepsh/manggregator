@@ -4,6 +4,7 @@ import java.net.URI
 
 import scala.util.Try
 
+import core.Url
 import io.circe.{Decoder, Encoder}
 import library.domain.alias._
 import library.domain.asset._
@@ -26,14 +27,4 @@ object codecs:
   given Encoder[DateReleased] = Encoder[String].contramap(_.value.toString)
 
   given Encoder[URI] = Encoder[String].contramap(_.toString)
-  given Decoder[URI] = Decoder.decodeString.emap(convertToUrl)
-
-  private def convertToUrl(s: String): Either[String, URI] =
-    Try {
-      // Just constructing URI is not enough to validate.
-      // Even `new URI("string")` passes.
-      // toURL has to be called.
-      val uri = new URI(s)
-      uri.toURL()
-      uri
-    }.toEither.left.map(_ => s"$s is not a valid url")
+  given Decoder[URI] = Decoder.decodeString.emap(Url.uri)

@@ -3,7 +3,7 @@ package crawler.services.site_crawlers.mangadex
 import cats._
 import cats.effect._
 import cats.implicits._
-import crawler.domain.Url
+import core.Url
 import io.circe.generic.auto._
 import sttp.capabilities.WebSockets
 import sttp.client3.circe._

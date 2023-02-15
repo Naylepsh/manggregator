@@ -7,9 +7,10 @@ import scala.util.Try
 import cats.effect.kernel.{Async, Resource}
 import cats.implicits._
 import com.github.nscala_time.time.Imports._
+import core.Url
 import crawler.domain.Asset.{AssetSource, Chapter}
 import crawler.domain.Crawl.CrawlJob.{DiscoverTitlesCrawlJob, ScrapeChaptersCrawlJob}
-import crawler.domain.{SiteCrawler, Url}
+import crawler.domain.SiteCrawler
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 import net.ruippeixotog.scalascraper.dsl.DSL.Parse._
@@ -58,7 +59,7 @@ class NyaaCrawler[F[_]: Async](
     def toChapter(assetId: UUID): Either[Throwable, Chapter] =
       for
         u <- Url
-          .fromString(url)
+          .valid(url)
           .left
           .map(reason => new RuntimeException(reason))
         d <- parseDate(dateReleased)

@@ -8,9 +8,10 @@ import scala.util.matching.Regex
 import cats.effect._
 import cats.implicits._
 import com.github.nscala_time.time.Imports._
+import core.Url
 import crawler.domain.Asset._
 import crawler.domain.Crawl.CrawlJob._
-import crawler.domain.{SiteCrawler, Url}
+import crawler.domain.SiteCrawler
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 import net.ruippeixotog.scalascraper.dsl.DSL.Parse._
@@ -54,7 +55,7 @@ object MangakakalotCrawler extends SiteCrawler[IO]:
             nameElement <- chapterElement >?> element(selectors.chapterName)
             name = nameElement.text
             chapterRawUrl <- nameElement >?> attr("href")
-            chapterUrl <- Url.fromString(chapterRawUrl).toOption
+            chapterUrl <- Url.valid(chapterRawUrl).toOption
             no <- parseChapterNoFromName(name)
             timeUploaded <- chapterElement >?> allText(
               selectors.timeUploaded

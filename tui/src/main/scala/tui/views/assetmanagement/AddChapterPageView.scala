@@ -1,12 +1,11 @@
 package tui.views.assetmanagement
 
-import java.net.URI
-
 import scala.util.Try
 
 import cats.effect.kernel.Sync
 import cats.effect.std.Console
 import cats.implicits._
+import core.Url
 import de.codeshelf.consoleui.prompt.ConsolePrompt
 import library.domain.asset.Asset
 import library.domain.page.{CreateChaptersPage, PageUrl, Site}
@@ -25,7 +24,7 @@ class AddChapterPageView[F[_]: Sync: Console](
     val promptBuilder = context.prompt.getPromptBuilder()
     for
       site <- getInputFromList(context.prompt, "Enter the site:", validSites)
-        .map(Site.apply)
+        .map(value => Site(value))
       url <- retryUntilSuccess(getChapterPageInput())
       _ <- context.services.pages.create(
         CreateChaptersPage(site, url, asset.id)
@@ -43,12 +42,4 @@ class AddChapterPageView[F[_]: Sync: Console](
       validateChapterUrl
     )
   private def validateChapterUrl(input: String): Either[String, PageUrl] =
-    Either.cond(isUrl(input), PageUrl(input), s"$input is not a valid url")
-
-  private def isUrl(s: String): Boolean =
-    Try {
-      // Just constructing URI is not enough to validate.
-      // Even `new URI("string")` passes.
-      // toURL has to be called.
-      new URI(s).toURL()
-    }.isSuccess
+    Either.cond(Url.isUrl(input), PageUrl(input), s"$input is not a valid url")

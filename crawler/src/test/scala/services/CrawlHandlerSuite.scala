@@ -14,7 +14,7 @@ import java.util.Date
 import java.util.UUID.randomUUID
 import org.legogroup.woof.{*, given}
 import crawler.services.CrawlHandler
-import crawler.domain.Url
+import core.Url
 
 class CrawlHandlerSuite extends CatsEffectSuite:
   import CrawlHandlerSuite.{*, given}

@@ -74,7 +74,7 @@ object routes:
       Http4sServerInterpreter[F]().toRoutes(
         endpoints.getAssetsChaptersEndpoint.serverLogic((ids) =>
           props.assets
-            .findManyWithChapters(ids.map(AssetId.apply))
+            .findManyWithChapters(ids.map(id => AssetId(id)))
             .map(_.map(AssetSummaryResponse.apply).asRight[String])
         )
       )

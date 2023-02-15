@@ -4,6 +4,8 @@ import java.util.UUID
 
 import scala.util.control.NoStackTrace
 
+import core.Url
+
 import Asset._
 
 object Crawl:

@@ -8,12 +8,13 @@ import cats._
 import cats.effect._
 import cats.syntax.all._
 import com.github.nscala_time.time.Imports._
+import core.Url
 import crawler.domain.Asset.{AssetSource, Chapter}
 import crawler.domain.Crawl.CrawlJob.{
   DiscoverTitlesCrawlJob,
   ScrapeChaptersCrawlJob
 }
-import crawler.domain.{SiteCrawler, Url}
+import crawler.domain.SiteCrawler
 import crawler.resources.httpclient.HttpClient
 import org.joda.time.format.DateTimeFormat
 
@@ -54,7 +55,7 @@ class MangadexCrawler[F[_]: Monad](
 
   private def inferUrl(chapter: entities.Chapter): Either[Throwable, Url] =
     Url
-      .fromString(
+      .valid(
         chapter.attributes.externalUrl.getOrElse(chapterUrl(chapter.id))
       )
       .left

@@ -4,19 +4,19 @@ import java.util.UUID
 
 import scala.util.control.NoStackTrace
 
-import io.estatico.newtype.macros.newtype
+import core.Newtype
 
 object page:
   import library.domain.asset.AssetId
 
-  @newtype
-  case class PageId(value: UUID)
+  type PageId = PageId.Type
+  object PageId extends Newtype[UUID]
 
-  @newtype
-  case class Site(value: String)
+  type Site = Site.Type
+  object Site extends Newtype[String]
 
-  @newtype
-  case class PageUrl(value: String)
+  type PageUrl = PageUrl.Type
+  object PageUrl extends Newtype[String]
 
   case class SearchPage(id: PageId, site: Site, url: PageUrl)
   case class ChaptersPage(

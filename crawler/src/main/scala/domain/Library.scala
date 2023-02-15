@@ -3,6 +3,7 @@ package crawler.domain
 import java.util.UUID
 
 import cats.effect._
+import core.Url
 import crawler.domain.Crawl.CrawlResult._
 import crawler.domain.Library.AssetToCrawl
 

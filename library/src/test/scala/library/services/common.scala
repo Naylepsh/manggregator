@@ -13,7 +13,7 @@ import library.domain.chapter._
 object common:
   class TestAssets[F[_]: Applicative: UUIDGen] extends persistence.Assets[F]:
     override def create(asset: CreateAsset): F[AssetId] =
-      UUIDGen.randomUUID.map(AssetId.apply)
+      UUIDGen.randomUUID.map(id => AssetId(id))
 
     override def update(asset: UpdateAsset): F[Unit] = Applicative[F].unit
 
@@ -28,7 +28,7 @@ object common:
 
   class TestPages[F[_]: Applicative: UUIDGen] extends persistence.Pages[F]:
     override def create(page: CreateChaptersPage): F[PageId] =
-      UUIDGen.randomUUID.map(PageId.apply)
+      UUIDGen.randomUUID.map(id => PageId(id))
 
     override def findByUrl(url: PageUrl): F[Option[ChaptersPage]] = None.pure
 

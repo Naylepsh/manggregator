@@ -18,24 +18,6 @@ lazy val root = project
   .aggregate(crawler, library, api, tui)
   .dependsOn(crawler, library, api, tui)
 
-lazy val crawler = project
-  .configs(IntegrationTest)
-  .settings(
-    name := "crawler",
-    testFrameworks ++= commonTestFrameworks,
-    Defaults.itSettings,
-    libraryDependencies ++= commonLibraries ++ Seq(
-      Libraries.scalaScraper,
-      Libraries.scalaTime,
-      Libraries.sttp,
-      Libraries.sttpCats,
-      Libraries.sttpCirce,
-      Libraries.circe,
-      Libraries.circeGeneric,
-      Libraries.circeParser
-    )
-  )
-
 lazy val api = project
   .settings(
     name := "api",
@@ -47,6 +29,16 @@ lazy val api = project
       Libraries.tapirHttp4s,
       Libraries.tapirJsonCirce,
       Libraries.tapirSwagger
+    )
+  )
+  .aggregate(crawler, library)
+  .dependsOn(crawler, library)
+
+lazy val tui = project
+  .settings(
+    name := "tui",
+    libraryDependencies ++= commonLibraries ++ Seq(
+      Libraries.consoleUi
     )
   )
   .aggregate(crawler, library)
@@ -64,19 +56,34 @@ lazy val library = project
       Libraries.sqliteJDB
     ),
     concurrentRestrictions := Seq(
-      Tags.limit(Tags.Test, 1),
+      Tags.limit(Tags.Test, 1)
     )
   )
+  .aggregate(core)
+  .dependsOn(core)
 
-lazy val tui = project
+lazy val crawler = project
+  .configs(IntegrationTest)
   .settings(
-    name := "tui",
+    name := "crawler",
+    testFrameworks ++= commonTestFrameworks,
+    Defaults.itSettings,
     libraryDependencies ++= commonLibraries ++ Seq(
-      Libraries.consoleUi
+      Libraries.scalaScraper,
+      Libraries.scalaTime,
+      Libraries.sttp,
+      Libraries.sttpCats,
+      Libraries.sttpCirce,
+      Libraries.circe,
+      Libraries.circeGeneric,
+      Libraries.circeParser
     )
   )
-  .aggregate(crawler, library)
-  .dependsOn(crawler, library)
+  .aggregate(core)
+  .dependsOn(core)
+
+lazy val core =
+  project.settings(name := "core", libraryDependencies ++= commonLibraries)
 
 lazy val allTestFrameworks =
   new {
@@ -90,8 +97,7 @@ lazy val commonLibraries = Seq(
   Libraries.woof,
   Libraries.munit,
   Libraries.munitCatsEffect,
-  Libraries.weaver,
-  Libraries.newType
+  Libraries.weaver
 )
 
 lazy val commonTestFrameworks = Seq(allTestFrameworks.weaverCatsEffect)

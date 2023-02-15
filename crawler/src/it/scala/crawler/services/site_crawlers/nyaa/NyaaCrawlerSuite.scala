@@ -10,8 +10,8 @@ import cats._
 import cats.implicits._
 import cats.syntax.all._
 import crawler.domain.Crawl.CrawlJob.ScrapeChaptersCrawlJob
-import crawler.domain.Url
 import java.util.UUID
+import core.Url
 
 object NyaaCrawlerSuite extends IOSuite:
   override type Res = NyaaCrawler[IO]

@@ -2,16 +2,16 @@ package library.domain
 
 import java.util.UUID
 
-import io.estatico.newtype.macros.newtype
+import core.Newtype
 
 object alias:
   import library.domain.asset.AssetId
 
-  @newtype
-  case class AliasId(value: UUID)
+  type AliasId = AliasId.Type
+  object AliasId extends Newtype[UUID]
 
-  @newtype
-  case class AliasName(value: String)
+  type AliasName = AliasName.Type
+  object AliasName extends Newtype[String]
 
   case class Alias(id: AliasId, assetId: AssetId, name: AliasName)
 

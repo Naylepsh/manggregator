@@ -4,31 +4,30 @@ import java.util.{Date, UUID}
 
 import scala.util.Try
 
-import io.estatico.newtype.macros.newtype
+import core.Newtype
 
 object chapter:
   import library.domain.asset._
 
-  @newtype
-  case class ChapterId(value: UUID)
-  object ChapterId:
+  type ChapterId = ChapterId.Type
+  object ChapterId extends Newtype[UUID]:
     def apply(value: String): Either[String, ChapterId] =
       Try(UUID.fromString(value)).toEither
-        .map(ChapterId.apply)
+        .map(id => ChapterId(id))
         .left
         .map(_.toString)
 
-  @newtype
-  case class ChapterNo(value: String)
+  type ChapterNo = ChapterNo.Type
+  object ChapterNo extends Newtype[String]
 
-  @newtype
-  case class ChapterUrl(value: String)
+  type ChapterUrl = ChapterUrl.Type
+  object ChapterUrl extends Newtype[String]
 
-  @newtype
-  case class DateReleased(value: Date)
+  type DateReleased = DateReleased.Type
+  object DateReleased extends Newtype[Date]
 
-  @newtype
-  case class Seen(value: Boolean)
+  type Seen = Seen.Type
+  object Seen extends Newtype[Boolean]
 
   case class Chapter(
       id: ChapterId,
@@ -75,5 +74,5 @@ object chapter:
       id: ChapterId,
       no: ChapterNo,
       url: ChapterUrl,
-      assetName: AssetName
+      assetName: ChapterNo
   )

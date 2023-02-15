@@ -1,6 +1,6 @@
 package crawler.services.site_crawlers.mangadex
 
-import crawler.domain.Url
+import core.Url
 import cats._
 import cats.implicits._
 
@@ -28,7 +28,7 @@ object MangadexAPISuite extends weaver.FunSuite:
       "https://github.com/",
       "https://mangadex.org/chapter/7437257b-e3f6-462a-8178-7facb43b9729",
       "https://mangadex.org/"
-    ).map(Url.apply)
+    ).map(Url(_))
 
     expect(
       urls

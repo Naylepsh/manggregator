@@ -7,7 +7,7 @@ import crawler.services.site_crawlers.mangadex.entities.{
   GetMangaResponse
 }
 import cats.implicits._
-import crawler.domain.Url
+import core.Url
 import crawler.domain.Crawl.CrawlJob.ScrapeChaptersCrawlJob
 import java.util.UUID
 

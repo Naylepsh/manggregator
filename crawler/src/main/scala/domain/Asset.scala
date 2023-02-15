@@ -2,6 +2,8 @@ package crawler.domain
 
 import java.util.{Date, UUID}
 
+import core.Url
+
 object Asset:
   case class AssetSource(title: String, url: Url)
 

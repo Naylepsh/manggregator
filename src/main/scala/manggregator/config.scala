@@ -21,9 +21,9 @@ object config:
 
   private val databaseConfig: ConfigValue[Effect, DatabaseConfig] =
     (
-      env("DATABASE_PATH").map(DatabasePath.apply),
-      env("DATABASE_USERNAME").map(DatabaseUsername.apply),
-      env("DATABASE_PASSWORD").map(DatabasePassword.apply)
+      env("DATABASE_PATH").map(value => DatabasePath(value)),
+      env("DATABASE_USERNAME").map(value => DatabaseUsername(value)),
+      env("DATABASE_PASSWORD").map(value => DatabasePassword(value))
     ).parMapN(DatabaseConfig.apply)
 
   private val serverConfig = ServerConfig(

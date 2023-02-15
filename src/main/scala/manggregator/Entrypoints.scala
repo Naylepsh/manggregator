@@ -7,10 +7,11 @@ import api.library.routes.Services
 import api.{HttpApi, HttpServer}
 import cats.data._
 import cats.effect._
+import core.Url
 import crawler.domain.Asset.AssetSource
 import crawler.domain.Crawl.CrawlResult._
+import crawler.domain.Library
 import crawler.domain.Library.AssetToCrawl
-import crawler.domain.{Library, Url}
 import crawler.resources.httpclient
 import crawler.services._
 import crawler.services.httpclient.RetryingBackend
@@ -52,7 +53,7 @@ object Entrypoints:
       pages
         .map { case ChaptersPageToCheck(site, url, title) =>
           Url
-            .fromString(url.value)
+            .valid(url.value)
             .map(AssetToCrawl(site.value, title.value, _))
         }
         .collect { case Right(value) =>

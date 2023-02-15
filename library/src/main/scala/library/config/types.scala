@@ -1,11 +1,16 @@
 package library.config
 
-import io.estatico.newtype.macros.newtype
+import core.Newtype
 
 object types:
-  @newtype case class DatabasePath(value: String)
-  @newtype case class DatabaseUsername(value: String)
-  @newtype case class DatabasePassword(value: String)
+  type DatabasePath = DatabasePath.Type
+  object DatabasePath extends Newtype[String]
+
+  type DatabaseUsername = DatabaseUsername.Type
+  object DatabaseUsername extends Newtype[String]
+
+  type DatabasePassword = DatabasePassword.Type
+  object DatabasePassword extends Newtype[String]
 
   case class DatabaseConfig(
       path: DatabasePath,

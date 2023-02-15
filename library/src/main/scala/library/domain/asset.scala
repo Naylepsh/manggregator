@@ -5,7 +5,7 @@ import java.util.UUID
 import scala.collection.mutable.Map as MutableMap
 import scala.util.control.NoStackTrace
 
-import io.estatico.newtype.macros.newtype
+import core.Newtype
 
 object asset:
   import library.domain.alias.Alias
@@ -13,14 +13,14 @@ object asset:
   import library.domain.page.CreateChaptersPage
   import library.domain.chapter.Chapter
 
-  @newtype
-  case class AssetId(value: UUID)
+  type AssetId = AssetId.Type
+  object AssetId extends Newtype[UUID]
 
-  @newtype
-  case class AssetName(value: String)
+  type AssetName = AssetName.Type
+  object AssetName extends Newtype[String]
 
-  @newtype
-  case class Enabled(value: Boolean)
+  type Enabled = Enabled.Type
+  object Enabled extends Newtype[Boolean]
 
   case class Asset(
       id: AssetId,

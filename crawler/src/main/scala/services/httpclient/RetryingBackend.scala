@@ -3,7 +3,6 @@ package crawler.services.httpclient
 import cats._
 import cats.effect.kernel.Async
 import cats.implicits._
-import crawler.domain.Url
 import retry.RetryPolicies._
 import retry._
 import sttp.capabilities.Effect

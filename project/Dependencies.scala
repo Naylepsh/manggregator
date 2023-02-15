@@ -6,7 +6,6 @@ object Dependencies {
     val catsRetry = "3.1.0"
     val scalaScraper = "3.0.0"
     val scalaTime = "2.32.0"
-    val newType = "0.4.4"
     val ciris = "3.0.0"
     val circe = "0.14.3"
     val sttp = "3.8.8"
@@ -28,8 +27,6 @@ object Dependencies {
     val catsRetry = "com.github.cb372" %% "cats-retry" % V.catsRetry
     val scalaScraper = "net.ruippeixotog" %% "scala-scraper" % V.scalaScraper
     val scalaTime = "com.github.nscala-time" %% "nscala-time" % V.scalaTime
-    val newType = ("io.estatico" %% "newtype" % V.newType)
-      .cross(CrossVersion.for3Use2_13)
     val ciris = "is.cir" %% "ciris" % V.ciris
     val consoleUi = "de.codeshelf.consoleui" % "consoleui" % V.consoleUi
 

@@ -6,7 +6,7 @@ import org.joda.time.DateTime
 import com.github.nscala_time.time.Imports._
 import org.joda.time.DateTimeComparator
 import java.util.UUID.randomUUID
-import crawler.domain.Url
+import core.Url
 
 class MangakakalotCrawlerSuite extends CatsEffectSuite:
   import MangakakalotCrawler._
