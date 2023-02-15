@@ -12,14 +12,14 @@ Scrapes websites for new chapters of manga of your choice
 
 ### Modes & args
 
-#### Single Crawl
+#### TUI
 
-Crawls all the enabled assets from the databases and displays the recent release (where "recent" is the given argument by the user)
+Terminal UI giving the access to all functionalities.
 
-- `single-crawl yyyy-MM-dd`
+- `tui`
 
 #### Server
 
-API giving the access to all functionalities. Docs will be displayed at `http://localhost:8080/docs/`
+API giving the access to ~~all~~ most of the functionalities. Docs will be displayed at `http://localhost:8080/docs/`
 
 - `server`
