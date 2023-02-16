@@ -36,6 +36,5 @@ object asset:
         asset.id.value.toString -> menu
           .Action(text = asset.name.value, handle = _ => handle(asset))
       )
-      .toMap
 
     menu.make(prompt, message, actions, viewToGoBackTo)

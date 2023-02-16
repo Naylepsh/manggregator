@@ -1,6 +1,8 @@
 package core
 
-abstract class Newtype[A]:
+import cats.kernel.Order
+
+abstract class Newtype[A](using ord: Order[A]):
   /** Shamelessly copy-pasted from:
     * https://github.com/gvolpe/trading/blob/main/modules/domain/shared/src/main/scala/trading/Newtype.scala
     */
@@ -11,3 +13,5 @@ abstract class Newtype[A]:
   protected inline final def derive[F[_]](using ev: F[A]): F[Type] = ev
 
   extension (t: Type) inline def value: A = t
+
+  given Order[Type] = ord

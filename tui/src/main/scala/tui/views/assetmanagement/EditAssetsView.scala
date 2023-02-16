@@ -20,7 +20,7 @@ class EditAssetsView[F[_]: Sync: Console](
     makeAssetNameMenu(
       context.prompt,
       "Choose an asset to edit:",
-      assets,
+      assets.sortBy(_.name),
       pickAssetToEdit,
       goBack
     )

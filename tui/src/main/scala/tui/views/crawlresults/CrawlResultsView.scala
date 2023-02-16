@@ -24,6 +24,7 @@ class CrawlResultsView[F[_]: Sync: Console](
     )
 
   private val actions = assets
+    .sortBy(_.asset.name)
     .map(summary =>
       summary.asset.id.value.toString -> menu
         .Action(
@@ -31,4 +32,3 @@ class CrawlResultsView[F[_]: Sync: Console](
           handle = _ => new ChaptersView(context, summary.chapters, this).view()
         )
     )
-    .toMap
