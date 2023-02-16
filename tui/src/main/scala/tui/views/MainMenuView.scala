@@ -6,6 +6,8 @@ import java.util.Date
 import scala.jdk.CollectionConverters.*
 import scala.util.Try
 
+import org.joda.time.DateTime
+import com.github.nscala_time.time.Imports._
 import cats.Applicative
 import cats.effect.kernel.Sync
 import cats.effect.std.Console
@@ -57,7 +59,7 @@ class MainMenuView[F[_]: Console: Sync](
   private def browseRecentReleases(): F[Unit] =
     for
       minDate <- retryUntilSuccess(
-        getDateInput(s"Enter min. release date ($dateStringFormat):")
+        getDateInput(s"Enter min. release date ($dateStringFormat or [0-9]+d):")
       )
       assets <- context.services.assets.findRecentReleases(
         DateReleased(minDate)
@@ -85,11 +87,33 @@ class MainMenuView[F[_]: Console: Sync](
       .addPrompt()
       .build()
 
+  private def getDateInput(message: String): F[Either[Throwable, Date]] =
+    getInput(context.prompt, message)
+      .map(parseDateInput)
+      .flatTap(showIfFailed)
+
+  private val absoluteDatePattern = "([0-9]{4})-([0-9]{2})-([0-9]{2})".r
+  private val relativeDatePattern = "([0-9]+)d".r
   private val dateStringFormat = "yyyy-MM-dd"
   private val format = new SimpleDateFormat(dateStringFormat)
-  private def getDateInput(message: String): F[Either[Throwable, Date]] =
-    getInput(context.prompt, message).flatMap { input =>
-      Try(format.parse(input)).toEither match
-        case Left(reason) => Console[F].println(reason) *> reason.asLeft.pure
-        case Right(value) => value.asRight[Throwable].pure
-    }
+  private def parseDateInput(input: String): Either[Throwable, Date] =
+    input match
+      case relativeDatePattern(days) =>
+        parseRelativeDate(days)
+
+      case absoluteDatePattern(_, _, _) =>
+        Try(format.parse(input)).toEither
+
+      case _ =>
+        RuntimeException(s"$input did not match any date formats").asLeft
+
+  private def parseRelativeDate(days: String): Either[Throwable, Date] =
+    days.toIntOption.fold(
+      RuntimeException(s"$days is not a valid int").asLeft
+    )(days => (DateTime.now() - days.days).date.asRight)
+
+  private def showIfFailed[A](a: Either[Throwable, A]): F[Unit] =
+    a.fold(
+      reason => Console[F].println(a.toString),
+      _ => Applicative[F].unit
+    )
