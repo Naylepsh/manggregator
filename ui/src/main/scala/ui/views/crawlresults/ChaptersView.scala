@@ -14,6 +14,7 @@ import ui.core.Theme
 import library.domain.asset.Asset
 import ui.core.Context
 import cats.effect.IO
+import ui.components.KeybindsNav
 
 class ChaptersView(
     context: Context[IO],
@@ -22,6 +23,9 @@ class ChaptersView(
 ) extends View:
 
   private val items = StatefulList(items = chapters.toArray)
+  private val keyBindsNav = KeybindsNav(
+    List("↑ up", "↓ down", "enter select", "q quit")
+  )
 
   override def render(frame: Frame): Unit =
     val chunks = Layout(
@@ -32,7 +36,7 @@ class ChaptersView(
     chunks.toList match
       case main :: bottom :: Nil =>
         renderChapters(frame, main)
-        renderKeybinds(frame, bottom)
+        keyBindsNav.render(frame, bottom)
       case _ =>
 
   override def handleInput(key: KeyCode): ViewResult = key match
@@ -86,19 +90,3 @@ class ChaptersView(
 
     frame
       .render_stateful_widget(chapterWidget, area)(items.state)
-
-  private def renderKeybinds(frame: Frame, area: Rect): Unit =
-    val keyBinds = List("↑ up", "↓ down", "enter select", "q quit")
-    val block = BlockWidget(
-      title = Some(
-        Spans.styled(
-          keyBinds.mkString(" :: "),
-          Style(
-            fg = Some(Color.DarkGray)
-          )
-        )
-      ),
-      title_alignment = Alignment.Center
-    )
-
-    frame.render_widget(block, area)
