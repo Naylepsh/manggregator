@@ -20,7 +20,8 @@ class CrawlResultsView(
     crawlResults: List[AssetSummary]
 ) extends View:
 
-  private val items = StatefulList(items = crawlResults.toArray)
+  private val items =
+    StatefulList(items = crawlResults.sortBy(_.asset.name).toArray)
 
   override def render(frame: Frame): Unit =
     val layout = Layout(
@@ -49,8 +50,10 @@ class CrawlResultsView(
             Some(Spans.nostyle("Select an asset to see recent releases of:"))
         )
       ),
-      highlight_style =
-        Style(bg = Some(context.theme.primaryColor), add_modifier = Modifier.BOLD),
+      highlight_style = Style(
+        bg = Some(context.theme.primaryColor),
+        add_modifier = Modifier.BOLD
+      ),
       highlight_symbol = Some(">> ")
     )
 
@@ -67,7 +70,9 @@ class CrawlResultsView(
       items.state.selected
         .flatMap(crawlResults.get)
         .map { assetSummary =>
-          ChangeTo(ChaptersView(context, assetSummary.asset, assetSummary.chapters))
+          ChangeTo(
+            ChaptersView(context, assetSummary.asset, assetSummary.chapters)
+          )
         }
         .getOrElse(Keep)
 

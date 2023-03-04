@@ -24,41 +24,16 @@ class ChaptersView(
   private val items = StatefulList(items = chapters.toArray)
 
   override def render(frame: Frame): Unit =
-    val layout = Layout(
-      direction = Direction.Horizontal,
-      constraints = Array(Constraint.Percentage(100))
-    )
+    val chunks = Layout(
+      direction = Direction.Vertical,
+      constraints = Array(Constraint.Percentage(90), Constraint.Percentage(10))
+    ).split(frame.size)
 
-    val items0 = items.items
-      .map { case (chapter) =>
-        val lines = Array(
-          Spans.styled(
-            chapter.no.value,
-            Style(fg = Some(Color.Gray))
-          ),
-          Spans.nostyle(chapter.url.value)
-        )
-
-        ListWidget.Item(Text(lines))
-      }
-
-    val widget = ListWidget(
-      items = items0,
-      block = Some(
-        BlockWidget(
-          borders = Borders.ALL,
-          title = Some(Spans.nostyle(s"${asset.name.value} releases"))
-        )
-      ),
-      highlight_style =
-        Style(bg = Some(context.theme.primaryColor), add_modifier = Modifier.BOLD),
-      highlight_symbol = Some(">> ")
-    )
-
-    frame
-      .render_stateful_widget(widget, layout.split(frame.size).head)(
-        items.state
-      )
+    chunks.toList match
+      case main :: bottom :: Nil =>
+        renderChapters(frame, main)
+        renderKeybinds(frame, bottom)
+      case _ =>
 
   override def handleInput(key: KeyCode): ViewResult = key match
     case char: tui.crossterm.KeyCode.Char if char.c() == 'q' => Exit
@@ -73,3 +48,57 @@ class ChaptersView(
         .getOrElse(Keep)
 
     case _ => Keep
+
+  private def renderChapters(frame: Frame, area: Rect): Unit =
+    val padding = " " * 3
+    val chapterListItems = items.items
+      .map { case (chapter) =>
+        val lines = Array(
+          Spans.nostyle(""),
+          Spans.styled(
+            s"$padding${chapter.no.value}",
+            Style(fg = Some(Color.White))
+          ),
+          Spans.nostyle(s"$padding${chapter.url.value}")
+        )
+
+        ListWidget.Item(Text(lines))
+      }
+
+    val chapterWidget = ListWidget(
+      items = chapterListItems,
+      block = Some(
+        BlockWidget(
+          borders = Borders.NONE,
+          title = Some(
+            Spans.from(
+              Span.styled(asset.name.value, Style(fg = Some(Color.White))),
+              Span.nostyle(s" - ${items.items.length} chapters")
+            )
+          )
+        )
+      ),
+      highlight_style = Style(
+        fg = Some(context.theme.primaryColor),
+        add_modifier = Modifier.BOLD
+      )
+    )
+
+    frame
+      .render_stateful_widget(chapterWidget, area)(items.state)
+
+  private def renderKeybinds(frame: Frame, area: Rect): Unit =
+    val keyBinds = List("↑ up", "↓ down", "enter select", "q quit")
+    val block = BlockWidget(
+      title = Some(
+        Spans.styled(
+          keyBinds.mkString(" :: "),
+          Style(
+            fg = Some(Color.DarkGray)
+          )
+        )
+      ),
+      title_alignment = Alignment.Center
+    )
+
+    frame.render_widget(block, area)

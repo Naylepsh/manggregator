@@ -7,5 +7,5 @@ case class Theme(
 )
 object Theme:
   val default = Theme(
-    primaryColor = Color.Blue
+    primaryColor = Color.Yellow
   )
