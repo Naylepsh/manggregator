@@ -14,11 +14,13 @@ import ui.core.ChangeTo
 import ui.core.Theme
 import ui.core.Context
 import cats.effect.IO
+import cats.effect.unsafe.IORuntime
 
 class CrawlResultsView(
     context: Context[IO],
     crawlResults: List[AssetSummary]
-) extends View:
+)(using IORuntime)
+    extends View:
 
   private val items =
     StatefulList(items = crawlResults.sortBy(_.asset.name).toArray)

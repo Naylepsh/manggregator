@@ -15,16 +15,18 @@ import library.domain.asset.Asset
 import ui.core.Context
 import cats.effect.IO
 import ui.components.KeybindsNav
+import cats.effect.unsafe.IORuntime
 
 class ChaptersView(
     context: Context[IO],
     asset: Asset,
     chapters: List[Chapter]
-) extends View:
+)(using IORuntime)
+    extends View:
 
   private val items = StatefulList(items = chapters.toArray)
   private val keyBindsNav = KeybindsNav(
-    List("↑ up", "↓ down", "enter select", "q quit")
+    List("↑ up", "↓ down", "s mark as seen", "q quit")
   )
 
   override def render(frame: Frame): Unit =
@@ -41,17 +43,17 @@ class ChaptersView(
 
   override def handleInput(key: KeyCode): ViewResult = key match
     case char: tui.crossterm.KeyCode.Char if char.c() == 'q' => Exit
+    case char: tui.crossterm.KeyCode.Char if char.c() == 's' =>
+      markCurrentlySelectedAsSeen()
+      Keep
     case _: tui.crossterm.KeyCode.Down => items.next(); Keep
     case _: tui.crossterm.KeyCode.Up   => items.previous(); Keep
-    case _: tui.crossterm.KeyCode.Enter =>
-      items.state.selected
-        .flatMap(chapters.get)
-        .map { chapter =>
-          Exit
-        }
-        .getOrElse(Keep)
+    case _                             => Keep
 
-    case _ => Keep
+  private def markCurrentlySelectedAsSeen(): Unit =
+    items.state.selected.flatMap(chapters.get).foreach { chapter =>
+      context.services.chapters.markAsSeen(List(chapter.id)).unsafeRunSync()
+    }
 
   private def renderChapters(frame: Frame, area: Rect): Unit =
     val padding = " " * 3

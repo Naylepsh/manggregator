@@ -11,7 +11,7 @@ import cats.effect.unsafe.IORuntime
 import tui.crossterm.Event
 import scala.util.control.Breaks._
 
-class RenderLoop(initialView: View)(using IORuntime):
+class RenderLoop(initialView: View):
   val tickRate = Duration.ofMillis(250)
 
   def run(): IO[Unit] = withTerminal { (jni, terminal) =>
