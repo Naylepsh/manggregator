@@ -24,7 +24,7 @@ object UI:
         .evalTap(checkSQLiteConnection)
         .use { xa =>
           for
-            given Logger[IO] <- Entrypoints.logger()
+            given Logger[IO] <- Entrypoints.disabledLogger()
             storage = Entrypoints.storage(xa)
             libraryServices = Entrypoints.libraryServices(storage)
             library = Entrypoints.library(storage)

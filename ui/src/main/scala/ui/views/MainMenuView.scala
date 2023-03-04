@@ -20,32 +20,47 @@ import library.domain.chapter.DateReleased
 import cats.effect.unsafe.IORuntime
 
 class MainMenuView(context: Context[IO])(using IORuntime) extends View:
+  private var isLoading = false
 
-  private case class Action(label: String, onSelect: () => View)
+  private case class Action(label: String, onSelect: () => ViewResult)
 
   private val actions = List(
-    Action("Trigger crawl", () => this),
-    Action(
-      "Browse recent releases",
-      () =>
-        val minDate = DateReleased((DateTime.now() - 1.days).date)
-        context.services.assets
-          .findRecentReleases(minDate)
-          .map { crawlResults =>
-            CrawlResultsView(context, crawlResults)
-          }
-          .unsafeRunSync()
-    ),
-    Action("Manage assets", () => this)
+    Action("Trigger a crawl", triggerCrawl),
+    Action("Browse the recent releases", browseRecentReleases),
+    Action("Manage the assets", () => Keep)
   )
+
+  private def triggerCrawl(): ViewResult =
+    (IO(this.isLoading = true)
+      >> context.services.crawler
+        .crawl()
+        .run(context.services.crawlerLibrary)
+        .flatTap(_ => IO(this.isLoading = false)))
+      .unsafeRunAndForget()
+
+    Keep
+
+  private def browseRecentReleases(): ViewResult =
+    val minDate = DateReleased((DateTime.now() - 1.days).date)
+    context.services.assets
+      .findRecentReleases(minDate)
+      .map { crawlResults =>
+        ChangeTo(CrawlResultsView(context, crawlResults))
+      }
+      .unsafeRunSync()
+
   private val items = StatefulList(items = actions.toArray)
 
-  override def render(frame: Frame): Unit =
-    val layout = Layout(
-      direction = Direction.Horizontal,
-      constraints = Array(Constraint.Percentage(100))
+  private def renderWaitingForCrawlToFinish(
+      frame: Frame,
+      layout: Layout
+  ): Unit =
+    val widget = BlockWidget(
+      title = Some(Spans.nostyle("Crawling. This can take a moment..."))
     )
+    frame.render_widget(widget, layout.split(frame.size).head)
 
+  private def renderMenu(frame: Frame, layout: Layout): Unit =
     val items0 = items.items
       .map { case (action) =>
         val header = Spans.styled(
@@ -78,6 +93,17 @@ class MainMenuView(context: Context[IO])(using IORuntime) extends View:
         items.state
       )
 
+  override def render(frame: Frame): Unit =
+    val layout = Layout(
+      direction = Direction.Horizontal,
+      constraints = Array(Constraint.Percentage(100))
+    )
+
+    if (this.isLoading)
+      renderWaitingForCrawlToFinish(frame, layout)
+    else
+      renderMenu(frame, layout)
+
   override def handleInput(key: KeyCode): ViewResult = key match
     case char: tui.crossterm.KeyCode.Char if char.c() == 'q' => Exit
     case _: tui.crossterm.KeyCode.Down => items.next(); Keep
@@ -85,9 +111,7 @@ class MainMenuView(context: Context[IO])(using IORuntime) extends View:
     case _: tui.crossterm.KeyCode.Enter =>
       items.state.selected
         .flatMap(actions.get)
-        .map { action =>
-          ChangeTo(action.onSelect())
-        }
+        .map(_.onSelect())
         .getOrElse(Keep)
 
     case _ => Keep

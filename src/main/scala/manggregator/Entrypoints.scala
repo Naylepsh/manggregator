@@ -34,6 +34,16 @@ object Entrypoints:
 
     DefaultLogger.makeIo(Output.fromConsole)
 
+  def disabledLogger(): IO[Logger[IO]] =
+    given Filter = Filter.everything
+    given Printer = ColorPrinter()
+
+    val noop = new Output[IO]:
+      override def output(str: String): IO[Unit] = IO.unit
+      override def outputError(str: String): IO[Unit] = IO.unit
+
+    DefaultLogger.makeIo(noop)
+
   def storage(xa: Transactor[IO]): Storage[IO] = Storage(
     persistence.Assets.makeSQL[IO](xa),
     persistence.Chapters.makeSQL[IO](xa),
