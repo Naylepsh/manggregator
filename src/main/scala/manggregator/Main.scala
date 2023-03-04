@@ -8,3 +8,4 @@ object Main extends IOApp:
     args.head match
       case "server" => apps.Server.run()
       case "tui"    => apps.TUI.run()
+      case "ui"     => apps.UI.run()

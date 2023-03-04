@@ -20,6 +20,7 @@ object Dependencies {
     val munitCatsEffect = "1.0.7"
     val weaver = "0.8.1"
     val consoleUi = "0.0.13"
+    val tui = "0.0.5"
   }
 
   object Libraries {
@@ -29,6 +30,8 @@ object Dependencies {
     val scalaTime = "com.github.nscala-time" %% "nscala-time" % V.scalaTime
     val ciris = "is.cir" %% "ciris" % V.ciris
     val consoleUi = "de.codeshelf.consoleui" % "consoleui" % V.consoleUi
+    val tui = "com.olvind.tui" %% "tui" % V.tui
+    val crossterm = "com.olvind.tui" % "crossterm" % V.tui
 
     val circe = "io.circe" %% "circe-core" % V.circe
     val circeGeneric = "io.circe" %% "circe-generic" % V.circe

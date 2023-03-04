@@ -15,8 +15,8 @@ lazy val root = project
       Libraries.slf4j
     )
   )
-  .aggregate(crawler, library, api, tui)
-  .dependsOn(crawler, library, api, tui)
+  .aggregate(crawler, library, api, tui, ui)
+  .dependsOn(crawler, library, api, tui, ui)
 
 lazy val api = project
   .settings(
@@ -29,6 +29,17 @@ lazy val api = project
       Libraries.tapirHttp4s,
       Libraries.tapirJsonCirce,
       Libraries.tapirSwagger
+    )
+  )
+  .aggregate(crawler, library)
+  .dependsOn(crawler, library)
+
+lazy val ui = project
+  .settings(
+    name := "ui",
+    libraryDependencies ++= commonLibraries ++ Seq(
+      Libraries.tui,
+      Libraries.crossterm
     )
   )
   .aggregate(crawler, library)
