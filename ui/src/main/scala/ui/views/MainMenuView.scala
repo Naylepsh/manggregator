@@ -11,14 +11,31 @@ import ui.core.StatefulList
 import cats.implicits._
 import ui.core.Theme
 import ui.core.ChangeTo
+import ui.views.crawlresults.CrawlResultsView
+import ui.core.Context
+import cats.effect.IO
+import org.joda.time.DateTime
+import com.github.nscala_time.time.Imports._
+import library.domain.chapter.DateReleased
+import cats.effect.unsafe.IORuntime
 
-class MainMenuView(theme: Theme) extends View:
+class MainMenuView(context: Context[IO])(using IORuntime) extends View:
 
-  case class Action(label: String, onSelect: () => View)
+  private case class Action(label: String, onSelect: () => View)
 
   private val actions = List(
     Action("Trigger crawl", () => this),
-    Action("Browse recent releases", () => this),
+    Action(
+      "Browse recent releases",
+      () =>
+        val minDate = DateReleased((DateTime.now() - 1.days).date)
+        context.services.assets
+          .findRecentReleases(minDate)
+          .map { crawlResults =>
+            CrawlResultsView(context, crawlResults)
+          }
+          .unsafeRunSync()
+    ),
     Action("Manage assets", () => this)
   )
   private val items = StatefulList(items = actions.toArray)
@@ -49,8 +66,10 @@ class MainMenuView(theme: Theme) extends View:
           title = Some(Spans.nostyle("Main menu"))
         )
       ),
-      highlight_style =
-        Style(bg = Some(theme.primaryColor), add_modifier = Modifier.BOLD),
+      highlight_style = Style(
+        bg = Some(context.theme.primaryColor),
+        add_modifier = Modifier.BOLD
+      ),
       highlight_symbol = Some(">> ")
     )
 
