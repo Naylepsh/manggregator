@@ -18,6 +18,8 @@ import org.joda.time.DateTime
 import com.github.nscala_time.time.Imports._
 import library.domain.chapter.DateReleased
 import cats.effect.unsafe.IORuntime
+import ui.views.common.DateInputView
+import java.util.Date
 
 class MainMenuView(context: Context[IO])(using IORuntime) extends View:
   private var isLoading = false
@@ -41,13 +43,14 @@ class MainMenuView(context: Context[IO])(using IORuntime) extends View:
     Keep
 
   private def browseRecentReleases(): ViewResult =
-    val minDate = DateReleased((DateTime.now() - 1.days).date)
-    context.services.assets
-      .findRecentReleases(minDate)
-      .map { crawlResults =>
-        ChangeTo(CrawlResultsView(context, crawlResults))
-      }
-      .unsafeRunSync()
+    ChangeTo(
+      DateInputView(date =>
+        context.services.assets
+          .findRecentReleases(DateReleased(date))
+          .map(crawlResults => CrawlResultsView(context, crawlResults))
+          .unsafeRunSync()
+      )
+    )
 
   private val items = StatefulList(items = actions.toArray)
 
