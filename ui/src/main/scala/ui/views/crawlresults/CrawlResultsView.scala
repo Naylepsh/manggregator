@@ -15,6 +15,7 @@ import ui.core.Theme
 import ui.core.Context
 import cats.effect.IO
 import cats.effect.unsafe.IORuntime
+import ui.components.KeybindsNav
 
 class CrawlResultsView(
     context: Context[IO],
@@ -24,21 +25,21 @@ class CrawlResultsView(
 
   private val items =
     StatefulList(items = crawlResults.sortBy(_.asset.name).toArray)
+  private val keyBindsNav = KeybindsNav(
+    List("↑ up", "↓ down", "s mark as seen", "q quit")
+  )
 
-  override def render(frame: Frame): Unit =
-    val layout = Layout(
-      direction = Direction.Horizontal,
-      constraints = Array(Constraint.Percentage(100))
-    )
-
+  private def renderAssets(frame: Frame, area: Rect): Unit =
+    val padding = " " * 3
     val items0 = items.items
       .map { case (summary) =>
-        val header = Spans.styled(
-          summary.asset.name.value,
-          Style(fg = Some(Color.Gray))
+        val lines = Array(
+          Spans.nostyle(""),
+          Spans.styled(
+            s"$padding${summary.asset.name.value}",
+            Style(fg = Some(Color.White))
+          )
         )
-
-        val lines = Array(header)
 
         ListWidget.Item(Text(lines))
       }
@@ -47,22 +48,37 @@ class CrawlResultsView(
       items = items0,
       block = Some(
         BlockWidget(
-          borders = Borders.ALL,
-          title =
-            Some(Spans.nostyle("Select an asset to see recent releases of:"))
+          borders = Borders.NONE,
+          title = Some(
+            Spans.from(
+              Span.nostyle("Select an asset to see recent releases of"),
+              Span.nostyle(s" - ${items.items.length} assets")
+            )
+          )
         )
       ),
       highlight_style = Style(
-        bg = Some(context.theme.primaryColor),
+        fg = Some(context.theme.primaryColor),
         add_modifier = Modifier.BOLD
-      ),
-      highlight_symbol = Some(">> ")
+      )
     )
 
-    frame
-      .render_stateful_widget(widget, layout.split(frame.size).head)(
-        items.state
+    frame.render_stateful_widget(widget, area)(items.state)
+
+  override def render(frame: Frame): Unit =
+    val chunks = Layout(
+      direction = Direction.Vertical,
+      constraints = Array(
+        Constraint.Percentage(90),
+        Constraint.Percentage(10)
       )
+    ).split(frame.size)
+
+    chunks.toList match
+      case main :: nav :: Nil =>
+        renderAssets(frame, main)
+        keyBindsNav.render(frame, nav)
+      case _ =>
 
   override def handleInput(key: KeyCode): ViewResult = key match
     case char: tui.crossterm.KeyCode.Char if char.c() == 'q' => Exit
