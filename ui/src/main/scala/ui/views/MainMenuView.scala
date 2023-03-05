@@ -85,10 +85,9 @@ class MainMenuView(context: Context[IO])(using IORuntime) extends View:
         )
       ),
       highlight_style = Style(
-        bg = Some(context.theme.primaryColor),
+        fg = Some(context.theme.primaryColor),
         add_modifier = Modifier.BOLD
-      ),
-      highlight_symbol = Some(">> ")
+      )
     )
 
     frame
