@@ -50,7 +50,7 @@ class ChaptersView(
         val pagination = paginatedList.paginate(
           main,
           chapterItemHeight,
-          items.state.selected.getOrElse(0)
+          items.state.selected
         )
 
         renderChapters(frame, main, pagination.items, pagination.currentIndex)
@@ -81,7 +81,7 @@ class ChaptersView(
       frame: Frame,
       area: Rect,
       chaptersSubset: Array[Chapter],
-      selected: Int
+      selected: Option[Int]
   ): Unit =
     val padding = " " * 3
     val chapterListItems = chaptersSubset
@@ -117,6 +117,6 @@ class ChaptersView(
       )
     )
 
-    val state = State(selected = Some(selected))
+    val state = State(selected = selected)
     frame
       .render_stateful_widget(chapterWidget, area)(state)

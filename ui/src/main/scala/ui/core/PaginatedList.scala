@@ -7,24 +7,28 @@ case class PaginatedList[A](
 ):
   import PaginatedList._
 
-  def paginate(area: Rect, itemHeight: Int, currentIndex: Int): Pagination[A] =
+  def paginate(
+      area: Rect,
+      itemHeight: Int,
+      currentIndex: Option[Int]
+  ): Pagination[A] =
     val maxItemsOnScreen = (area.height / itemHeight).max(2)
     val pages = allItems.length / maxItemsOnScreen
-    val currentPage = currentIndex / maxItemsOnScreen
-    val indexAfterPagination = currentIndex % maxItemsOnScreen
     val paginated = allItems.grouped(maxItemsOnScreen).toList
+    val currentPage = currentIndex.getOrElse(0) / maxItemsOnScreen
+    val indexAfterPagination = currentIndex.map(_ % maxItemsOnScreen)
 
     Pagination(
       paginated(currentPage),
       currentPage,
       indexAfterPagination,
-      pages - 1
+      pages
     )
 
 object PaginatedList:
   case class Pagination[A](
       items: Array[A],
       currentPage: Int,
-      currentIndex: Int,
+      currentIndex: Option[Int],
       allPages: Int
   )
