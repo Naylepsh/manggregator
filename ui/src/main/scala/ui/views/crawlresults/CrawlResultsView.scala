@@ -23,8 +23,8 @@ class CrawlResultsView(
 )(using IORuntime)
     extends View:
 
-  private val items =
-    StatefulList(items = crawlResults.sortBy(_.asset.name).toArray)
+  val results = crawlResults.sortBy(_.asset.name)
+  private val items = StatefulList(items = results.toArray)
   private val keyBindsNav = KeybindsNav(
     List("↑ up", "↓ down", "s mark as seen", "q quit")
   )
@@ -86,7 +86,7 @@ class CrawlResultsView(
     case _: tui.crossterm.KeyCode.Up   => items.previous(); Keep
     case _: tui.crossterm.KeyCode.Enter =>
       items.state.selected
-        .flatMap(crawlResults.get)
+        .flatMap(results.get)
         .map { assetSummary =>
           ChangeTo(
             ChaptersView(context, assetSummary.asset, assetSummary.chapters)
