@@ -16,6 +16,9 @@ import ui.core.Context
 import cats.effect.IO
 import ui.components.KeybindsNav
 import cats.effect.unsafe.IORuntime
+import ui.core.PaginatedList
+import tui.widgets.ListWidget.State
+import ui.components.Pagination
 
 class ChaptersView(
     context: Context[IO],
@@ -24,21 +27,40 @@ class ChaptersView(
 )(using IORuntime)
     extends View:
 
-  private val items = StatefulList(items = chapters.toArray)
+  private val results = chapters.sortBy(_.dateReleased)
+  private val items = StatefulList(items = results.toArray)
+  private val paginatedList = PaginatedList(results.toArray)
   private val keyBindsNav = KeybindsNav(
     List("↑ up", "↓ down", "s mark as seen", "q quit")
   )
+  private val chapterItemHeight = 3
 
   override def render(frame: Frame): Unit =
     val chunks = Layout(
       direction = Direction.Vertical,
-      constraints = Array(Constraint.Percentage(90), Constraint.Percentage(10))
+      constraints = Array(
+        Constraint.Percentage(80),
+        Constraint.Percentage(10),
+        Constraint.Percentage(10)
+      )
     ).split(frame.size)
 
     chunks.toList match
-      case main :: bottom :: Nil =>
-        renderChapters(frame, main)
-        keyBindsNav.render(frame, bottom)
+      case main :: paginationArea :: nav :: Nil =>
+        val pagination = paginatedList.paginate(
+          main,
+          chapterItemHeight,
+          items.state.selected.getOrElse(0)
+        )
+
+        renderChapters(frame, main, pagination.items, pagination.currentIndex)
+        Pagination.render(
+          frame,
+          paginationArea,
+          pagination.currentPage,
+          pagination.allPages
+        )
+        keyBindsNav.render(frame, nav)
       case _ =>
 
   override def handleInput(key: KeyCode): ViewResult = key match
@@ -51,13 +73,18 @@ class ChaptersView(
     case _                             => Keep
 
   private def markCurrentlySelectedAsSeen(): Unit =
-    items.state.selected.flatMap(chapters.get).foreach { chapter =>
+    items.state.selected.flatMap(results.get).foreach { chapter =>
       context.services.chapters.markAsSeen(List(chapter.id)).unsafeRunSync()
     }
 
-  private def renderChapters(frame: Frame, area: Rect): Unit =
+  private def renderChapters(
+      frame: Frame,
+      area: Rect,
+      chaptersSubset: Array[Chapter],
+      selected: Int
+  ): Unit =
     val padding = " " * 3
-    val chapterListItems = items.items
+    val chapterListItems = chaptersSubset
       .map { case (chapter) =>
         val lines = Array(
           Spans.nostyle(""),
@@ -90,5 +117,6 @@ class ChaptersView(
       )
     )
 
+    val state = State(selected = Some(selected))
     frame
-      .render_stateful_widget(chapterWidget, area)(items.state)
+      .render_stateful_widget(chapterWidget, area)(state)
