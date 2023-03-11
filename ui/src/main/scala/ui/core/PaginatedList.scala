@@ -1,8 +1,9 @@
 package ui.core
 
 import tui._
+import scala.reflect.ClassTag
 
-case class PaginatedList[A](
+case class PaginatedList[A: ClassTag](
     allItems: Array[A]
 ):
   import PaginatedList._
@@ -14,21 +15,23 @@ case class PaginatedList[A](
   ): Pagination[A] =
     val maxItemsOnScreen = (area.height / itemHeight).max(2)
     val pages = allItems.length / maxItemsOnScreen
-    val paginated = allItems.grouped(maxItemsOnScreen).toList
+    val paginated = allItems.grouped(maxItemsOnScreen).toArray
     val currentPage = currentIndex.getOrElse(0) / maxItemsOnScreen
     val indexAfterPagination = currentIndex.map(_ % maxItemsOnScreen)
 
     Pagination(
-      paginated(currentPage),
+      paginated,
       currentPage,
       indexAfterPagination,
       pages
     )
 
+  // def nextPage(pagination: Pagination[A]): Pagination[A] = ???
+
 object PaginatedList:
   case class Pagination[A](
-      items: Array[A],
+      pages: Array[Array[A]],
       currentPage: Int,
       currentIndex: Option[Int],
-      allPages: Int
+      pageCount: Int
   )

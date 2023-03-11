@@ -53,12 +53,17 @@ class ChaptersView(
           items.state.selected
         )
 
-        renderChapters(frame, main, pagination.items, pagination.currentIndex)
+        renderChapters(
+          frame,
+          main,
+          pagination.pages(pagination.currentPage),
+          pagination.currentIndex
+        )
         Pagination.render(
           frame,
           paginationArea,
           pagination.currentPage,
-          pagination.allPages
+          pagination.pageCount
         )
         keyBindsNav.render(frame, nav)
       case _ =>
