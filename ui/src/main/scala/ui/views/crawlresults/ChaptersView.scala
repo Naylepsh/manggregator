@@ -19,6 +19,7 @@ import cats.effect.unsafe.IORuntime
 import ui.core.Paginator
 import tui.widgets.ListWidget.State
 import ui.components.Pagination
+import ui.core.PaginatedList
 
 class ChaptersView(
     context: Context[IO],
@@ -28,9 +29,7 @@ class ChaptersView(
     extends View:
 
   private val results = chapters.sortBy(_.dateReleased)
-  private val items = StatefulList(items = results.toArray)
-  private val paginatedList = Paginator(results.toArray)
-  private var pagination: Option[Paginator.Pagination[Chapter]] = None
+  private val paginatedList = PaginatedList(results.toArray)
   private val keyBindsNav = KeybindsNav(
     List(
       "↑ up",
@@ -57,10 +56,8 @@ class ChaptersView(
       case main :: paginationArea :: nav :: Nil =>
         val pagination = paginatedList.paginate(
           main,
-          chapterItemHeight,
-          items.state.selected
+          chapterItemHeight
         )
-        this.pagination = Some(pagination)
 
         renderChapters(
           frame,
@@ -82,28 +79,14 @@ class ChaptersView(
     case char: tui.crossterm.KeyCode.Char if char.c() == 's' =>
       markCurrentlySelectedAsSeen()
       Keep
-    case _: tui.crossterm.KeyCode.Down  => items.next(); Keep
-    case _: tui.crossterm.KeyCode.Up    => items.previous(); Keep
-    case _: tui.crossterm.KeyCode.Right => goToNextPage(); Keep
-    case _: tui.crossterm.KeyCode.Left  => goToPreviousPage(); Keep
+    case _: tui.crossterm.KeyCode.Down  => paginatedList.nextItem(); Keep
+    case _: tui.crossterm.KeyCode.Up    => paginatedList.previousItem(); Keep
+    case _: tui.crossterm.KeyCode.Right => paginatedList.nextPage(); Keep
+    case _: tui.crossterm.KeyCode.Left  => paginatedList.previousPage(); Keep
     case _                              => Keep
 
-  private def goToNextPage(): Unit =
-    pagination.foreach { p =>
-      val newPagination = p.nextPage()
-      newPagination.absoluteIndex().foreach(items.to)
-      this.pagination = Some(newPagination)
-    }
-
-  private def goToPreviousPage(): Unit =
-    pagination.foreach { p =>
-      val newPagination = p.previousPage()
-      newPagination.absoluteIndex().foreach(items.to)
-      this.pagination = Some(newPagination)
-    }
-
   private def markCurrentlySelectedAsSeen(): Unit =
-    items.state.selected.flatMap(results.get).foreach { chapter =>
+    paginatedList.selected.flatMap(results.get).foreach { chapter =>
       context.services.chapters.markAsSeen(List(chapter.id)).unsafeRunSync()
     }
 
@@ -136,7 +119,7 @@ class ChaptersView(
           title = Some(
             Spans.from(
               Span.styled(asset.name.value, Style(fg = Some(Color.White))),
-              Span.nostyle(s" - ${items.items.length} chapters")
+              Span.nostyle(s" - ${results.length} chapters")
             )
           )
         )
