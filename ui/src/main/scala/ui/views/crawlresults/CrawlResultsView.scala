@@ -16,6 +16,9 @@ import ui.core.Context
 import cats.effect.IO
 import cats.effect.unsafe.IORuntime
 import ui.components.KeybindsNav
+import ui.core.PaginatedList
+import tui.widgets.ListWidget.State
+import ui.components.Pagination
 
 class CrawlResultsView(
     context: Context[IO],
@@ -23,15 +26,22 @@ class CrawlResultsView(
 )(using IORuntime)
     extends View:
 
-  val results = crawlResults.sortBy(_.asset.name)
-  private val items = StatefulList(items = results.toArray)
+  private val results = crawlResults.sortBy(_.asset.name)
+  private val paginatedList = PaginatedList(results.toArray)
   private val keyBindsNav = KeybindsNav(
     List("↑ up", "↓ down", "s mark as seen", "q quit")
   )
 
-  private def renderAssets(frame: Frame, area: Rect): Unit =
+  private val crawlResultHeight = 2
+
+  private def renderAssets(
+      frame: Frame,
+      area: Rect,
+      crawlResultsPage: Array[AssetSummary],
+      selected: Option[Int]
+  ): Unit =
     val padding = " " * 3
-    val items0 = items.items
+    val items0 = crawlResultsPage
       .map { case (summary) =>
         val lines = Array(
           Spans.nostyle(""),
@@ -52,7 +62,7 @@ class CrawlResultsView(
           title = Some(
             Spans.from(
               Span.nostyle("Select an asset to see recent releases of"),
-              Span.nostyle(s" - ${items.items.length} assets")
+              Span.nostyle(s" - ${results.length} assets")
             )
           )
         )
@@ -63,29 +73,48 @@ class CrawlResultsView(
       )
     )
 
-    frame.render_stateful_widget(widget, area)(items.state)
+    frame.render_stateful_widget(widget, area)(State(selected = selected))
 
   override def render(frame: Frame): Unit =
     val chunks = Layout(
       direction = Direction.Vertical,
       constraints = Array(
-        Constraint.Percentage(90),
+        Constraint.Percentage(75),
+        Constraint.Percentage(10),
         Constraint.Percentage(10)
       )
     ).split(frame.size)
 
     chunks.toList match
-      case main :: nav :: Nil =>
-        renderAssets(frame, main)
+      case main :: paginationArea :: nav :: Nil =>
+        val pagination = paginatedList.paginate(
+          main,
+          crawlResultHeight
+        )
+
+        renderAssets(
+          frame,
+          main,
+          pagination.pages(pagination.currentPage),
+          pagination.currentIndex
+        )
+        Pagination.render(
+          frame,
+          paginationArea,
+          pagination.currentPage,
+          pagination.pageCount
+        )
         keyBindsNav.render(frame, nav)
       case _ =>
 
   override def handleInput(key: KeyCode): ViewResult = key match
     case char: tui.crossterm.KeyCode.Char if char.c() == 'q' => Exit
-    case _: tui.crossterm.KeyCode.Down => items.next(); Keep
-    case _: tui.crossterm.KeyCode.Up   => items.previous(); Keep
+    case _: tui.crossterm.KeyCode.Down  => paginatedList.nextItem(); Keep
+    case _: tui.crossterm.KeyCode.Up    => paginatedList.previousItem(); Keep
+    case _: tui.crossterm.KeyCode.Right => paginatedList.nextPage(); Keep
+    case _: tui.crossterm.KeyCode.Left  => paginatedList.previousPage(); Keep
     case _: tui.crossterm.KeyCode.Enter =>
-      items.state.selected
+      paginatedList.selected
         .flatMap(results.get)
         .map { assetSummary =>
           ChangeTo(

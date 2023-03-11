@@ -13,7 +13,10 @@ case class Paginator[A: ClassTag](
       itemHeight: Int,
       currentIndex: Option[Int]
   ): Pagination[A] =
-    paginate((area.height / itemHeight).max(1), currentIndex)
+    paginate(
+      (area.height / itemHeight - 1).max(1),
+      currentIndex
+    )
 
   def paginate(
       maxItemsOnScreen: Int,

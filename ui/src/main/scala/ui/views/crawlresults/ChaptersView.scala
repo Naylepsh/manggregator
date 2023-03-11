@@ -90,6 +90,7 @@ class ChaptersView(
       context.services.chapters.markAsSeen(List(chapter.id)).unsafeRunSync()
     }
 
+
   private def renderChapters(
       frame: Frame,
       area: Rect,

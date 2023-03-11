@@ -13,7 +13,7 @@ object Pagination:
     val block = BlockWidget(
       borders = Borders.NONE,
       title = Some(
-        Spans.nostyle(s"${currentPage + 1} / ${allPages + 1}")
+        Spans.nostyle(s"${currentPage + 1} / ${allPages}")
       )
     )
 
