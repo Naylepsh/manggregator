@@ -13,11 +13,14 @@ case class Paginator[A: ClassTag](
       itemHeight: Int,
       currentIndex: Option[Int]
   ): Pagination[A] =
-    /** TODO: There's a bug somewhere: If there are 18 entries and 9 items fit
-      * per page, the page count will be 3
-      */
-    val maxItemsOnScreen = (area.height / itemHeight).max(1)
-    val pages = allItems.length / maxItemsOnScreen
+    paginate((area.height / itemHeight).max(1), currentIndex)
+
+  def paginate(
+      maxItemsOnScreen: Int,
+      currentIndex: Option[Int]
+  ): Pagination[A] =
+    val pageCount =
+      Math.ceil(allItems.length / maxItemsOnScreen.doubleValue).toInt
     val paginated = allItems.grouped(maxItemsOnScreen).toArray
     val currentPage = currentIndex.getOrElse(0) / maxItemsOnScreen
     val indexAfterPagination = currentIndex.map(_ % maxItemsOnScreen)
@@ -26,7 +29,7 @@ case class Paginator[A: ClassTag](
       paginated,
       currentPage,
       indexAfterPagination,
-      pages
+      pageCount
     )
 
 object Paginator:

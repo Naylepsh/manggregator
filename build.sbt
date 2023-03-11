@@ -37,6 +37,7 @@ lazy val api = project
 lazy val ui = project
   .settings(
     name := "ui",
+    testFrameworks ++= commonTestFrameworks,
     libraryDependencies ++= commonLibraries ++ Seq(
       Libraries.tui,
       Libraries.crossterm
