@@ -79,7 +79,7 @@ class CrawlResultsView(
     val chunks = Layout(
       direction = Direction.Vertical,
       constraints = Array(
-        Constraint.Percentage(75),
+        Constraint.Percentage(80),
         Constraint.Percentage(10),
         Constraint.Percentage(10)
       )
