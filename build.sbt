@@ -107,8 +107,10 @@ lazy val commonLibraries = Seq(
   Libraries.catsRetry,
   Libraries.slf4j,
   Libraries.woof,
-  Libraries.munit,
-  Libraries.munitCatsEffect,
+  Libraries.munit % Test,
+  Libraries.munitCatsEffect % Test,
+  Libraries.weaver % Test,
+  // Needed for integration tests
   Libraries.weaver
 )
 

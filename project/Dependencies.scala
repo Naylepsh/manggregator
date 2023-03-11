@@ -62,9 +62,9 @@ object Dependencies {
     val doobieHikari = "org.tpolecat" %% "doobie-hikari" % V.doobie
     val sqliteJDB = "org.xerial" % "sqlite-jdbc" % V.sqliteJDB
 
-    val munit = "org.scalameta" %% "munit" % V.munit % Test
+    val munit = "org.scalameta" %% "munit" % V.munit
     val munitCatsEffect =
-      "org.typelevel" %% "munit-cats-effect-3" % V.munitCatsEffect % Test
+      "org.typelevel" %% "munit-cats-effect-3" % V.munitCatsEffect
     val weaver = "com.disneystreaming" %% "weaver-cats" % V.weaver
   }
 }
