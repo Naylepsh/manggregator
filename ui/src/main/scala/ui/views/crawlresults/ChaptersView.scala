@@ -30,8 +30,16 @@ class ChaptersView(
   private val results = chapters.sortBy(_.dateReleased)
   private val items = StatefulList(items = results.toArray)
   private val paginatedList = PaginatedList(results.toArray)
+  private var pagination: Option[PaginatedList.Pagination[Chapter]] = None
   private val keyBindsNav = KeybindsNav(
-    List("↑ up", "↓ down", "s mark as seen", "q quit")
+    List(
+      "↑ up",
+      "↓ down",
+      "← previous page",
+      "→ next page",
+      "s mark as seen",
+      "q quit"
+    )
   )
   private val chapterItemHeight = 3
 
@@ -52,6 +60,7 @@ class ChaptersView(
           chapterItemHeight,
           items.state.selected
         )
+        this.pagination = Some(pagination)
 
         renderChapters(
           frame,
@@ -73,9 +82,25 @@ class ChaptersView(
     case char: tui.crossterm.KeyCode.Char if char.c() == 's' =>
       markCurrentlySelectedAsSeen()
       Keep
-    case _: tui.crossterm.KeyCode.Down => items.next(); Keep
-    case _: tui.crossterm.KeyCode.Up   => items.previous(); Keep
-    case _                             => Keep
+    case _: tui.crossterm.KeyCode.Down  => items.next(); Keep
+    case _: tui.crossterm.KeyCode.Up    => items.previous(); Keep
+    case _: tui.crossterm.KeyCode.Right => goToNextPage(); Keep
+    case _: tui.crossterm.KeyCode.Left  => goToPreviousPage(); Keep
+    case _                              => Keep
+
+  private def goToNextPage(): Unit =
+    pagination.foreach { p =>
+      val newPagination = p.nextPage()
+      newPagination.absoluteIndex().foreach(items.to)
+      this.pagination = Some(newPagination)
+    }
+
+  private def goToPreviousPage(): Unit =
+    pagination.foreach { p =>
+      val newPagination = p.previousPage()
+      newPagination.absoluteIndex().foreach(items.to)
+      this.pagination = Some(newPagination)
+    }
 
   private def markCurrentlySelectedAsSeen(): Unit =
     items.state.selected.flatMap(results.get).foreach { chapter =>
