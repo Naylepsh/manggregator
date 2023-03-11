@@ -16,7 +16,7 @@ import ui.core.Context
 import cats.effect.IO
 import ui.components.KeybindsNav
 import cats.effect.unsafe.IORuntime
-import ui.core.PaginatedList
+import ui.core.Paginator
 import tui.widgets.ListWidget.State
 import ui.components.Pagination
 
@@ -29,8 +29,8 @@ class ChaptersView(
 
   private val results = chapters.sortBy(_.dateReleased)
   private val items = StatefulList(items = results.toArray)
-  private val paginatedList = PaginatedList(results.toArray)
-  private var pagination: Option[PaginatedList.Pagination[Chapter]] = None
+  private val paginatedList = Paginator(results.toArray)
+  private var pagination: Option[Paginator.Pagination[Chapter]] = None
   private val keyBindsNav = KeybindsNav(
     List(
       "↑ up",

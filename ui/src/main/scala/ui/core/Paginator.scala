@@ -3,10 +3,10 @@ package ui.core
 import tui._
 import scala.reflect.ClassTag
 
-case class PaginatedList[A: ClassTag](
+case class Paginator[A: ClassTag](
     allItems: Array[A]
 ):
-  import PaginatedList._
+  import Paginator._
 
   def paginate(
       area: Rect,
@@ -26,7 +26,7 @@ case class PaginatedList[A: ClassTag](
       pages
     )
 
-object PaginatedList:
+object Paginator:
   case class Pagination[A](
       pages: Array[Array[A]],
       currentPage: Int,
