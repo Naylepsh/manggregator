@@ -34,6 +34,83 @@ class CrawlResultsView(
 
   private val crawlResultHeight = 2
 
+  override def render(frame: Frame): Unit =
+    if (results.isEmpty)
+      renderNoResults(frame)
+    else
+      renderResults(frame)
+
+  override def handleInput(key: KeyCode): ViewResult = key match
+    case char: tui.crossterm.KeyCode.Char if char.c() == 'q' => Exit
+    case _: tui.crossterm.KeyCode.Down  => paginatedList.nextItem(); Keep
+    case _: tui.crossterm.KeyCode.Up    => paginatedList.previousItem(); Keep
+    case _: tui.crossterm.KeyCode.Right => paginatedList.nextPage(); Keep
+    case _: tui.crossterm.KeyCode.Left  => paginatedList.previousPage(); Keep
+    case _: tui.crossterm.KeyCode.Enter =>
+      paginatedList.selected
+        .flatMap(results.get)
+        .map { assetSummary =>
+          ChangeTo(
+            ChaptersView(context, assetSummary.asset, assetSummary.chapters)
+          )
+        }
+        .getOrElse(Keep)
+
+    case _ => Keep
+
+  private def renderNoResults(frame: Frame): Unit =
+    val chunks = Layout(
+      direction = Direction.Vertical,
+      constraints = Array(
+        Constraint.Percentage(90),
+        Constraint.Percentage(10)
+      )
+    ).split(frame.size)
+
+    chunks.toList match
+      case main :: nav :: Nil =>
+        renderNoResultsMessage(frame, main)
+        keyBindsNav.render(frame, nav)
+      case _ =>
+
+  private def renderNoResultsMessage(frame: Frame, area: Rect): Unit =
+    frame.render_widget(
+      BlockWidget(title = Some(Spans.nostyle("No results found"))),
+      area
+    )
+
+  private def renderResults(frame: Frame): Unit =
+    val chunks = Layout(
+      direction = Direction.Vertical,
+      constraints = Array(
+        Constraint.Percentage(80),
+        Constraint.Percentage(10),
+        Constraint.Percentage(10)
+      )
+    ).split(frame.size)
+
+    chunks.toList match
+      case main :: paginationArea :: nav :: Nil =>
+        val pagination = paginatedList.paginate(
+          main,
+          crawlResultHeight
+        )
+
+        renderAssets(
+          frame,
+          main,
+          pagination.pages(pagination.currentPage),
+          pagination.currentIndex
+        )
+        Pagination.render(
+          frame,
+          paginationArea,
+          pagination.currentPage,
+          pagination.pageCount
+        )
+        keyBindsNav.render(frame, nav)
+      case _ =>
+
   private def renderAssets(
       frame: Frame,
       area: Rect,
@@ -74,53 +151,3 @@ class CrawlResultsView(
     )
 
     frame.render_stateful_widget(widget, area)(State(selected = selected))
-
-  override def render(frame: Frame): Unit =
-    val chunks = Layout(
-      direction = Direction.Vertical,
-      constraints = Array(
-        Constraint.Percentage(80),
-        Constraint.Percentage(10),
-        Constraint.Percentage(10)
-      )
-    ).split(frame.size)
-
-    chunks.toList match
-      case main :: paginationArea :: nav :: Nil =>
-        val pagination = paginatedList.paginate(
-          main,
-          crawlResultHeight
-        )
-
-        renderAssets(
-          frame,
-          main,
-          pagination.pages(pagination.currentPage),
-          pagination.currentIndex
-        )
-        Pagination.render(
-          frame,
-          paginationArea,
-          pagination.currentPage,
-          pagination.pageCount
-        )
-        keyBindsNav.render(frame, nav)
-      case _ =>
-
-  override def handleInput(key: KeyCode): ViewResult = key match
-    case char: tui.crossterm.KeyCode.Char if char.c() == 'q' => Exit
-    case _: tui.crossterm.KeyCode.Down  => paginatedList.nextItem(); Keep
-    case _: tui.crossterm.KeyCode.Up    => paginatedList.previousItem(); Keep
-    case _: tui.crossterm.KeyCode.Right => paginatedList.nextPage(); Keep
-    case _: tui.crossterm.KeyCode.Left  => paginatedList.previousPage(); Keep
-    case _: tui.crossterm.KeyCode.Enter =>
-      paginatedList.selected
-        .flatMap(results.get)
-        .map { assetSummary =>
-          ChangeTo(
-            ChaptersView(context, assetSummary.asset, assetSummary.chapters)
-          )
-        }
-        .getOrElse(Keep)
-
-    case _ => Keep
