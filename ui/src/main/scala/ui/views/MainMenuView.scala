@@ -22,7 +22,8 @@ import ui.views.common.DateInputView
 import java.util.Date
 
 class MainMenuView(context: Context[IO])(using IORuntime) extends View:
-  private var isLoading = false
+  import MainMenuView._
+  private var state: ViewState = ViewState.Ready
 
   private case class Action(label: String, onSelect: () => ViewResult)
 
@@ -33,11 +34,11 @@ class MainMenuView(context: Context[IO])(using IORuntime) extends View:
   )
 
   private def triggerCrawl(): ViewResult =
-    (IO(this.isLoading = true)
+    (IO(this.state = ViewState.Loading)
       >> context.services.crawler
         .crawl()
         .run(context.services.crawlerLibrary)
-        .flatTap(_ => IO(this.isLoading = false)))
+        .flatTap(_ => IO(this.state = ViewState.Ready)))
       .unsafeRunAndForget()
 
     Keep
@@ -103,10 +104,9 @@ class MainMenuView(context: Context[IO])(using IORuntime) extends View:
       constraints = Array(Constraint.Percentage(100))
     )
 
-    if (this.isLoading)
-      renderWaitingForCrawlToFinish(frame, layout)
-    else
-      renderMenu(frame, layout)
+    this.state match
+      case ViewState.Loading => renderWaitingForCrawlToFinish(frame, layout)
+      case ViewState.Ready   => renderMenu(frame, layout)
 
   override def handleInput(key: KeyCode): ViewResult = key match
     case char: tui.crossterm.KeyCode.Char if char.c() == 'q' => Exit
@@ -119,3 +119,9 @@ class MainMenuView(context: Context[IO])(using IORuntime) extends View:
         .getOrElse(Keep)
 
     case _ => Keep
+
+object MainMenuView:
+  sealed trait ViewState
+  object ViewState:
+    object Loading extends ViewState
+    object Ready extends ViewState
