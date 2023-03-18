@@ -22,14 +22,15 @@ import ui.components.Pagination
 
 class CrawlResultsView(
     context: Context[IO],
-    crawlResults: List[AssetSummary]
+    crawlResults: List[AssetSummary],
+    previousView: Option[View]
 )(using IORuntime)
     extends View:
 
   private val results = crawlResults.sortBy(_.asset.name)
   private val paginatedList = PaginatedList(results.toArray)
   private val keyBindsNav = KeybindsNav(
-    List("↑ up", "↓ down", "s mark as seen", "q quit")
+    List("↑ up", "↓ down", "s mark as seen", "backspace go back", "q quit")
   )
 
   private val crawlResultHeight = 2
@@ -42,6 +43,8 @@ class CrawlResultsView(
 
   override def handleInput(key: KeyCode): ViewResult = key match
     case char: tui.crossterm.KeyCode.Char if char.c() == 'q' => Exit
+    case char: tui.crossterm.KeyCode.Backspace =>
+      previousView.map(ChangeTo.apply).getOrElse(Keep)
     case _: tui.crossterm.KeyCode.Down  => paginatedList.nextItem(); Keep
     case _: tui.crossterm.KeyCode.Up    => paginatedList.previousItem(); Keep
     case _: tui.crossterm.KeyCode.Right => paginatedList.nextPage(); Keep
@@ -51,7 +54,12 @@ class CrawlResultsView(
         .flatMap(results.get)
         .map { assetSummary =>
           ChangeTo(
-            ChaptersView(context, assetSummary.asset, assetSummary.chapters)
+            ChaptersView(
+              context,
+              assetSummary.asset,
+              assetSummary.chapters,
+              Some(this)
+            )
           )
         }
         .getOrElse(Keep)

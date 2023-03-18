@@ -20,11 +20,13 @@ import ui.core.Paginator
 import tui.widgets.ListWidget.State
 import ui.components.Pagination
 import ui.core.PaginatedList
+import ui.core.ChangeTo
 
 class ChaptersView(
     context: Context[IO],
     asset: Asset,
-    chapters: List[Chapter]
+    chapters: List[Chapter],
+    previousView: Option[View]
 )(using IORuntime)
     extends View:
 
@@ -37,6 +39,7 @@ class ChaptersView(
       "← previous page",
       "→ next page",
       "s mark as seen",
+      "backspace go back",
       "q quit"
     )
   )
@@ -79,6 +82,8 @@ class ChaptersView(
     case char: tui.crossterm.KeyCode.Char if char.c() == 's' =>
       markCurrentlySelectedAsSeen()
       Keep
+    case char: tui.crossterm.KeyCode.Backspace =>
+      previousView.map(ChangeTo.apply).getOrElse(Keep)
     case _: tui.crossterm.KeyCode.Down  => paginatedList.nextItem(); Keep
     case _: tui.crossterm.KeyCode.Up    => paginatedList.previousItem(); Keep
     case _: tui.crossterm.KeyCode.Right => paginatedList.nextPage(); Keep
@@ -89,7 +94,6 @@ class ChaptersView(
     paginatedList.selected.flatMap(results.get).foreach { chapter =>
       context.services.chapters.markAsSeen(List(chapter.id)).unsafeRunSync()
     }
-
 
   private def renderChapters(
       frame: Frame,

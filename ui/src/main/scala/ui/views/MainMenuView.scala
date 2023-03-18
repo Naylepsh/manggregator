@@ -47,7 +47,9 @@ class MainMenuView(context: Context[IO])(using IORuntime) extends View:
       DateInputView(date =>
         context.services.assets
           .findRecentReleases(DateReleased(date))
-          .map(crawlResults => CrawlResultsView(context, crawlResults))
+          .map(crawlResults =>
+            CrawlResultsView(context, crawlResults, Some(this))
+          )
           .unsafeRunSync()
       )
     )
