@@ -15,13 +15,18 @@ import tui.widgets.BlockWidget
 import ui.core.Exit
 import cats.implicits._
 import ui.core.ChangeTo
+import cats.effect.unsafe.IORuntime
 
 class AssetManagementView(
     context: Context[IO],
     previousView: Option[View]
-) extends View:
+)(using IORuntime)
+    extends View:
   private val actions = List(
-    Action("Add a new asset", () => Keep),
+    Action(
+      "Add a new asset",
+      () => ChangeTo(CreateAssetView(context, Some(this), this))
+    ),
     Action("Edit an existing asset", () => Keep)
   )
   private val items = StatefulList(items = actions.toArray)
