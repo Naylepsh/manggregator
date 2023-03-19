@@ -1,28 +1,21 @@
 package ui.views
 
-import ui.core.View
-import tui.crossterm.KeyCode
-import tui.widgets.{BlockWidget, ListWidget}
-import ui.core.ViewResult
-import tui._
-import ui.core.Exit
-import ui.core.Keep
-import ui.core.StatefulList
-import cats.implicits._
-import ui.core.Theme
-import ui.core.ChangeTo
-import ui.views.crawlresults.CrawlResultsView
-import ui.core.Context
+import java.util.Date
+
 import cats.effect.IO
-import org.joda.time.DateTime
+import cats.effect.unsafe.IORuntime
+import cats.implicits._
 import com.github.nscala_time.time.Imports._
 import library.domain.chapter.DateReleased
-import cats.effect.unsafe.IORuntime
-import ui.views.common.DateInputView
-import java.util.Date
-import ui.core.Action
-import ui.views.assetmanagement.AssetManagementView
+import org.joda.time.DateTime
+import tui._
+import tui.crossterm.KeyCode
+import tui.widgets.{BlockWidget, ListWidget}
 import ui.components.KeybindsNav
+import ui.core._
+import ui.views.assetmanagement.AssetManagementView
+import ui.views.common.DateInputView
+import ui.views.crawlresults.CrawlResultsView
 
 class MainMenuView(context: Context[IO])(using IORuntime) extends View:
   import MainMenuView._

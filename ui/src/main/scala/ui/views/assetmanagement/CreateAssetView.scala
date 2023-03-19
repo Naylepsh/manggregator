@@ -1,23 +1,14 @@
 package ui.views.assetmanagement
 
-import ui.core.Context
 import cats.effect.IO
-import ui.core.View
-import tui.crossterm.KeyCode
-import ui.core.ViewResult
-import tui._
-import ui.views.common.InputView
-import library.domain.asset.CreateAsset
-import library.domain.asset.AssetName
-import library.domain.asset.Enabled
-import ui.core.Keep
-import library.domain.asset.AssetId
 import cats.effect.unsafe.IORuntime
-import ui.core.ChangeTo
-import library.domain.asset.AssetAlreadyExists
+import library.domain.asset._
+import tui._
+import tui.crossterm.KeyCode
 import tui.widgets.BlockWidget
 import ui.components.KeybindsNav
-import ui.core.Exit
+import ui.core._
+import ui.views.common.InputView
 
 class CreateAssetView(
     context: Context[IO],

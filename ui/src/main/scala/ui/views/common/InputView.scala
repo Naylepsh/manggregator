@@ -1,22 +1,19 @@
 package ui.views.common
 
-import ui.core.View
-import tui.crossterm.KeyCode
-import ui.core.ViewResult
-import tui._
-import tui.widgets.ParagraphWidget
-import tui.widgets.BlockWidget
-import ui.core.Keep
-import ui.core.Exit
-import ui.components.KeybindsNav
 import java.text.SimpleDateFormat
 import java.util.Date
+
 import scala.util.Try
-import cats.implicits._
-import org.joda.time.DateTime
-import com.github.nscala_time.time.Imports._
-import ui.core.ChangeTo
+
 import cats.effect.unsafe.IORuntime
+import cats.implicits._
+import com.github.nscala_time.time.Imports._
+import org.joda.time.DateTime
+import tui._
+import tui.crossterm.KeyCode
+import tui.widgets.{BlockWidget, ParagraphWidget}
+import ui.components.KeybindsNav
+import ui.core._
 
 class InputView[A](
     validate: String => Either[String, A],

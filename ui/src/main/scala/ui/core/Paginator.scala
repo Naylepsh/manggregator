@@ -1,7 +1,8 @@
 package ui.core
 
-import tui._
 import scala.reflect.ClassTag
+
+import tui._
 
 case class Paginator[A: ClassTag](
     allItems: Array[A]

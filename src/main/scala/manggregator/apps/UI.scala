@@ -1,11 +1,8 @@
 package manggregator.apps
 
-import ui.views.MainMenuView
-import ui.core.RenderLoop
-import cats.effect.unsafe.implicits.global
-import ui.core.Theme
 import cats._
 import cats.effect._
+import cats.effect.unsafe.implicits.global
 import cats.implicits._
 import library.domain.asset._
 import library.domain.chapter.DateReleased
@@ -14,8 +11,8 @@ import library.persistence._
 import library.resources.database._
 import manggregator.{Entrypoints, config}
 import org.legogroup.woof.{_, given}
-import ui.core.Services
-import ui.core.Context
+import ui.core._
+import ui.views.MainMenuView
 
 object UI:
   def run(): IO[ExitCode] =

@@ -1,21 +1,13 @@
 package ui.views.assetmanagement
 
-import ui.core.View
-import tui.crossterm.KeyCode
-import ui.core.ViewResult
-import tui._
-import ui.components.KeybindsNav
-import ui.core.Context
 import cats.effect.IO
-import ui.core.Action
-import ui.core.Keep
-import ui.core.StatefulList
-import tui.widgets.ListWidget
-import tui.widgets.BlockWidget
-import ui.core.Exit
-import cats.implicits._
-import ui.core.ChangeTo
 import cats.effect.unsafe.IORuntime
+import cats.implicits._
+import tui._
+import tui.crossterm.KeyCode
+import tui.widgets.{BlockWidget, ListWidget}
+import ui.components.KeybindsNav
+import ui.core._
 
 class AssetManagementView(
     context: Context[IO],

@@ -2,9 +2,7 @@ package ui.core
 
 import crawler.domain.Library
 import crawler.services.Crawler
-import library.services.Assets
-import library.services.Pages
-import library.services.Chapters
+import library.services.{Assets, Chapters, Pages}
 
 case class Context[F[_]](
     theme: Theme,

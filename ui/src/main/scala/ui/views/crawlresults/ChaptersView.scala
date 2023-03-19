@@ -1,26 +1,16 @@
 package ui.views.crawlresults
 
-import ui.core.View
-import tui.crossterm.KeyCode
-import ui.core.ViewResult
-import tui._
-import tui.widgets.{BlockWidget, ListWidget}
-import cats.implicits._
-import ui.core.Exit
-import ui.core.Keep
-import library.domain.chapter.Chapter
-import ui.core.StatefulList
-import ui.core.Theme
-import library.domain.asset.Asset
-import ui.core.Context
 import cats.effect.IO
-import ui.components.KeybindsNav
 import cats.effect.unsafe.IORuntime
-import ui.core.Paginator
+import cats.implicits._
+import library.domain.asset.Asset
+import library.domain.chapter.Chapter
+import tui._
+import tui.crossterm.KeyCode
 import tui.widgets.ListWidget.State
-import ui.components.Pagination
-import ui.core.PaginatedList
-import ui.core.ChangeTo
+import tui.widgets.{BlockWidget, ListWidget}
+import ui.components.{KeybindsNav, Pagination}
+import ui.core._
 
 class ChaptersView(
     context: Context[IO],

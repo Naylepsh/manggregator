@@ -1,13 +1,15 @@
 package ui.views.common
 
-import ui.core.View
 import java.text.SimpleDateFormat
 import java.util.Date
+
 import scala.util.Try
-import cats.implicits._
-import org.joda.time.DateTime
-import com.github.nscala_time.time.Imports._
+
 import cats.effect.unsafe.IORuntime
+import cats.implicits._
+import com.github.nscala_time.time.Imports._
+import org.joda.time.DateTime
+import ui.core.View
 
 class DateInputView(next: Date => View, previousView: Option[View])(using
     IORuntime

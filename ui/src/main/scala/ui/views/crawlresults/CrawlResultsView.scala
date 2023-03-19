@@ -1,24 +1,15 @@
 package ui.views.crawlresults
 
-import ui.core.View
-import tui.crossterm.KeyCode
-import ui.core.ViewResult
-import tui._
-import tui.widgets.{BlockWidget, ListWidget}
-import library.domain.asset.AssetSummary
-import ui.core.StatefulList
-import ui.core.Exit
-import ui.core.Keep
-import cats.implicits._
-import ui.core.ChangeTo
-import ui.core.Theme
-import ui.core.Context
 import cats.effect.IO
 import cats.effect.unsafe.IORuntime
-import ui.components.KeybindsNav
-import ui.core.PaginatedList
+import cats.implicits._
+import library.domain.asset.AssetSummary
+import tui._
+import tui.crossterm.KeyCode
 import tui.widgets.ListWidget.State
-import ui.components.Pagination
+import tui.widgets.{BlockWidget, ListWidget}
+import ui.components.{KeybindsNav, Pagination}
+import ui.core._
 
 class CrawlResultsView(
     context: Context[IO],

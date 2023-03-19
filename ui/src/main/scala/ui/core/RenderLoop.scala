@@ -1,15 +1,16 @@
 package ui.core
 
+import java.time.{Duration, Instant}
+
+import scala.math.Ordering.Implicits._
+import scala.util.control.Breaks._
+
+import cats.effect.IO
 import cats.effect.kernel.Sync
+import cats.effect.unsafe.IORuntime
 import cats.implicits._
 import tui._
-import tui.crossterm.CrosstermJni
-import java.time.{Duration, Instant}
-import scala.math.Ordering.Implicits._
-import cats.effect.IO
-import cats.effect.unsafe.IORuntime
-import tui.crossterm.Event
-import scala.util.control.Breaks._
+import tui.crossterm.{CrosstermJni, Event}
 
 class RenderLoop(initialView: View):
   val tickRate = Duration.ofMillis(250)

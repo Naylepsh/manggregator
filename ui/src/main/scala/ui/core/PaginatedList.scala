@@ -1,7 +1,8 @@
 package ui.core
 
-import library.domain.chapter.Chapter
 import scala.reflect.ClassTag
+
+import library.domain.chapter.Chapter
 import tui._
 import ui.core.Paginator.Pagination
 
