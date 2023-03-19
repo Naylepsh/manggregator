@@ -82,7 +82,7 @@ class ChaptersView(
     case char: tui.crossterm.KeyCode.Char if char.c() == 's' =>
       markCurrentlySelectedAsSeen()
       Keep
-    case char: tui.crossterm.KeyCode.Backspace =>
+    case _: tui.crossterm.KeyCode.Backspace =>
       previousView.map(ChangeTo.apply).getOrElse(Keep)
     case _: tui.crossterm.KeyCode.Down  => paginatedList.nextItem(); Keep
     case _: tui.crossterm.KeyCode.Up    => paginatedList.previousItem(); Keep

@@ -22,6 +22,7 @@ import ui.views.common.DateInputView
 import java.util.Date
 import ui.core.Action
 import ui.views.assetmanagement.AssetManagementView
+import ui.components.KeybindsNav
 
 class MainMenuView(context: Context[IO])(using IORuntime) extends View:
   import MainMenuView._
@@ -34,38 +35,66 @@ class MainMenuView(context: Context[IO])(using IORuntime) extends View:
   )
   private val items = StatefulList(items = actions.toArray)
 
-  override def render(frame: Frame): Unit =
-    val layout = Layout(
-      direction = Direction.Horizontal,
-      constraints = Array(Constraint.Percentage(100))
+  private val keyBindsNav = KeybindsNav(
+    List(
+      "↑ up",
+      "↓ down",
+      "q quit"
     )
+  )
 
+  override def render(frame: Frame): Unit =
     this.state match
-      case ViewState.Loading => renderWaitingForCrawlToFinish(frame, layout)
-      case ViewState.Ready   => renderMenu(frame, layout)
+      case ViewState.Loading =>
+        val chunks = Layout(
+          direction = Direction.Horizontal,
+          constraints = Array(Constraint.Percentage(100))
+        ).split(frame.size)
+        chunks match
+          case Array(main) =>
+            renderWaitingForCrawlToFinish(frame, main)
+          case _ =>
 
-  override def handleInput(key: KeyCode): ViewResult = key match
-    case char: tui.crossterm.KeyCode.Char if char.c() == 'q' => Exit
-    case _: tui.crossterm.KeyCode.Down => items.next(); Keep
-    case _: tui.crossterm.KeyCode.Up   => items.previous(); Keep
-    case _: tui.crossterm.KeyCode.Enter =>
-      items.state.selected
-        .flatMap(actions.get)
-        .map(_.onSelect())
-        .getOrElse(Keep)
+      case ViewState.Ready =>
+        val chunks = Layout(
+          direction = Direction.Vertical,
+          constraints =
+            Array(Constraint.Percentage(90), Constraint.Percentage(10))
+        ).split(frame.size)
+        chunks match
+          case Array(menu, nav) =>
+            renderMenu(frame, menu)
+            keyBindsNav.render(frame, nav)
+          case _ =>
 
-    case _ => Keep
+  override def handleInput(key: KeyCode): ViewResult =
+    this.state match
+      case ViewState.Loading =>
+        key match
+          case char: tui.crossterm.KeyCode.Char if char.c() == 'q' => Exit
+          case _                                                   => Keep
+      case ViewState.Ready =>
+        key match
+          case char: tui.crossterm.KeyCode.Char if char.c() == 'q' => Exit
+          case _: tui.crossterm.KeyCode.Down => items.next(); Keep
+          case _: tui.crossterm.KeyCode.Up   => items.previous(); Keep
+          case _: tui.crossterm.KeyCode.Enter =>
+            items.state.selected
+              .flatMap(actions.get)
+              .map(_.onSelect())
+              .getOrElse(Keep)
+          case _ => Keep
 
   private def renderWaitingForCrawlToFinish(
       frame: Frame,
-      layout: Layout
+      area: Rect
   ): Unit =
     val widget = BlockWidget(
       title = Some(Spans.nostyle("Crawling. This can take a moment..."))
     )
-    frame.render_widget(widget, layout.split(frame.size).head)
+    frame.render_widget(widget, area)
 
-  private def renderMenu(frame: Frame, layout: Layout): Unit =
+  private def renderMenu(frame: Frame, area: Rect): Unit =
     val items0 = items.items
       .map { case (action) =>
         val header = Spans.styled(
@@ -92,10 +121,7 @@ class MainMenuView(context: Context[IO])(using IORuntime) extends View:
       )
     )
 
-    frame
-      .render_stateful_widget(widget, layout.split(frame.size).head)(
-        items.state
-      )
+    frame.render_stateful_widget(widget, area)(items.state)
 
   private def triggerCrawl(): ViewResult =
     (IO(this.state = ViewState.Loading)

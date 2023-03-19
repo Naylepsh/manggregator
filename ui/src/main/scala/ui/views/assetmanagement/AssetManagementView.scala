@@ -35,6 +35,35 @@ class AssetManagementView(
     )
   )
 
+  override def render(frame: Frame): Unit =
+    val chunks = Layout(
+      direction = Direction.Vertical,
+      constraints = Array(
+        Constraint.Percentage(90),
+        Constraint.Percentage(10)
+      )
+    ).split(frame.size)
+
+    chunks match
+      case Array(main, nav) =>
+        renderMenu(frame, main)
+        keyBindsNav.render(frame, nav)
+      case _ =>
+
+  override def handleInput(key: KeyCode): ViewResult = key match
+    case char: tui.crossterm.KeyCode.Char if char.c() == 'q' => Exit
+    case _: tui.crossterm.KeyCode.Backspace =>
+      previousView.map(ChangeTo.apply).getOrElse(Keep)
+    case _: tui.crossterm.KeyCode.Down => items.next(); Keep
+    case _: tui.crossterm.KeyCode.Up   => items.previous(); Keep
+    case _: tui.crossterm.KeyCode.Enter =>
+      items.state.selected
+        .flatMap(actions.get)
+        .map(_.onSelect())
+        .getOrElse(Keep)
+
+    case _ => Keep
+
   private def renderMenu(frame: Frame, area: Rect): Unit =
     val items0 = items.items
       .map { case (action) =>
@@ -63,32 +92,3 @@ class AssetManagementView(
     )
 
     frame.render_stateful_widget(widget, area)(items.state)
-
-  override def render(frame: Frame): Unit =
-    val chunks = Layout(
-      direction = Direction.Vertical,
-      constraints = Array(
-        Constraint.Percentage(90),
-        Constraint.Percentage(10)
-      )
-    ).split(frame.size)
-
-    chunks match
-      case Array(main, nav) =>
-        renderMenu(frame, main)
-        keyBindsNav.render(frame, nav)
-      case _ =>
-
-  override def handleInput(key: KeyCode): ViewResult = key match
-    case char: tui.crossterm.KeyCode.Char if char.c() == 'q' => Exit
-    case char: tui.crossterm.KeyCode.Backspace =>
-      previousView.map(ChangeTo.apply).getOrElse(Keep)
-    case _: tui.crossterm.KeyCode.Down => items.next(); Keep
-    case _: tui.crossterm.KeyCode.Up   => items.previous(); Keep
-    case _: tui.crossterm.KeyCode.Enter =>
-      items.state.selected
-        .flatMap(actions.get)
-        .map(_.onSelect())
-        .getOrElse(Keep)
-
-    case _ => Keep
