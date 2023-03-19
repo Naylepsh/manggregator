@@ -20,42 +20,41 @@ import library.domain.chapter.DateReleased
 import cats.effect.unsafe.IORuntime
 import ui.views.common.DateInputView
 import java.util.Date
+import ui.core.Action
+import ui.views.assetmanagement.AssetManagementView
 
 class MainMenuView(context: Context[IO])(using IORuntime) extends View:
   import MainMenuView._
   private var state: ViewState = ViewState.Ready
 
-  private case class Action(label: String, onSelect: () => ViewResult)
-
   private val actions = List(
     Action("Trigger a crawl", triggerCrawl),
     Action("Browse the recent releases", browseRecentReleases),
-    Action("Manage the assets", () => Keep)
+    Action("Manage the assets", manageAssets)
   )
+  private val items = StatefulList(items = actions.toArray)
 
-  private def triggerCrawl(): ViewResult =
-    (IO(this.state = ViewState.Loading)
-      >> context.services.crawler
-        .crawl()
-        .run(context.services.crawlerLibrary)
-        .flatTap(_ => IO(this.state = ViewState.Ready)))
-      .unsafeRunAndForget()
-
-    Keep
-
-  private def browseRecentReleases(): ViewResult =
-    ChangeTo(
-      DateInputView(date =>
-        context.services.assets
-          .findRecentReleases(DateReleased(date))
-          .map(crawlResults =>
-            CrawlResultsView(context, crawlResults, Some(this))
-          )
-          .unsafeRunSync()
-      )
+  override def render(frame: Frame): Unit =
+    val layout = Layout(
+      direction = Direction.Horizontal,
+      constraints = Array(Constraint.Percentage(100))
     )
 
-  private val items = StatefulList(items = actions.toArray)
+    this.state match
+      case ViewState.Loading => renderWaitingForCrawlToFinish(frame, layout)
+      case ViewState.Ready   => renderMenu(frame, layout)
+
+  override def handleInput(key: KeyCode): ViewResult = key match
+    case char: tui.crossterm.KeyCode.Char if char.c() == 'q' => Exit
+    case _: tui.crossterm.KeyCode.Down => items.next(); Keep
+    case _: tui.crossterm.KeyCode.Up   => items.previous(); Keep
+    case _: tui.crossterm.KeyCode.Enter =>
+      items.state.selected
+        .flatMap(actions.get)
+        .map(_.onSelect())
+        .getOrElse(Keep)
+
+    case _ => Keep
 
   private def renderWaitingForCrawlToFinish(
       frame: Frame,
@@ -98,27 +97,30 @@ class MainMenuView(context: Context[IO])(using IORuntime) extends View:
         items.state
       )
 
-  override def render(frame: Frame): Unit =
-    val layout = Layout(
-      direction = Direction.Horizontal,
-      constraints = Array(Constraint.Percentage(100))
+  private def triggerCrawl(): ViewResult =
+    (IO(this.state = ViewState.Loading)
+      >> context.services.crawler
+        .crawl()
+        .run(context.services.crawlerLibrary)
+        .flatTap(_ => IO(this.state = ViewState.Ready)))
+      .unsafeRunAndForget()
+
+    Keep
+
+  private def browseRecentReleases(): ViewResult =
+    ChangeTo(
+      DateInputView(date =>
+        context.services.assets
+          .findRecentReleases(DateReleased(date))
+          .map(crawlResults =>
+            CrawlResultsView(context, crawlResults, Some(this))
+          )
+          .unsafeRunSync()
+      )
     )
 
-    this.state match
-      case ViewState.Loading => renderWaitingForCrawlToFinish(frame, layout)
-      case ViewState.Ready   => renderMenu(frame, layout)
-
-  override def handleInput(key: KeyCode): ViewResult = key match
-    case char: tui.crossterm.KeyCode.Char if char.c() == 'q' => Exit
-    case _: tui.crossterm.KeyCode.Down => items.next(); Keep
-    case _: tui.crossterm.KeyCode.Up   => items.previous(); Keep
-    case _: tui.crossterm.KeyCode.Enter =>
-      items.state.selected
-        .flatMap(actions.get)
-        .map(_.onSelect())
-        .getOrElse(Keep)
-
-    case _ => Keep
+  private def manageAssets(): ViewResult =
+    ChangeTo(AssetManagementView(context, Some(this)))
 
 object MainMenuView:
   sealed trait ViewState
