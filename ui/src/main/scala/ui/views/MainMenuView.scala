@@ -135,13 +135,15 @@ class MainMenuView(context: Context[IO])(using IORuntime) extends View:
 
   private def browseRecentReleases(): ViewResult =
     ChangeTo(
-      DateInputView(date =>
-        context.services.assets
-          .findRecentReleases(DateReleased(date))
-          .map(crawlResults =>
-            CrawlResultsView(context, crawlResults, Some(this))
-          )
-          .unsafeRunSync()
+      DateInputView(
+        date =>
+          context.services.assets
+            .findRecentReleases(DateReleased(date))
+            .map(crawlResults =>
+              CrawlResultsView(context, crawlResults, Some(this))
+            )
+            .unsafeRunSync(),
+        Some(this)
       )
     )
 

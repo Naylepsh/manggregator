@@ -17,7 +17,8 @@ import org.joda.time.DateTime
 import com.github.nscala_time.time.Imports._
 import ui.core.ChangeTo
 
-class DateInputView(next: Date => View) extends View:
+class DateInputView(next: Date => View, previousView: Option[View])
+    extends View:
   import DateInputView._
 
   var inputMode: InputMode = InputMode.Editing
@@ -45,6 +46,8 @@ class DateInputView(next: Date => View) extends View:
           case c: KeyCode.Char if c.c == 'e' =>
             inputMode = InputMode.Editing
             Keep
+          case _: KeyCode.Backspace =>
+            previousView.map(ChangeTo.apply).getOrElse(Keep)
           case c: KeyCode.Char if c.c == 'q' => Exit
           case _                             => Keep
 
@@ -121,7 +124,9 @@ object DateInputView:
     case object Normal extends InputMode
     case object Editing extends InputMode
 
-  val normalModeKeybinds = KeybindsNav(List("e start editing", "q quit"))
+  val normalModeKeybinds = KeybindsNav(
+    List("e start editing", "backspace go back", "q quit")
+  )
   val editingModeKeybinds = KeybindsNav(
     List("Esc stop editing", "Enter submit")
   )
