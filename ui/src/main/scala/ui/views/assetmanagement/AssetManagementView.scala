@@ -1,7 +1,6 @@
 package ui.views.assetmanagement
 
 import cats.effect.IO
-import cats.effect.unsafe.IORuntime
 import cats.implicits._
 import tui._
 import tui.crossterm.KeyCode
@@ -12,8 +11,7 @@ import ui.core._
 class AssetManagementView(
     context: Context[IO],
     previousView: Option[View]
-)(using IORuntime)
-    extends View:
+) extends View:
   private val actions = List(
     Action(
       "Add a new asset",

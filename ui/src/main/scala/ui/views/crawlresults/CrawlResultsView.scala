@@ -1,7 +1,6 @@
 package ui.views.crawlresults
 
 import cats.effect.IO
-import cats.effect.unsafe.IORuntime
 import cats.implicits._
 import library.domain.asset.AssetSummary
 import tui._
@@ -15,8 +14,7 @@ class CrawlResultsView(
     context: Context[IO],
     crawlResults: List[AssetSummary],
     previousView: Option[View]
-)(using IORuntime)
-    extends View:
+) extends View:
 
   private val results = crawlResults.sortBy(_.asset.name)
   private val paginatedList = PaginatedList(results.toArray)

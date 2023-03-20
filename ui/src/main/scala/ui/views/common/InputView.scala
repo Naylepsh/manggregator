@@ -5,7 +5,6 @@ import java.util.Date
 
 import scala.util.Try
 
-import cats.effect.unsafe.IORuntime
 import cats.implicits._
 import com.github.nscala_time.time.Imports._
 import org.joda.time.DateTime
@@ -20,7 +19,7 @@ class InputView[A](
     title: String,
     next: A => View,
     previousView: Option[View]
-)(using IORuntime) extends View:
+) extends View:
   import InputView._
 
   var inputMode: InputMode = InputMode.Editing
@@ -60,7 +59,7 @@ class InputView[A](
               case Left(value) =>
                 this.invalidInputReason = Some(value)
                 Keep
-              case Right(value) => 
+              case Right(value) =>
                 ChangeTo(next(value))
           case c: KeyCode.Char =>
             inputText = inputText + c.c()

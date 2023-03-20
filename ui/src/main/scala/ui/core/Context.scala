@@ -3,10 +3,12 @@ package ui.core
 import crawler.domain.Library
 import crawler.services.Crawler
 import library.services.{Assets, Chapters, Pages}
+import cats.effect.std.Dispatcher
 
 case class Context[F[_]](
     theme: Theme,
-    services: Services[F]
+    services: Services[F],
+    dispatcher: Dispatcher[F]
 )
 
 case class Services[F[_]](

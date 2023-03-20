@@ -5,15 +5,13 @@ import java.util.Date
 
 import scala.util.Try
 
-import cats.effect.unsafe.IORuntime
 import cats.implicits._
 import com.github.nscala_time.time.Imports._
 import org.joda.time.DateTime
 import ui.core.View
 
-class DateInputView(next: Date => View, previousView: Option[View])(using
-    IORuntime
-) extends InputView(
+class DateInputView(next: Date => View, previousView: Option[View])
+    extends InputView(
       DateInputView.DateInput.parse,
       s"Min. release date (${DateInputView.DateInput.dateStringFormat} or [0-9]+d)",
       next,

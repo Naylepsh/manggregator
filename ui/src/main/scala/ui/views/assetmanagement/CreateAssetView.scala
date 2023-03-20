@@ -1,7 +1,6 @@
 package ui.views.assetmanagement
 
 import cats.effect.IO
-import cats.effect.unsafe.IORuntime
 import library.domain.asset._
 import tui._
 import tui.crossterm.KeyCode
@@ -14,8 +13,7 @@ class CreateAssetView(
     context: Context[IO],
     previousView: Option[View],
     next: View
-)(using IORuntime)
-    extends View:
+) extends View:
   import CreateAssetView._
 
   val inputView =
@@ -27,12 +25,13 @@ class CreateAssetView(
     inputView.handleInput(key)
 
   private def createAsset(name: String): View =
-    context.services.assets
-      .create(
-        CreateAsset(name = AssetName(name), enabled = Enabled(true))
-      )
-      .map(PostCreationAssetView(context, _, next))
-      .unsafeRunSync()
+    context.dispatcher.unsafeRunSync(
+      context.services.assets
+        .create(
+          CreateAsset(name = AssetName(name), enabled = Enabled(true))
+        )
+        .map(PostCreationAssetView(context, _, next))
+    )
 
 object CreateAssetView:
   def validateTitle(input: String): Either[String, String] =

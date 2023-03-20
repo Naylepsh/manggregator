@@ -13,13 +13,17 @@ import manggregator.{Entrypoints, config}
 import org.legogroup.woof.{_, given}
 import ui.core._
 import ui.views.MainMenuView
+import cats.effect.std.Dispatcher
 
 object UI:
   def run(): IO[ExitCode] =
     config.load[IO].flatMap { cfg =>
-      makeTransactorResource[IO](cfg.database)
+      val transactorResource = makeTransactorResource[IO](cfg.database)
         .evalTap(checkSQLiteConnection)
-        .use { xa =>
+      val dispatcherResource = Dispatcher.sequential[IO]
+
+      (transactorResource, dispatcherResource).tupled.use {
+        case (xa, dispatcher) =>
           for
             given Logger[IO] <- Entrypoints.disabledLogger()
             storage = Entrypoints.storage(xa)
@@ -34,13 +38,15 @@ object UI:
               library
             )
             theme = Theme.default
-            view = MainMenuView(
-              Context(
-                theme,
-                services
+            view =
+              MainMenuView(
+                Context(
+                  theme,
+                  services,
+                  dispatcher
+                )
               )
-            )
             _ <- RenderLoop(view).run()
           yield ExitCode.Success
-        }
+      }
     }

@@ -1,7 +1,6 @@
 package ui.views.crawlresults
 
 import cats.effect.IO
-import cats.effect.unsafe.IORuntime
 import cats.implicits._
 import library.domain.asset.Asset
 import library.domain.chapter.Chapter
@@ -17,8 +16,7 @@ class ChaptersView(
     asset: Asset,
     chapters: List[Chapter],
     previousView: Option[View]
-)(using IORuntime)
-    extends View:
+) extends View:
 
   private val results = chapters.sortBy(_.dateReleased)
   private val paginatedList = PaginatedList(results.toArray)
@@ -81,9 +79,13 @@ class ChaptersView(
     case _                              => Keep
 
   private def markCurrentlySelectedAsSeen(): Unit =
-    paginatedList.selected.flatMap(results.get).foreach { chapter =>
-      context.services.chapters.markAsSeen(List(chapter.id)).unsafeRunSync()
-    }
+    paginatedList.selected
+      .flatMap(results.get)
+      .map(chapter =>
+        context.dispatcher.unsafeRunSync(
+          context.services.chapters.markAsSeen(List(chapter.id))
+        )
+      )
 
   private def renderChapters(
       frame: Frame,

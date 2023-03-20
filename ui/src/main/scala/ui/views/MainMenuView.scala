@@ -17,7 +17,9 @@ import ui.views.assetmanagement.AssetManagementView
 import ui.views.common.DateInputView
 import ui.views.crawlresults.CrawlResultsView
 
-class MainMenuView(context: Context[IO])(using IORuntime) extends View:
+class MainMenuView(context: Context[IO])(using
+    IORuntime
+) extends View:
   import MainMenuView._
   private var state: ViewState = ViewState.Ready
 
@@ -117,12 +119,13 @@ class MainMenuView(context: Context[IO])(using IORuntime) extends View:
     frame.render_stateful_widget(widget, area)(items.state)
 
   private def triggerCrawl(): ViewResult =
-    (IO(this.state = ViewState.Loading)
-      >> context.services.crawler
-        .crawl()
-        .run(context.services.crawlerLibrary)
-        .flatTap(_ => IO(this.state = ViewState.Ready)))
-      .unsafeRunAndForget()
+    context.dispatcher.unsafeRunAndForget(
+      (IO(this.state = ViewState.Loading)
+        >> context.services.crawler
+          .crawl()
+          .run(context.services.crawlerLibrary)
+          .flatTap(_ => IO(this.state = ViewState.Ready)))
+    )
 
     Keep
 
@@ -130,12 +133,13 @@ class MainMenuView(context: Context[IO])(using IORuntime) extends View:
     ChangeTo(
       DateInputView(
         date =>
-          context.services.assets
-            .findRecentReleases(DateReleased(date))
-            .map(crawlResults =>
-              CrawlResultsView(context, crawlResults, Some(this))
-            )
-            .unsafeRunSync(),
+          context.dispatcher.unsafeRunSync(
+            context.services.assets
+              .findRecentReleases(DateReleased(date))
+              .map(crawlResults =>
+                CrawlResultsView(context, crawlResults, Some(this))
+              )
+          ),
         Some(this)
       )
     )
