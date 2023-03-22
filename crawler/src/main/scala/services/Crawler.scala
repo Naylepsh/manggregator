@@ -33,7 +33,7 @@ object Crawler:
             crawlQueue,
             resultsQueue,
             siteCrawlersMapping,
-            assetsToCrawl.length
+            assetsToCrawl.length.min(Runtime.getRuntime().availableProcessors())
           )
         jobs = assetsToCrawl.map { case AssetToCrawl(site, assetId, url) =>
           SiteCrawlJob(
