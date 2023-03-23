@@ -5,7 +5,6 @@ import scala.util.Try
 import api.library.codecs.given
 import api.library.params._
 import api.library.responses._
-import api.utils.routes.given
 import cats._
 import cats.data._
 import cats.effect.kernel.Async
@@ -27,16 +26,12 @@ object routes:
   )
 
   def all[F[_]: Async](props: Services[F]): HttpRoutes[F] =
-    NonEmptyList
-      .of(
-        createAsset,
-        createAssetPage,
-        getAssetChapters,
-        getAssetsWithRecentlyReleasedChapters
-      )
-      .sequence
-      .map(_.reduce)
-      .run(props)
+    NonEmptyChain(
+      createAsset,
+      createAssetPage,
+      getAssetChapters,
+      getAssetsWithRecentlyReleasedChapters
+    ).sequence.map(_.reduceLeft(_ <+> _)).run(props)
 
   private def createAsset[F[_]: Async]: Reader[Services[F], HttpRoutes[F]] =
     Reader { props =>
