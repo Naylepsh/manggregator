@@ -79,7 +79,7 @@ class ChaptersView(
     case _                              => Keep
 
   private def markCurrentlySelectedAsSeen(): Unit =
-    paginatedList.selected
+    paginatedList.selectedIndex
       .flatMap(results.get)
       .map(chapter =>
         context.dispatcher.unsafeRunSync(

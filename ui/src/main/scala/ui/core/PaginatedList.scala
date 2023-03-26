@@ -10,10 +10,16 @@ case class PaginatedList[A: ClassTag](
     allItems: Array[A]
 ):
   private val items = StatefulList(items = allItems)
-  private val paginatedList = Paginator(allItems)
+  private var paginatedList = Paginator(allItems)
   private var pagination: Option[Paginator.Pagination[A]] = None
 
-  def selected: Option[Int] = items.state.selected
+  def selectedIndex: Option[Int] = items.state.selected
+  def selected: Option[A] = items.selected
+
+  def update(index: Int, value: A): Option[Unit] =
+    items.update(index, value).map { _ =>
+      this.paginatedList = Paginator(items.items)
+    }
 
   def paginate(area: Rect, itemHeight: Int): Pagination[A] =
     val pagination = paginatedList.paginate(

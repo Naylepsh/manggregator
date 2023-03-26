@@ -17,7 +17,19 @@ class AssetManagementView(
       "Add a new asset",
       () => ChangeTo(CreateAssetView(context, Some(this), this))
     ),
-    Action("Edit an existing asset", () => Keep)
+    Action(
+      "Edit an existing asset",
+      () =>
+        ChangeTo(
+          AssetsView(
+            context,
+            Some(this),
+            context.dispatcher.unsafeRunSync(
+              context.services.assets.findAll()
+            )
+          )
+        )
+    )
   )
   private val items = StatefulList(items = actions.toArray)
 

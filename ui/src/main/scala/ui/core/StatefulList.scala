@@ -33,4 +33,13 @@ case class StatefulList[T](
 
   def unselect(): Unit =
     state.select(None)
+
+  def selected: Option[T] =
+    state.selected.map(index => items(index))
+
+  def update(index: Int, value: T): Option[Unit] =
+    if (index < 0 || index >= items.length) None
+    else
+      items.update(index, value)
+      Some(())
 }
