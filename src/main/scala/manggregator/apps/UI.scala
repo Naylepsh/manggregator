@@ -2,6 +2,7 @@ package manggregator.apps
 
 import cats._
 import cats.effect._
+import cats.effect.std.Dispatcher
 import cats.effect.unsafe.implicits.global
 import cats.implicits._
 import library.domain.asset._
@@ -13,7 +14,6 @@ import manggregator.{Entrypoints, config}
 import org.legogroup.woof.{_, given}
 import ui.core._
 import ui.views.MainMenuView
-import cats.effect.std.Dispatcher
 
 object UI:
   def run(): IO[ExitCode] =

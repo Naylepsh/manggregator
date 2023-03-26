@@ -1,22 +1,13 @@
 package ui.views.assetmanagement
-import ui.core.View
-import tui.crossterm.KeyCode
-import ui.core.ViewResult
-import tui._
-import ui.core.Context
 import cats.effect.IO
-import library.domain.asset.Asset
-import ui.core.PaginatedList
-import ui.components.KeybindsNav
-import tui.widgets.BlockWidget
-import ui.components.Pagination
-import tui.widgets.ListWidget
-import tui.widgets.ListWidget.State
-import ui.core.Exit
-import ui.core.ChangeTo
-import ui.core.Keep
 import cats.implicits._
-import library.domain.asset.UpdateAsset
+import library.domain.asset.{Asset, UpdateAsset}
+import tui._
+import tui.crossterm.KeyCode
+import tui.widgets.ListWidget.State
+import tui.widgets.{BlockWidget, ListWidget}
+import ui.components.{KeybindsNav, Pagination}
+import ui.core._
 
 class AssetsView(
     context: Context[IO],
