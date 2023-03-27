@@ -17,6 +17,7 @@ import library.persistence.Storage
 import library.services._
 import org.http4s.HttpRoutes
 import sttp.tapir.server.http4s.Http4sServerInterpreter
+import sttp.model.StatusCode
 
 object routes:
   case class Services[F[_]](
@@ -41,7 +42,10 @@ object routes:
             .create(asset.toDomain)
             .map(_.map(assetId => CreateAssetResponse(assetId.value)).left.map {
               case AssetAlreadyExists(assetName) =>
-                s"Asset with the name of $assetName already exists"
+                (
+                  StatusCode.Conflict,
+                  s"Asset with the name of $assetName already exists"
+                )
             })
         )
       )

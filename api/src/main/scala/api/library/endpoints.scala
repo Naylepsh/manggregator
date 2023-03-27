@@ -15,6 +15,7 @@ import sttp.tapir.EndpointInput.Query
 import sttp.tapir._
 import sttp.tapir.generic.auto._
 import sttp.tapir.json.circe._
+import sttp.model.StatusCode
 
 object endpoints:
   private val pathPrefix = "library"
@@ -60,11 +61,12 @@ object endpoints:
       .description("Get the assets with recently released chapters")
 
   val createAssetEndpoint
-      : PublicEndpoint[CreateAssetParam, String, CreateAssetResponse, Any] =
+      : PublicEndpoint[CreateAssetParam, (StatusCode, String),  CreateAssetResponse, Any] =
     endpoint.post
       .in(pathPrefix / "assets")
       .in(jsonBody[CreateAssetParam])
       .out(jsonBody[CreateAssetResponse])
+      .errorOut(statusCode)
       .errorOut(stringBody)
       .description("Create an asset (manga, mahwa, etc.)")
 
