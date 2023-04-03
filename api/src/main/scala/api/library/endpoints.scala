@@ -11,11 +11,11 @@ import api.utils.DateCodec.{decodeDate, encodeDate}
 import cats.implicits._
 import io.circe.generic.auto._
 import library.domain.asset.{Asset, AssetSummary}
+import sttp.model.StatusCode
 import sttp.tapir.EndpointInput.Query
 import sttp.tapir._
 import sttp.tapir.generic.auto._
 import sttp.tapir.json.circe._
-import sttp.model.StatusCode
 
 object endpoints:
   private val pathPrefix = "library"

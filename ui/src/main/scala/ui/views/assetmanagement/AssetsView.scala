@@ -8,6 +8,7 @@ import tui.widgets.ListWidget.State
 import tui.widgets.{BlockWidget, ListWidget}
 import ui.components.{KeybindsNav, Pagination}
 import ui.core._
+import ui.views.assetmanagement.addpage.AddPageView
 
 class AssetsView(
     context: Context[IO],
@@ -23,6 +24,7 @@ class AssetsView(
       "↓ down",
       "e enable",
       "d disable",
+      "p add page",
       "backspace go back",
       "q quit"
     )
@@ -44,6 +46,10 @@ class AssetsView(
     case char: tui.crossterm.KeyCode.Char if char.c() == 'e' =>
       updateAsset(_.enable())
       Keep
+    case char: tui.crossterm.KeyCode.Char if char.c() == 'p' =>
+      paginatedList.selected
+        .map(asset => ChangeTo(AddPageView(context, asset.id, this)))
+        .getOrElse(Keep)
     case _: tui.crossterm.KeyCode.Backspace =>
       previousView.map(ChangeTo.apply).getOrElse(Keep)
     case _: tui.crossterm.KeyCode.Down  => paginatedList.nextItem(); Keep

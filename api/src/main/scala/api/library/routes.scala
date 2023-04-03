@@ -16,8 +16,8 @@ import library.domain.page._
 import library.persistence.Storage
 import library.services._
 import org.http4s.HttpRoutes
-import sttp.tapir.server.http4s.Http4sServerInterpreter
 import sttp.model.StatusCode
+import sttp.tapir.server.http4s.Http4sServerInterpreter
 
 object routes:
   case class Services[F[_]](
