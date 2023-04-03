@@ -5,7 +5,6 @@ import scala.util.Try
 import api.library.codecs.given
 import api.library.params._
 import api.library.responses._
-import api.utils.routes.given
 import cats._
 import cats.data._
 import cats.effect.kernel.Async
@@ -17,6 +16,7 @@ import library.domain.page._
 import library.persistence.Storage
 import library.services._
 import org.http4s.HttpRoutes
+import sttp.model.StatusCode
 import sttp.tapir.server.http4s.Http4sServerInterpreter
 
 object routes:
@@ -27,16 +27,12 @@ object routes:
   )
 
   def all[F[_]: Async](props: Services[F]): HttpRoutes[F] =
-    NonEmptyList
-      .of(
-        createAsset,
-        createAssetPage,
-        getAssetChapters,
-        getAssetsWithRecentlyReleasedChapters
-      )
-      .sequence
-      .map(_.reduce)
-      .run(props)
+    NonEmptyChain(
+      createAsset,
+      createAssetPage,
+      getAssetChapters,
+      getAssetsWithRecentlyReleasedChapters
+    ).sequence.map(_.reduceLeft(_ <+> _)).run(props)
 
   private def createAsset[F[_]: Async]: Reader[Services[F], HttpRoutes[F]] =
     Reader { props =>
@@ -46,7 +42,10 @@ object routes:
             .create(asset.toDomain)
             .map(_.map(assetId => CreateAssetResponse(assetId.value)).left.map {
               case AssetAlreadyExists(assetName) =>
-                s"Asset with the name of $assetName already exists"
+                (
+                  StatusCode.Conflict,
+                  s"Asset with the name of $assetName already exists"
+                )
             })
         )
       )

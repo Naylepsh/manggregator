@@ -15,8 +15,8 @@ lazy val root = project
       Libraries.slf4j
     )
   )
-  .aggregate(crawler, library, api, tui)
-  .dependsOn(crawler, library, api, tui)
+  .aggregate(crawler, library, api, ui)
+  .dependsOn(crawler, library, api, ui)
 
 lazy val api = project
   .settings(
@@ -34,11 +34,13 @@ lazy val api = project
   .aggregate(crawler, library)
   .dependsOn(crawler, library)
 
-lazy val tui = project
+lazy val ui = project
   .settings(
-    name := "tui",
+    name := "ui",
+    testFrameworks ++= commonTestFrameworks,
     libraryDependencies ++= commonLibraries ++ Seq(
-      Libraries.consoleUi
+      Libraries.tui,
+      Libraries.crossterm
     )
   )
   .aggregate(crawler, library)
@@ -95,8 +97,10 @@ lazy val commonLibraries = Seq(
   Libraries.catsRetry,
   Libraries.slf4j,
   Libraries.woof,
-  Libraries.munit,
-  Libraries.munitCatsEffect,
+  Libraries.munit % Test,
+  Libraries.munitCatsEffect % Test,
+  Libraries.weaver % Test,
+  // Needed for integration tests
   Libraries.weaver
 )
 

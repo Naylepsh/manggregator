@@ -11,6 +11,7 @@ import api.utils.DateCodec.{decodeDate, encodeDate}
 import cats.implicits._
 import io.circe.generic.auto._
 import library.domain.asset.{Asset, AssetSummary}
+import sttp.model.StatusCode
 import sttp.tapir.EndpointInput.Query
 import sttp.tapir._
 import sttp.tapir.generic.auto._
@@ -60,11 +61,12 @@ object endpoints:
       .description("Get the assets with recently released chapters")
 
   val createAssetEndpoint
-      : PublicEndpoint[CreateAssetParam, String, CreateAssetResponse, Any] =
+      : PublicEndpoint[CreateAssetParam, (StatusCode, String),  CreateAssetResponse, Any] =
     endpoint.post
       .in(pathPrefix / "assets")
       .in(jsonBody[CreateAssetParam])
       .out(jsonBody[CreateAssetResponse])
+      .errorOut(statusCode)
       .errorOut(stringBody)
       .description("Create an asset (manga, mahwa, etc.)")
 

@@ -19,7 +19,7 @@ object Dependencies {
     val munit = "0.7.29"
     val munitCatsEffect = "1.0.7"
     val weaver = "0.8.1"
-    val consoleUi = "0.0.13"
+    val tui = "0.0.5"
   }
 
   object Libraries {
@@ -28,7 +28,8 @@ object Dependencies {
     val scalaScraper = "net.ruippeixotog" %% "scala-scraper" % V.scalaScraper
     val scalaTime = "com.github.nscala-time" %% "nscala-time" % V.scalaTime
     val ciris = "is.cir" %% "ciris" % V.ciris
-    val consoleUi = "de.codeshelf.consoleui" % "consoleui" % V.consoleUi
+    val tui = "com.olvind.tui" %% "tui" % V.tui
+    val crossterm = "com.olvind.tui" % "crossterm" % V.tui
 
     val circe = "io.circe" %% "circe-core" % V.circe
     val circeGeneric = "io.circe" %% "circe-generic" % V.circe
@@ -59,9 +60,9 @@ object Dependencies {
     val doobieHikari = "org.tpolecat" %% "doobie-hikari" % V.doobie
     val sqliteJDB = "org.xerial" % "sqlite-jdbc" % V.sqliteJDB
 
-    val munit = "org.scalameta" %% "munit" % V.munit % Test
+    val munit = "org.scalameta" %% "munit" % V.munit
     val munitCatsEffect =
-      "org.typelevel" %% "munit-cats-effect-3" % V.munitCatsEffect % Test
+      "org.typelevel" %% "munit-cats-effect-3" % V.munitCatsEffect
     val weaver = "com.disneystreaming" %% "weaver-cats" % V.weaver
   }
 }

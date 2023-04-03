@@ -5,6 +5,7 @@ import java.util.{Date, UUID}
 import scala.util.Try
 
 import core.Newtype
+
 import OrphanInstances.given
 
 object chapter:

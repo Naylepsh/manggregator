@@ -1,7 +1,8 @@
 package library.domain
 
-import cats.kernel.Order
 import java.util.Date
+
+import cats.kernel.Order
 
 object OrphanInstances:
   given Order[Date] = Order.by(_.getTime())
