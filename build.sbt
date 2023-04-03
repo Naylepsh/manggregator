@@ -15,8 +15,8 @@ lazy val root = project
       Libraries.slf4j
     )
   )
-  .aggregate(crawler, library, api, tui, ui)
-  .dependsOn(crawler, library, api, tui, ui)
+  .aggregate(crawler, library, api, ui)
+  .dependsOn(crawler, library, api, ui)
 
 lazy val api = project
   .settings(
@@ -41,16 +41,6 @@ lazy val ui = project
     libraryDependencies ++= commonLibraries ++ Seq(
       Libraries.tui,
       Libraries.crossterm
-    )
-  )
-  .aggregate(crawler, library)
-  .dependsOn(crawler, library)
-
-lazy val tui = project
-  .settings(
-    name := "tui",
-    libraryDependencies ++= commonLibraries ++ Seq(
-      Libraries.consoleUi
     )
   )
   .aggregate(crawler, library)
