@@ -8,17 +8,20 @@ import library.domain.asset._
 import library.domain.page._
 import library.persistence._
 import library.resources.database._
-import manggregator.{Entrypoints, config}
+import manggregator.{Entrypoints, config, entrypoints}
 import org.legogroup.woof.{_, given}
 
 object Server:
+  given Filter = Filter.everything
+  given Printer = NoColorPrinter()
+
   def run(): IO[ExitCode] =
     config.load[IO].flatMap { cfg =>
       makeTransactorResource[IO](cfg.database)
         .evalTap(checkSQLiteConnection)
         .use { xa =>
           for
-            given Logger[IO] <- Entrypoints.logger()
+            given Logger[IO] <- DefaultLogger.makeIo(entrypoints.Logging.file())
             storage = Entrypoints.storage(xa)
             library = Entrypoints.library(storage)
             crawling = Entrypoints.crawler()

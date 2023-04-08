@@ -10,12 +10,15 @@ import library.domain.chapter.DateReleased
 import library.domain.page._
 import library.persistence._
 import library.resources.database._
-import manggregator.{Entrypoints, config}
+import manggregator.{Entrypoints, config, entrypoints}
 import org.legogroup.woof.{_, given}
 import ui.core._
 import ui.views.MainMenuView
 
 object UI:
+  given Filter = Filter.everything
+  given Printer = NoColorPrinter()
+
   def run(): IO[ExitCode] =
     config.load[IO].flatMap { cfg =>
       val transactorResource = makeTransactorResource[IO](cfg.database)
@@ -25,7 +28,7 @@ object UI:
       (transactorResource, dispatcherResource).tupled.use {
         case (xa, dispatcher) =>
           for
-            given Logger[IO] <- Entrypoints.disabledLogger()
+            given Logger[IO] <- DefaultLogger.makeIo(entrypoints.Logging.file())
             storage = Entrypoints.storage(xa)
             libraryServices = Entrypoints.libraryServices(storage)
             library = Entrypoints.library(storage)
