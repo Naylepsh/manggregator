@@ -23,3 +23,12 @@ Terminal UI giving the access to all functionalities.
 API giving the access to ~~all~~ most of the functionalities. Docs will be displayed at `http://localhost:8080/docs/`
 
 - `server`
+
+### Migrations
+
+Migration are run with the usage of [dbmate](https://github.com/amacneil/dbmate).
+
+Some key commands:
+
+- `dbmate up`
+- `dbmate down`

@@ -32,7 +32,8 @@ metals.sbt
 /.worksheet/
 
 # dev
-.env
+.env*
+!.env.example
 *.sqlite
 
 # logs
