@@ -1,17 +1,17 @@
 package api.crawler
 
-import cats._
-import cats.effect._
-import cats.effect.implicits._
-import cats.implicits._
-import cats.syntax.all._
+import cats.*
+import cats.effect.*
+import cats.effect.implicits.*
+import cats.implicits.*
+import cats.syntax.all.*
 import crawler.domain.Library
 import crawler.services.Crawler
 import org.http4s.HttpRoutes
-import org.http4s.dsl.io._
-import org.http4s.implicits._
+import org.http4s.dsl.io.*
+import org.http4s.implicits.*
 import org.http4s.server.Router
-import sttp.tapir._
+import sttp.tapir.*
 import sttp.tapir.server.http4s.Http4sServerInterpreter
 import sttp.tapir.swagger.bundle.SwaggerInterpreter
 

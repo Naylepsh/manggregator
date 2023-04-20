@@ -2,19 +2,19 @@ package ui.views.assetmanagement.addpage
 
 import cats.effect.IO
 import library.domain.page.Site
-import tui._
+import tui.*
 import tui.crossterm.KeyCode
 import tui.widgets.ListWidget.State
-import tui.widgets.{BlockWidget, ListWidget}
-import ui.components.{KeybindsNav, Pagination}
-import ui.core._
+import tui.widgets.{ BlockWidget, ListWidget }
+import ui.components.{ KeybindsNav, Pagination }
+import ui.core.*
 
 class ChooseSiteView(
     context: Context[IO],
     nextView: Site => View,
     previousView: Option[View]
 ) extends View:
-  import ChooseSiteView._
+  import ChooseSiteView.*
 
   private val paginatedList = PaginatedList(sites)
 

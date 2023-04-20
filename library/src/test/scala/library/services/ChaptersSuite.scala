@@ -1,19 +1,20 @@
 package library.services
 
-import library.domain.chapter._
-import library.domain.asset._
-import library.persistence
-import common._
-import cats._
-import cats.data.NonEmptyList
-import cats.implicits._
-import cats.effect._
-import java.util.UUID
-import java.util.Date
 import java.time.Instant
+import java.util.{Date, UUID}
+
+import cats.*
+import cats.data.NonEmptyList
+import cats.effect.*
+import cats.implicits.*
+import library.domain.asset.*
+import library.domain.chapter.*
+import library.persistence
+
+import common.*
 
 class ChaptersSuite extends munit.FunSuite:
-  import ChaptersSuite._
+  import ChaptersSuite.*
 
   test("Cant create the same chapter twice") {
     val newChapters = (1 to 3)
@@ -33,9 +34,10 @@ class ChaptersSuite extends munit.FunSuite:
     Chapters
       .make(dataChapters(List(sampleChapter)))
       .create(chapters)
-      .map { case CreateChaptersResult(created, alreadyExist) =>
-        assertEquals(created.length, newChapters.length)
-        assertEquals(alreadyExist.length, 1)
+      .map {
+        case CreateChaptersResult(created, alreadyExist) =>
+          assertEquals(created.length, newChapters.length)
+          assertEquals(alreadyExist.length, 1)
       }
   }
 

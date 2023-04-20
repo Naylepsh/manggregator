@@ -1,19 +1,19 @@
 package crawler.services
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.language.postfixOps
 
-import cats._
-import cats.effect._
+import cats.*
+import cats.effect.*
 import cats.effect.std.Queue
-import cats.implicits._
-import crawler.domain.Crawl.CrawlJob._
-import crawler.domain.Crawl.CrawlResult._
-import crawler.domain.Crawl._
-import crawler.domain.{SiteCrawler, _}
+import cats.implicits.*
+import crawler.domain.Crawl.CrawlJob.*
+import crawler.domain.Crawl.CrawlResult.*
+import crawler.domain.Crawl.*
+import crawler.domain.{ SiteCrawler, * }
 import crawler.services.site_crawlers.MangakakalotCrawler
 import org.legogroup.woof.Logger.withLogContext
-import org.legogroup.woof.{_, given}
+import org.legogroup.woof.{ *, given }
 
 trait CrawlHandler[F[_]]:
   def crawl(): F[Unit]
@@ -23,12 +23,12 @@ object CrawlHandler:
       crawlQueue: Queue[F, SiteCrawlJob],
       resultQueue: Queue[F, Result],
       siteCrawlersMappings: Map[String, SiteCrawler[F]]
-  ): CrawlHandler[F] = new CrawlHandler[F] {
+  ): CrawlHandler[F] = new CrawlHandler[F]:
     override def crawl(): F[Unit] =
       for
-        _ <- Logger[F].debug(s"Trying to pick up a job")
+        _            <- Logger[F].debug(s"Trying to pick up a job")
         potentialJob <- crawlQueue.tryTake
-        _ <- potentialJob.map(handleJob(_) *> crawl()).getOrElse(Monad[F].unit)
+        _            <- potentialJob.map(handleJob(_) *> crawl()).getOrElse(Monad[F].unit)
       yield ()
 
     private def handleJob(job: SiteCrawlJob): F[Unit] =
@@ -57,7 +57,6 @@ object CrawlHandler:
                 .map(_.map(TitlesResult(_)).leftMap(_.toString))
         )
         .map(_.flatten)
-  }
 
   def makeCluster[F[_]: Monad: Logger: Parallel](
       crawlQueue: Queue[F, SiteCrawlJob],
@@ -71,6 +70,7 @@ object CrawlHandler:
       .toList
 
     override def crawl(): F[Unit] =
-      crawlers.parTraverse { case (id, crawler) =>
-        crawler.crawl().withLogContext("crawler-id", id.toString)
+      crawlers.parTraverse {
+        case (id, crawler) =>
+          crawler.crawl().withLogContext("crawler-id", id.toString)
       }.void

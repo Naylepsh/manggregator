@@ -4,7 +4,7 @@ import java.net.URI
 
 import scala.util.Try
 
-import sttp.tapir._
+import sttp.tapir.*
 
 object schemas:
   given Schema[URI] =

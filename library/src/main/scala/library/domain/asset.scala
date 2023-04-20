@@ -63,10 +63,8 @@ object asset:
         acc.addOne(chapter.assetId -> (chapter :: otherChapters))
       }
 
-      assets.map { asset =>
-        AssetSummary(asset, acc.getOrElse(asset.id, List()))
-      }
+      assets.map { asset => AssetSummary(asset, acc.getOrElse(asset.id, List())) }
 
   // --- Errors ---
   case class AssetAlreadyExists(assetName: AssetName) extends NoStackTrace
-  case class AssetDoesNotExist(assetName: AssetName) extends NoStackTrace
+  case class AssetDoesNotExist(assetName: AssetName)  extends NoStackTrace

@@ -3,9 +3,10 @@ package core
 import cats.kernel.Order
 
 abstract class Newtype[A](using ord: Order[A]):
-  /** Shamelessly copy-pasted from:
-    * https://github.com/gvolpe/trading/blob/main/modules/domain/shared/src/main/scala/trading/Newtype.scala
-    */
+  /**
+   * Shamelessly copy-pasted from:
+   * https://github.com/gvolpe/trading/blob/main/modules/domain/shared/src/main/scala/trading/Newtype.scala
+   */
   opaque type Type = A
 
   inline def apply(a: A): Type = a

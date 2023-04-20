@@ -3,9 +3,9 @@ package api.library
 import java.net.URI
 import java.util.UUID
 
-import library.domain.alias._
-import library.domain.asset._
-import library.domain.page._
+import library.domain.alias.*
+import library.domain.asset.*
+import library.domain.page.*
 
 object params:
 

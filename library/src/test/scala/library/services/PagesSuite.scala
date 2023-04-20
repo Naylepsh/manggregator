@@ -1,16 +1,18 @@
 package library.services
 
-import cats._
-import cats.implicits._
-import cats.effect.IO
-import library.persistence
-import library.domain.page._
-import library.domain.asset._
 import java.util.UUID
-import common._
+
+import cats.*
+import cats.effect.IO
+import cats.implicits.*
+import library.domain.asset.*
+import library.domain.page.*
+import library.persistence
+
+import common.*
 
 class PagesSuite extends munit.FunSuite:
-  import PagesSuite._
+  import PagesSuite.*
 
   test("Cant create the same page twice") {
     val page = CreateChaptersPage(

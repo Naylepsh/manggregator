@@ -3,7 +3,7 @@ package ui.core
 import cats.effect.std.Dispatcher
 import crawler.domain.Library
 import crawler.services.Crawler
-import library.services.{Assets, Chapters, Pages}
+import library.services.{ Assets, Chapters, Pages }
 
 case class Context[F[_]](
     theme: Theme,

@@ -1,9 +1,8 @@
 package ui.suite
 
-import weaver.SimpleIOSuite
-import weaver.Expectations
+import cats.implicits.*
 import cats.kernel.Monoid
-import cats.implicits._
+import weaver.{Expectations, SimpleIOSuite}
 
 abstract class ParametrizedSuite extends SimpleIOSuite:
   def parametrizedTest[A](

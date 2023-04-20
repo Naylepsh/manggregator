@@ -1,16 +1,16 @@
 package library.persistence
 
-import weaver._
-import cats.implicits._
-import cats.effect._
-import cats.effect.implicits._
-import doobie.implicits._
+import weaver.*
+import cats.implicits.*
+import cats.effect.*
+import cats.effect.implicits.*
+import doobie.implicits.*
 import doobie.hikari.HikariTransactor
 import java.text.SimpleDateFormat
-import library.resources.database._
-import library.config.types._
-import library.domain.asset._
-import library.domain.page._
+import library.resources.database.*
+import library.config.types.*
+import library.domain.asset.*
+import library.domain.page.*
 import library.suite.DatabaseSuite
 
 object PagesSuite extends DatabaseSuite:
@@ -37,8 +37,8 @@ object PagesSuite extends DatabaseSuite:
       }
       assetIdsSubset = assetIds.tail
       pagesBefore <- pagesRepository.findByAssetIds(assetIdsSubset)
-      pagesIds <- pages.traverse(pagesRepository.create)
-      pagesAfter <- pagesRepository.findByAssetIds(assetIdsSubset)
+      pagesIds    <- pages.traverse(pagesRepository.create)
+      pagesAfter  <- pagesRepository.findByAssetIds(assetIdsSubset)
     yield expect.all(
       assetIds.length == assets.length,
       pagesBefore.length == 0,

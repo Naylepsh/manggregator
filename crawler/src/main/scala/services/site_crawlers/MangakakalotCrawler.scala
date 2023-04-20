@@ -1,30 +1,31 @@
 package crawler.services.site_crawlers
 
-import java.util.{Date, UUID}
+import java.util.{ Date, UUID }
 
 import scala.util.Try
 import scala.util.matching.Regex
 
-import cats.effect._
-import cats.implicits._
-import com.github.nscala_time.time.Imports._
+import cats.effect.*
+import cats.implicits.*
+import com.github.nscala_time.time.Imports.*
 import core.Url
-import crawler.domain.Asset._
-import crawler.domain.Crawl.CrawlJob._
+import crawler.domain.Asset.*
+import crawler.domain.Crawl.CrawlJob.*
 import crawler.domain.SiteCrawler
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser
-import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
-import net.ruippeixotog.scalascraper.dsl.DSL.Parse._
-import net.ruippeixotog.scalascraper.dsl.DSL._
+import net.ruippeixotog.scalascraper.dsl.DSL.Extract.*
+import net.ruippeixotog.scalascraper.dsl.DSL.Parse.*
+import net.ruippeixotog.scalascraper.dsl.DSL.*
 import org.joda.time.DateTime
-import retry.RetryPolicies._
-import retry._
+import retry.RetryPolicies.*
+import retry.*
 
 object MangakakalotCrawler extends SiteCrawler[IO]:
-  /** Crawler for the following family of sites:
-    *   - mangakakalot.com
-    *   - readmangato.com
-    */
+  /**
+   * Crawler for the following family of sites:
+   *   - mangakakalot.com
+   *   - readmangato.com
+   */
 
   def parseTitles(content: String): List[AssetSource] = ???
   def discoverTitles(
@@ -35,7 +36,7 @@ object MangakakalotCrawler extends SiteCrawler[IO]:
   def scrapeChapters(
       job: ScrapeChaptersCrawlJob
   ): IO[Either[Throwable, List[Chapter]]] =
-    Selectors.inferSelectors(job.url) match {
+    Selectors.inferSelectors(job.url) match
       case None =>
         IO(Left(RuntimeException(s"${job.url} has no registered selectors")))
 
@@ -43,7 +44,6 @@ object MangakakalotCrawler extends SiteCrawler[IO]:
         getHtml(job.url).map(
           _.flatMap(parseChapters(job.url, job.assetId, selectors))
         )
-    }
 
   def parseChapters(url: Url, id: UUID, selectors: Selectors)(
       content: String
@@ -51,17 +51,17 @@ object MangakakalotCrawler extends SiteCrawler[IO]:
     Try {
       (browser.parseString(content) >> elementList(selectors.chapterList))
         .flatMap { chapterElement =>
-          for {
+          for
             nameElement <- chapterElement >?> element(selectors.chapterName)
             name = nameElement.text
             chapterRawUrl <- nameElement >?> attr("href")
-            chapterUrl <- Url.valid(chapterRawUrl).toOption
-            no <- parseChapterNoFromName(name)
+            chapterUrl    <- Url.valid(chapterRawUrl).toOption
+            no            <- parseChapterNoFromName(name)
             timeUploaded <- chapterElement >?> allText(
               selectors.timeUploaded
             )
             dateReleased <- parseDateReleasedFromTimeUploaded(timeUploaded)
-          } yield Chapter(
+          yield Chapter(
             assetId = id,
             no = no,
             url = chapterUrl,
@@ -71,14 +71,16 @@ object MangakakalotCrawler extends SiteCrawler[IO]:
     }.toEither
 
   private def getHtml(url: Url): IO[Either[Throwable, String]] =
-    /** The import has to stay here instead of being at the top level, due to
-      * ambiguity of DurationInt and nscala_time implicits
-      */
+    /**
+     * The import has to stay here instead of being at the top level, due to
+     * ambiguity of DurationInt and nscala_time implicits
+     */
     import concurrent.duration.DurationInt
 
-    /** Ideally retryingOnSomeErrors would be used, but figuring out what's a
-      * reasonable error from JsoupBrowser is a bother...
-      */
+    /**
+     * Ideally retryingOnSomeErrors would be used, but figuring out what's a
+     * reasonable error from JsoupBrowser is a bother...
+     */
     retryingOnAllErrors(
       policy =
         limitRetries[IO](5) join exponentialBackoff[IO](100.milliseconds),
@@ -92,20 +94,19 @@ object MangakakalotCrawler extends SiteCrawler[IO]:
 
   private val chapterNoPattern = ".*Chapter ([0-9]+[.]?[0-9]?).*".r
   def parseChapterNoFromName(chapterName: String): Option[String] =
-    chapterName match {
+    chapterName match
       case chapterNoPattern(no) => Some(no)
       case _                    => None
-    }
 
   private val minutesAgoPattern = ".*([0-9]+) mins ago.*".r
-  private val hoursAgoPattern = ".*([0-9]+) hour ago.*".r
-  private val daysAgoPattern = ".*([0-9]+) day ago.*".r
+  private val hoursAgoPattern   = ".*([0-9]+) hour ago.*".r
+  private val daysAgoPattern    = ".*([0-9]+) day ago.*".r
   private val mangakakalotDatePattern =
     ".*([A-Za-z]{3})-([0-9]{2})-([0-9]{2}).*".r
   private val manganatoDatePattern =
     ".*([A-Za-z]{3}) ([0-9]{2}),([0-9]{2}).*".r
   def parseDateReleasedFromTimeUploaded(timeUploaded: String): Option[Date] =
-    timeUploaded match {
+    timeUploaded match
       case minutesAgoPattern(minutes) =>
         Some((DateTime.now() - minutes.toInt.minutes).date)
 
@@ -122,18 +123,17 @@ object MangakakalotCrawler extends SiteCrawler[IO]:
         composeDate(year, month, day)
 
       case _ => None
-    }
 
   private def composeDate(
       year: String,
       month: String,
       day: String
   ): Option[Date] =
-    for {
+    for
       m <- monthWordToNumeric(month)
       d <- day.toIntOption
       y <- year.toIntOption.map(_ + 2000)
-    } yield (new DateTime())
+    yield (new DateTime())
       .withYear(y)
       .withMonthOfYear(m)
       .withDayOfMonth(d)
@@ -153,10 +153,9 @@ object MangakakalotCrawler extends SiteCrawler[IO]:
       "oct",
       "nov",
       "dec"
-    ).indexOf(monthWord.toLowerCase) match {
+    ).indexOf(monthWord.toLowerCase) match
       case -1 => None
       case i  => Some(i + 1)
-    }
 
   private val browser = JsoupBrowser()
 
@@ -178,9 +177,8 @@ object MangakakalotCrawler extends SiteCrawler[IO]:
     )
 
     private val mangakakalotUrlPattern = ".*mangakakalot.*".r
-    private val manganatoUrlPattern = ".*manganato.*".r
-    def inferSelectors(url: Url): Option[Selectors] = url.value match {
+    private val manganatoUrlPattern    = ".*manganato.*".r
+    def inferSelectors(url: Url): Option[Selectors] = url.value match
       case mangakakalotUrlPattern() => Some(mangakakalotSelectors)
       case manganatoUrlPattern()    => Some(manganatoSelectors)
       case _                        => None
-    }

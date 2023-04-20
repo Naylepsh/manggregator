@@ -1,6 +1,6 @@
 package library.domain
 
-import java.util.{Date, UUID}
+import java.util.{ Date, UUID }
 
 import scala.util.Try
 
@@ -9,7 +9,7 @@ import core.Newtype
 import OrphanInstances.given
 
 object chapter:
-  import library.domain.asset._
+  import library.domain.asset.*
 
   type ChapterId = ChapterId.Type
   object ChapterId extends Newtype[UUID]:

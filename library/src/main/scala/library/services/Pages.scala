@@ -1,10 +1,10 @@
 package library.services
 
-import cats._
-import cats.data._
-import cats.implicits._
+import cats.*
+import cats.data.*
+import cats.implicits.*
 import library.domain.asset.AssetId
-import library.domain.page._
+import library.domain.page.*
 import library.persistence.Storage
 
 trait Pages[F[_]]:
@@ -25,9 +25,10 @@ object Pages:
       }
 
     def findPagesOfEnabledAssets(): F[List[ChaptersPageToCheck]] =
-      for {
+      for
         assets <- storage.assets.findEnabledAssets()
-        pages <- storage.pages.findByAssetIds(assets.map(_.id))
-      } yield pages.map { case ChaptersPage(_, assetId, site, url) =>
-        ChaptersPageToCheck(site, url, assetId)
+        pages  <- storage.pages.findByAssetIds(assets.map(_.id))
+      yield pages.map {
+        case ChaptersPage(_, assetId, site, url) =>
+          ChaptersPageToCheck(site, url, assetId)
       }

@@ -1,7 +1,7 @@
 package manggregator
 
-import cats._
-import cats.effect._
+import cats.*
+import cats.effect.*
 
 object Main extends IOApp:
   def run(args: List[String]): IO[ExitCode] =

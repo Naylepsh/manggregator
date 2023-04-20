@@ -1,8 +1,8 @@
 package api.library
 
-import java.util.{Date, UUID}
+import java.util.{ Date, UUID }
 
-import io.circe._
+import io.circe.*
 import library.domain.asset.AssetSummary
 
 object responses:

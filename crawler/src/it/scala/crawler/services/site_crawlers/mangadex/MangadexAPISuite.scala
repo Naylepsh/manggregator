@@ -1,14 +1,14 @@
 package crawler.services.site_crawlers.mangadex
 
-import weaver._
+import weaver.*
 import sttp.client3.SttpBackend
 import sttp.capabilities.WebSockets
 import cats.effect.IO
 import cats.effect.kernel.Resource
 import crawler.resources.httpclient
-import cats._
-import cats.implicits._
-import cats.syntax.all._
+import cats.*
+import cats.implicits.*
+import cats.syntax.all.*
 
 object MangadexAPISuite extends IOSuite:
 

@@ -1,12 +1,12 @@
 package library.suite
 
-import cats.effect._
-import cats.implicits._
-import doobie.implicits._
-import weaver.{Expectations, IOSuite}
+import cats.effect.*
+import cats.implicits.*
+import doobie.implicits.*
+import weaver.{ Expectations, IOSuite }
 import doobie.hikari.HikariTransactor
-import library.resources.database._
-import library.config.types._
+import library.resources.database.*
+import library.config.types.*
 import doobie.util.fragment.Fragment
 
 abstract class DatabaseSuite extends ResourceSuite:

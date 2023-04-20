@@ -1,12 +1,12 @@
 package ui.views.assetmanagement
 
 import cats.effect.IO
-import library.domain.asset._
-import tui._
+import library.domain.asset.*
+import tui.*
 import tui.crossterm.KeyCode
 import tui.widgets.BlockWidget
 import ui.components.KeybindsNav
-import ui.core._
+import ui.core.*
 import ui.views.common.InputView
 
 class CreateAssetView(
@@ -14,7 +14,7 @@ class CreateAssetView(
     previousView: Option[View],
     next: View
 ) extends View:
-  import CreateAssetView._
+  import CreateAssetView.*
 
   val inputView =
     InputView(validateTitle, "Asset title", createAsset, previousView)
@@ -83,5 +83,5 @@ private class PostCreationAssetView(
   override def handleInput(key: KeyCode): ViewResult =
     key match
       case char: tui.crossterm.KeyCode.Char if char.c() == 'q' => Exit
-      case _: tui.crossterm.KeyCode.Enter => ChangeTo(postConfirmationView)
-      case _                              => Keep
+      case _: tui.crossterm.KeyCode.Enter                      => ChangeTo(postConfirmationView)
+      case _                                                   => Keep

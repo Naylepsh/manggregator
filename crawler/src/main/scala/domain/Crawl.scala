@@ -6,7 +6,7 @@ import scala.util.control.NoStackTrace
 
 import core.Url
 
-import Asset._
+import Asset.*
 
 object Crawl:
   sealed trait CrawlJob:
@@ -22,7 +22,7 @@ object Crawl:
 
   object CrawlResult:
     sealed trait SuccessfulResult
-    case class ChapterResult(chapters: List[Chapter]) extends SuccessfulResult
+    case class ChapterResult(chapters: List[Chapter])  extends SuccessfulResult
     case class TitlesResult(titles: List[AssetSource]) extends SuccessfulResult
 
     case class CrawlError(url: Url, reason: String) extends NoStackTrace

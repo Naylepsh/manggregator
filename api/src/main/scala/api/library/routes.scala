@@ -3,18 +3,18 @@ package api.library
 import scala.util.Try
 
 import api.library.codecs.given
-import api.library.params._
-import api.library.responses._
-import cats._
-import cats.data._
+import api.library.params.*
+import api.library.responses.*
+import cats.*
+import cats.data.*
 import cats.effect.kernel.Async
-import cats.implicits._
-import cats.syntax._
-import library.domain.asset._
+import cats.implicits.*
+import cats.syntax.*
+import library.domain.asset.*
 import library.domain.chapter.DateReleased
-import library.domain.page._
+import library.domain.page.*
 import library.persistence.Storage
-import library.services._
+import library.services.*
 import org.http4s.HttpRoutes
 import sttp.model.StatusCode
 import sttp.tapir.server.http4s.Http4sServerInterpreter
@@ -59,16 +59,16 @@ object routes:
             .create(page.toDomain(assetId))
             .map(
               _.map(pageId => CreateChaptersPageResponse(pageId.value)).left
-                .map { case PageAlreadyExists(url) =>
-                  s"Page with the url of $url already exists"
+                .map {
+                  case PageAlreadyExists(url) =>
+                    s"Page with the url of $url already exists"
                 }
             )
         )
       )
     }
 
-  private def getAssetChapters[F[_]: Async]
-      : Reader[Services[F], HttpRoutes[F]] =
+  private def getAssetChapters[F[_]: Async]: Reader[Services[F], HttpRoutes[F]] =
     Reader { props =>
       Http4sServerInterpreter[F]().toRoutes(
         endpoints.getAssetsChaptersEndpoint.serverLogic((ids) =>
@@ -79,8 +79,7 @@ object routes:
       )
     }
 
-  private def getAssetsWithRecentlyReleasedChapters[F[_]: Async]
-      : Reader[Services[F], HttpRoutes[F]] =
+  private def getAssetsWithRecentlyReleasedChapters[F[_]: Async]: Reader[Services[F], HttpRoutes[F]] =
     Reader { props =>
       Http4sServerInterpreter[F]().toRoutes(
         endpoints.getAssetsWithRecentChapterReleasesEndpoint

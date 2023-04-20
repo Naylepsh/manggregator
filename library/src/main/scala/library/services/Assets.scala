@@ -1,10 +1,10 @@
 package library.services
 
-import cats._
-import cats.data._
-import cats.implicits._
-import library.domain.alias._
-import library.domain.asset._
+import cats.*
+import cats.data.*
+import cats.implicits.*
+import library.domain.alias.*
+import library.domain.asset.*
 import library.domain.chapter.DateReleased
 import library.persistence.Storage
 
@@ -40,7 +40,7 @@ object Assets:
     ): F[List[AssetSummary]] =
       for
         assets <-
-          if (assetIds.isEmpty) storage.assets.findAll()
+          if assetIds.isEmpty then storage.assets.findAll()
           else storage.assets.findManyByIds(assetIds)
         chapters <- storage.chapters.findByAssetIds(assets.map(_.id))
       yield AssetSummary(assets, chapters)
@@ -50,5 +50,5 @@ object Assets:
     ): F[List[AssetSummary]] =
       for
         chapters <- storage.chapters.findRecentReleases(minDate)
-        assets <- storage.assets.findManyByIds(chapters.map(_.assetId))
+        assets   <- storage.assets.findManyByIds(chapters.map(_.assetId))
       yield AssetSummary(assets, chapters)

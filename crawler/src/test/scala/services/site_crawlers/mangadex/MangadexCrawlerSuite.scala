@@ -1,19 +1,16 @@
 package crawler.services.site_crawlers.mangadex
 
+import java.util.UUID
+
 import cats.Id
-import crawler.services.site_crawlers.mangadex.entities.{
-  Chapter,
-  ChapterMetadata,
-  GetMangaResponse
-}
-import cats.implicits._
+import cats.implicits.*
 import core.Url
 import crawler.domain.Crawl.CrawlJob.ScrapeChaptersCrawlJob
-import java.util.UUID
+import crawler.services.site_crawlers.mangadex.entities.{ Chapter, ChapterMetadata, GetMangaResponse }
 
 object MangadexCrawlerSuite extends weaver.FunSuite:
   test("Chapter scraping: Chapter uses external url if available") {
-    val api = testApi(customGetMangaResponse(externalUrl.some).pure)
+    val api     = testApi(customGetMangaResponse(externalUrl.some).pure)
     val crawler = new MangadexCrawler[Id](api)
 
     val result = crawler.scrapeChapters(job)
@@ -27,7 +24,7 @@ object MangadexCrawlerSuite extends weaver.FunSuite:
   test(
     "Chapter scraping: Chapter defaults to mangadex url if no external url is available"
   ) {
-    val api = testApi(customGetMangaResponse(noExternalUrl).pure)
+    val api     = testApi(customGetMangaResponse(noExternalUrl).pure)
     val crawler = new MangadexCrawler[Id](api)
 
     val result = crawler.scrapeChapters(job)
@@ -39,7 +36,7 @@ object MangadexCrawlerSuite extends weaver.FunSuite:
   }
 
   test("Chapter scraping: Fails if cannot extract id from job url") {
-    val api = testApi(customGetMangaResponse(noExternalUrl).pure)
+    val api     = testApi(customGetMangaResponse(noExternalUrl).pure)
     val crawler = new MangadexCrawler[Id](api)
 
     val result = crawler.scrapeChapters(jobWithInvalidUrl)
@@ -48,7 +45,7 @@ object MangadexCrawlerSuite extends weaver.FunSuite:
   }
 
   test("Chapter scraping: Fails if cannot extract chapter url") {
-    val api = testApi(customGetMangaResponse(invalidExternalUrl.some).pure)
+    val api     = testApi(customGetMangaResponse(invalidExternalUrl.some).pure)
     val crawler = new MangadexCrawler[Id](api)
 
     val result = crawler.scrapeChapters(job)
@@ -66,9 +63,9 @@ object MangadexCrawlerSuite extends weaver.FunSuite:
     expect(result.isLeft)
   }
 
-  private val externalUrl = "https://foo.bar/baz"
-  private val invalidExternalUrl = "not-a-valid-url"
-  private val noExternalUrl = None
+  private val externalUrl         = "https://foo.bar/baz"
+  private val invalidExternalUrl  = "not-a-valid-url"
+  private val noExternalUrl       = None
   private val dateInInvalidFormat = "20:40:00 14-01-2023"
   private val job = ScrapeChaptersCrawlJob(
     assetId = UUID.fromString("0aed43c4-9be6-4d86-b418-dd0844d5a28a"),

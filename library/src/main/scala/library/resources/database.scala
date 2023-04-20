@@ -1,12 +1,12 @@
 package library.resources
 
-import cats._
-import cats.effect._
-import cats.implicits._
-import doobie._
+import cats.*
+import cats.effect.*
+import cats.implicits.*
+import doobie.*
 import doobie.hikari.HikariTransactor
-import doobie.implicits._
-import library.config.types._
+import doobie.implicits.*
+import library.config.types.*
 
 object database:
   def makeTransactorResource[F[_]: Async](

@@ -1,28 +1,28 @@
 package services
 
-import munit.CatsEffectSuite
-import crawler.domain.Asset._
-import crawler.domain.Crawl.CrawlJob._
-import crawler.domain.Crawl.SiteCrawlJob
-import crawler.domain.Crawl.CrawlResult
-import crawler.domain.SiteCrawler
-import cats._
-import cats.effect._
-import cats.effect.std._
-import cats.implicits._
 import java.util.Date
 import java.util.UUID.randomUUID
-import org.legogroup.woof.{*, given}
-import crawler.services.CrawlHandler
+
+import cats.*
+import cats.effect.*
+import cats.effect.std.*
+import cats.implicits.*
 import core.Url
+import crawler.domain.Asset.*
+import crawler.domain.Crawl.CrawlJob.*
+import crawler.domain.Crawl.{CrawlResult, SiteCrawlJob}
+import crawler.domain.SiteCrawler
+import crawler.services.CrawlHandler
+import munit.CatsEffectSuite
+import org.legogroup.woof.{ *, given }
 
 class CrawlHandlerSuite extends CatsEffectSuite:
-  import CrawlHandlerSuite.{*, given}
+  import CrawlHandlerSuite.{ *, given }
 
   test("crawler processes all the jobs from queue") {
     val mapping: Map[String, SiteCrawler[IO]] =
       Map(
-        testCrawlerLabel -> testCrawler,
+        testCrawlerLabel        -> testCrawler,
         testFailingCrawlerLabel -> testFailingCrawler
       )
     val jobs = List(
@@ -45,11 +45,11 @@ class CrawlHandlerSuite extends CatsEffectSuite:
 
     for
       given Logger[IO] <- DefaultLogger.makeIo(noOutput)
-      resultsQueue <- Queue.bounded[IO, CrawlResult.Result](capacity = 10)
-      crawlQueue <- Queue.bounded[IO, SiteCrawlJob](capacity = 10)
+      resultsQueue     <- Queue.bounded[IO, CrawlResult.Result](capacity = 10)
+      crawlQueue       <- Queue.bounded[IO, SiteCrawlJob](capacity = 10)
       crawler = CrawlHandler.make[IO](crawlQueue, resultsQueue, mapping)
-      _ <- jobs.traverse(crawlQueue.offer)
-      _ <- crawler.crawl()
+      _                     <- jobs.traverse(crawlQueue.offer)
+      _                     <- crawler.crawl()
       resultsOnResultsQueue <- resultsQueue.size
     yield assertEquals(resultsOnResultsQueue, jobs.length)
   }
@@ -105,9 +105,9 @@ object CrawlHandlerSuite:
     ): IO[Either[Throwable, List[Chapter]]] =
       new RuntimeException("Failed for reasons").asLeft.pure
 
-  given Filter = Filter.everything
+  given Filter  = Filter.everything
   given Printer = NoColorPrinter()
 
   def noOutput[F[_]: Applicative]: Output[F] = new Output[F]:
-    def output(str: String) = ().pure
+    def output(str: String)      = ().pure
     def outputError(str: String) = output(str)

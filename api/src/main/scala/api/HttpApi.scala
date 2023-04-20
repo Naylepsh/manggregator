@@ -4,15 +4,15 @@ import _root_.crawler.domain.Library
 import _root_.crawler.services.Crawler
 import _root_.library.persistence.Storage
 import api.config.Docs
-import api.crawler.{CrawlerApi, routes => CrawlerRoutes}
-import api.library.{LibraryApi, routes => LibraryRoutes}
-import cats._
-import cats.data._
-import cats.effect._
-import cats.effect.implicits._
-import cats.syntax.all._
-import org.http4s._
-import org.legogroup.woof.{_, given}
+import api.crawler.{ CrawlerApi, routes as CrawlerRoutes }
+import api.library.{ LibraryApi, routes as LibraryRoutes }
+import cats.*
+import cats.data.*
+import cats.effect.*
+import cats.effect.implicits.*
+import cats.syntax.all.*
+import org.http4s.*
+import org.legogroup.woof.{ *, given }
 import sttp.tapir.Endpoint
 import sttp.tapir.server.http4s.Http4sServerInterpreter
 import sttp.tapir.swagger.bundle.SwaggerInterpreter
@@ -27,7 +27,7 @@ object HttpApi:
     new HttpApi[F](docs, library, crawler, libraryServices) {}
 
   private def createOpenApi[F[_]: Async](
-      endpoints: List[Endpoint[_, _, _, _, _]],
+      endpoints: List[Endpoint[?, ?, ?, ?, ?]],
       title: String,
       version: String
   ): HttpRoutes[F] =
@@ -44,10 +44,10 @@ sealed abstract class HttpApi[F[_]: Async: Logger] private (
     crawler: Crawler[F],
     libraryServices: LibraryRoutes.Services[F]
 ):
-  import HttpApi._
+  import HttpApi.*
 
   private val crawlerProps = CrawlerRoutes.Props(library, crawler)
-  private val crawlerApi = CrawlerApi(crawlerProps)
+  private val crawlerApi   = CrawlerApi(crawlerProps)
 
   private val libraryApi = LibraryApi(libraryServices)
 

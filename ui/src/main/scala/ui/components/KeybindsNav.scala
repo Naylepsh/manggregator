@@ -1,6 +1,6 @@
 package ui.components
 
-import tui._
+import tui.*
 import tui.widgets.BlockWidget
 
 class KeybindsNav(keyBinds: List[String], separator: String):

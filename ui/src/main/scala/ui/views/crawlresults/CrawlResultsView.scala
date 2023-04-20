@@ -1,14 +1,14 @@
 package ui.views.crawlresults
 
 import cats.effect.IO
-import cats.implicits._
+import cats.implicits.*
 import library.domain.asset.AssetSummary
-import tui._
+import tui.*
 import tui.crossterm.KeyCode
 import tui.widgets.ListWidget.State
-import tui.widgets.{BlockWidget, ListWidget}
-import ui.components.{KeybindsNav, Pagination}
-import ui.core._
+import tui.widgets.{ BlockWidget, ListWidget }
+import ui.components.{ KeybindsNav, Pagination }
+import ui.core.*
 
 class CrawlResultsView(
     context: Context[IO],
@@ -16,7 +16,7 @@ class CrawlResultsView(
     previousView: Option[View]
 ) extends View:
 
-  private val results = crawlResults.sortBy(_.asset.name)
+  private val results       = crawlResults.sortBy(_.asset.name)
   private val paginatedList = PaginatedList(results.toArray)
   private val keyBindsNav = KeybindsNav(
     List("↑ up", "↓ down", "s mark as seen", "backspace go back", "q quit")
@@ -25,7 +25,7 @@ class CrawlResultsView(
   private val crawlResultHeight = 2
 
   override def render(frame: Frame): Unit =
-    if (results.isEmpty)
+    if results.isEmpty then
       renderNoResults(frame)
     else
       renderResults(frame)
@@ -116,16 +116,17 @@ class CrawlResultsView(
   ): Unit =
     val padding = " " * 3
     val items0 = crawlResultsPage
-      .map { case (summary) =>
-        val lines = Array(
-          Spans.nostyle(""),
-          Spans.styled(
-            s"$padding${summary.asset.name.value}",
-            Style(fg = Some(Color.White))
+      .map {
+        case (summary) =>
+          val lines = Array(
+            Spans.nostyle(""),
+            Spans.styled(
+              s"$padding${summary.asset.name.value}",
+              Style(fg = Some(Color.White))
+            )
           )
-        )
 
-        ListWidget.Item(Text(lines))
+          ListWidget.Item(Text(lines))
       }
 
     val widget = ListWidget(

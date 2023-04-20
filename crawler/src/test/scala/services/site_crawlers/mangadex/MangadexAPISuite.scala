@@ -1,8 +1,8 @@
 package crawler.services.site_crawlers.mangadex
 
+import cats.*
+import cats.implicits.*
 import core.Url
-import cats._
-import cats.implicits._
 
 object MangadexAPISuite extends weaver.FunSuite:
   test("Can extract manga id from a valid short url") {

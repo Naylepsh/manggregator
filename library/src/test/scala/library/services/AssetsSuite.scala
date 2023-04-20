@@ -1,18 +1,19 @@
 package library.services
 
-import cats._
-import cats.data._
-import cats.syntax._
-import cats.implicits._
-import cats.effect.IO
-import library.domain.asset._
-import library.persistence
 import java.util.UUID
+
+import cats.*
+import cats.data.*
+import cats.effect.IO
+import cats.implicits.*
+import cats.syntax.*
+import library.domain.asset.*
+import library.persistence
 import library.services.common.TestAssets
 
 class AssetsSuite extends munit.FunSuite:
-  import AssetsSuite._
-  import common._
+  import AssetsSuite.*
+  import common.*
 
   test("Cant create the same asset twice") {
     val storage =

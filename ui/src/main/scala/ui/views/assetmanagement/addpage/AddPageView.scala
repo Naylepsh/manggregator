@@ -3,12 +3,12 @@ package ui.views.assetmanagement.addpage
 import cats.effect.IO
 import core.Url
 import library.domain.asset.AssetId
-import library.domain.page._
-import tui._
+import library.domain.page.*
+import tui.*
 import tui.crossterm.KeyCode
 import tui.widgets.BlockWidget
 import ui.components.KeybindsNav
-import ui.core._
+import ui.core.*
 import ui.views.common.InputView
 
 class AddPageView(context: Context[IO], assetId: AssetId, previousView: View)
@@ -80,5 +80,5 @@ private class PostPageCreationView(
   override def handleInput(key: KeyCode): ViewResult =
     key match
       case char: tui.crossterm.KeyCode.Char if char.c() == 'q' => Exit
-      case _: tui.crossterm.KeyCode.Enter => ChangeTo(postConfirmationView)
-      case _                              => Keep
+      case _: tui.crossterm.KeyCode.Enter                      => ChangeTo(postConfirmationView)
+      case _                                                   => Keep
