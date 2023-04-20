@@ -5,14 +5,14 @@ import java.util.Date
 
 import scala.util.Try
 
-import cats.implicits._
-import com.github.nscala_time.time.Imports._
+import cats.implicits.*
+import com.github.nscala_time.time.Imports.*
 import org.joda.time.DateTime
-import tui._
+import tui.*
 import tui.crossterm.KeyCode
-import tui.widgets.{BlockWidget, ParagraphWidget}
+import tui.widgets.{ BlockWidget, ParagraphWidget }
 import ui.components.KeybindsNav
-import ui.core._
+import ui.core.*
 
 class InputView[A](
     validate: String => Either[String, A],
@@ -20,10 +20,10 @@ class InputView[A](
     next: A => View,
     previousView: Option[View]
 ) extends View:
-  import InputView._
+  import InputView.*
 
-  var inputMode: InputMode = InputMode.Editing
-  var inputText: String = ""
+  var inputMode: InputMode               = InputMode.Editing
+  var inputText: String                  = ""
   var invalidInputReason: Option[String] = None
 
   override def render(frame: Frame): Unit =
@@ -65,7 +65,7 @@ class InputView[A](
             inputText = inputText + c.c()
             Keep
           case _: KeyCode.Backspace =>
-            if (!inputText.isBlank())
+            if !inputText.isBlank() then
               inputText = inputText.substring(0, inputText.length - 1)
             Keep
           case _: KeyCode.Esc =>
@@ -86,10 +86,9 @@ class InputView[A](
       block = Some(
         BlockWidget(borders = Borders.ALL, title = Some(inputTitle))
       ),
-      style = inputMode match {
+      style = inputMode match
         case InputMode.Normal  => Style.DEFAULT
         case InputMode.Editing => Style.DEFAULT.fg(Color.Yellow)
-      }
     )
 
     frame.render_widget(input, area)
@@ -121,7 +120,7 @@ class InputView[A](
 object InputView:
   sealed trait InputMode
   object InputMode:
-    case object Normal extends InputMode
+    case object Normal  extends InputMode
     case object Editing extends InputMode
 
   val normalModeKeybinds = KeybindsNav(

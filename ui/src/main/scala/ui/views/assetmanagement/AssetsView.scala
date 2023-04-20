@@ -1,13 +1,13 @@
 package ui.views.assetmanagement
 import cats.effect.IO
-import cats.implicits._
-import library.domain.asset.{Asset, UpdateAsset}
-import tui._
+import cats.implicits.*
+import library.domain.asset.{ Asset, UpdateAsset }
+import tui.*
 import tui.crossterm.KeyCode
 import tui.widgets.ListWidget.State
-import tui.widgets.{BlockWidget, ListWidget}
-import ui.components.{KeybindsNav, Pagination}
-import ui.core._
+import tui.widgets.{ BlockWidget, ListWidget }
+import ui.components.{ KeybindsNav, Pagination }
+import ui.core.*
 import ui.views.assetmanagement.addpage.AddPageView
 
 class AssetsView(
@@ -17,7 +17,7 @@ class AssetsView(
 ) extends View:
 
   private val assetCollection = assets.sortBy(_.name).toArray
-  private val paginatedList = PaginatedList(assetCollection)
+  private val paginatedList   = PaginatedList(assetCollection)
   private val keyBindsNav = KeybindsNav(
     List(
       "↑ up",
@@ -33,7 +33,7 @@ class AssetsView(
   private val assetHeight = 2
 
   override def render(frame: Frame): Unit =
-    if (assets.isEmpty)
+    if assets.isEmpty then
       renderNoAssets(frame)
     else
       renderAssets(frame)
@@ -137,22 +137,23 @@ class AssetsView(
   ): Unit =
     val padding = " " * 3
     val items = assetsPage
-      .map { case (asset) =>
-        val style =
-          if (asset.enabled.value)
-            Style(fg = Some(Color.White))
-          else
-            Style(fg = Some(Color.DarkGray))
+      .map {
+        case (asset) =>
+          val style =
+            if asset.enabled.value then
+              Style(fg = Some(Color.White))
+            else
+              Style(fg = Some(Color.DarkGray))
 
-        val lines = Array(
-          Spans.nostyle(""),
-          Spans.styled(
-            s"$padding${asset.name.value}",
-            style
+          val lines = Array(
+            Spans.nostyle(""),
+            Spans.styled(
+              s"$padding${asset.name.value}",
+              style
+            )
           )
-        )
 
-        ListWidget.Item(Text(lines))
+          ListWidget.Item(Text(lines))
       }
 
     val widget = ListWidget(

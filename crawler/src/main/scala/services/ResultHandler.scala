@@ -1,17 +1,17 @@
 package services
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.language.postfixOps
 
-import cats._
-import cats.data._
-import cats.effect._
-import cats.effect.implicits._
-import cats.effect.std._
-import cats.implicits._
-import crawler.domain.Crawl.CrawlResult._
+import cats.*
+import cats.data.*
+import cats.effect.*
+import cats.effect.implicits.*
+import cats.effect.std.*
+import cats.implicits.*
+import crawler.domain.Crawl.CrawlResult.*
 import crawler.domain.Library
-import org.legogroup.woof.{_, given}
+import org.legogroup.woof.{ *, given }
 
 trait ResultHandler[F[_]]:
   def handle(resultsToExpect: Int): F[Unit]
@@ -25,9 +25,9 @@ object ResultHandler:
       keepGoing(Metadata(resultsToExpect))
 
     private def keepGoing(metadata: Metadata): F[Unit] =
-      if (metadata.resultsLeft > 0)
+      if metadata.resultsLeft > 0 then
         for
-          _ <- Logger[F].info(s"${metadata.resultsLeft} results left to go...")
+          _               <- Logger[F].info(s"${metadata.resultsLeft} results left to go...")
           potentialResult <- queue.tryTake
           newMetadata <- potentialResult match
             case Some(result) =>

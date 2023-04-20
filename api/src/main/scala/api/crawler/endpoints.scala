@@ -1,6 +1,6 @@
 package api.crawler
 
-import sttp.tapir._
+import sttp.tapir.*
 
 object endpoints:
   val pathPrefix = "crawler"

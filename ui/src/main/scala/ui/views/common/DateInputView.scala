@@ -5,8 +5,8 @@ import java.util.Date
 
 import scala.util.Try
 
-import cats.implicits._
-import com.github.nscala_time.time.Imports._
+import cats.implicits.*
+import com.github.nscala_time.time.Imports.*
 import org.joda.time.DateTime
 import ui.core.View
 
@@ -22,8 +22,8 @@ object DateInputView:
   object DateInput:
     private val absoluteDatePattern = "([0-9]{4})-([0-9]{2})-([0-9]{2})".r
     private val relativeDatePattern = "([0-9]+)d".r
-    val dateStringFormat = "yyyy-MM-dd"
-    private val format = new SimpleDateFormat(dateStringFormat)
+    val dateStringFormat            = "yyyy-MM-dd"
+    private val format              = new SimpleDateFormat(dateStringFormat)
 
     def parse(input: String): Either[String, Date] =
       input match

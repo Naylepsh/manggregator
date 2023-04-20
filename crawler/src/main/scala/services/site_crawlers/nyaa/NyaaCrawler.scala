@@ -1,24 +1,24 @@
 package crawler.services.site_crawlers.nyaa
 
-import java.util.{Date, UUID}
+import java.util.{ Date, UUID }
 
 import scala.util.Try
 
-import cats.effect.kernel.{Async, Resource}
-import cats.implicits._
-import com.github.nscala_time.time.Imports._
+import cats.effect.kernel.{ Async, Resource }
+import cats.implicits.*
+import com.github.nscala_time.time.Imports.*
 import core.Url
-import crawler.domain.Asset.{AssetSource, Chapter}
-import crawler.domain.Crawl.CrawlJob.{DiscoverTitlesCrawlJob, ScrapeChaptersCrawlJob}
+import crawler.domain.Asset.{ AssetSource, Chapter }
+import crawler.domain.Crawl.CrawlJob.{ DiscoverTitlesCrawlJob, ScrapeChaptersCrawlJob }
 import crawler.domain.SiteCrawler
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser
-import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
-import net.ruippeixotog.scalascraper.dsl.DSL.Parse._
-import net.ruippeixotog.scalascraper.dsl.DSL._
+import net.ruippeixotog.scalascraper.dsl.DSL.Extract.*
+import net.ruippeixotog.scalascraper.dsl.DSL.Parse.*
+import net.ruippeixotog.scalascraper.dsl.DSL.*
 import net.ruippeixotog.scalascraper.model.Element
 import org.joda.time.format.DateTimeFormat
 import sttp.capabilities.WebSockets
-import sttp.client3.{SttpBackend, UriContext, basicRequest}
+import sttp.client3.{ SttpBackend, UriContext, basicRequest }
 
 class NyaaCrawler[F[_]: Async](
     httpClient: Resource[F, SttpBackend[F, WebSockets]]
@@ -33,7 +33,7 @@ class NyaaCrawler[F[_]: Async](
   ): F[Either[Throwable, List[Chapter]]] =
     getReleasesPageContext(job.url).map { response =>
       for
-        html <- response.left.map(reason => new RuntimeException(reason))
+        html     <- response.left.map(reason => new RuntimeException(reason))
         releases <- parseHtmlForReleases(html)
         chapters <- releases.traverse(_.toChapter(job.assetId))
       yield chapters
@@ -65,9 +65,10 @@ class NyaaCrawler[F[_]: Async](
         d <- parseDate(dateReleased)
       yield Chapter(
         assetId = assetId,
-        /** There's no good generic extractor for entry number, so storing a
-          * full title will do
-          */
+        /**
+         * There's no good generic extractor for entry number, so storing a
+         * full title will do
+         */
         no = title,
         url = u,
         dateReleased = d
@@ -77,9 +78,9 @@ class NyaaCrawler[F[_]: Async](
       releaseRow: Element
   ): Either[Throwable, RawRelease] =
     for
-      nameColumn <- getReleaseNameColumn(releaseRow)
-      title <- getTitle(nameColumn)
-      url <- getUrl(nameColumn)
+      nameColumn   <- getReleaseNameColumn(releaseRow)
+      title        <- getTitle(nameColumn)
+      url          <- getUrl(nameColumn)
       dateReleased <- getDateReleased(releaseRow)
     yield RawRelease(
       title = title,

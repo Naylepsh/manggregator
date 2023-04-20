@@ -1,14 +1,14 @@
 package library.services
 
-import cats._
-import cats.implicits._
+import cats.*
 import cats.data.NonEmptyList
 import cats.effect.std.UUIDGen
 import cats.effect.std.UUIDGen.randomUUID
+import cats.implicits.*
+import library.domain.asset.*
+import library.domain.chapter.*
+import library.domain.page.*
 import library.persistence
-import library.domain.asset._
-import library.domain.page._
-import library.domain.chapter._
 
 object common:
   class TestAssets[F[_]: Applicative: UUIDGen] extends persistence.Assets[F]:

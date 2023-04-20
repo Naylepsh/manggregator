@@ -1,10 +1,9 @@
 package ui.core
 
-import weaver.SimpleIOSuite
-import weaver.Expectations
+import cats.implicits.*
 import cats.kernel.Monoid
-import cats.implicits._
 import ui.suite.ParametrizedSuite
+import weaver.{Expectations, SimpleIOSuite}
 
 object PaginatorSuite extends ParametrizedSuite:
 
@@ -16,25 +15,27 @@ object PaginatorSuite extends ParametrizedSuite:
       (4, 1),
       (5, 1)
     )
-  ) { case (maxItemsOnScreen, expectedPageCount) =>
-    val items = Array(1, 2, 3, 4)
-    val pagination =
-      Paginator(items).paginate(maxItemsOnScreen, currentIndex = None)
+  ) {
+    case (maxItemsOnScreen, expectedPageCount) =>
+      val items = Array(1, 2, 3, 4)
+      val pagination =
+        Paginator(items).paginate(maxItemsOnScreen, currentIndex = None)
 
-    expect(
-      pagination.pageCount == expectedPageCount,
-      s"""Unexpected page count for $maxItemsOnScreen max items on screen.
+      expect(
+        pagination.pageCount == expectedPageCount,
+        s"""Unexpected page count for $maxItemsOnScreen max items on screen.
       Expected $expectedPageCount, got ${pagination.pageCount}""".stripMargin
-    )
+      )
   }
 
   pureTest("Going to next page when at last page loops back to start") {
 
-    /** Pages:
-      *   - 1: (1, 2)
-      *   - 2: (3, 4)
-      *   - 3: (5)
-      */
+    /**
+     * Pages:
+     *   - 1: (1, 2)
+     *   - 2: (3, 4)
+     *   - 3: (5)
+     */
 
     val items = Array(1, 2, 3, 4, 5)
     val pagination =
@@ -48,11 +49,12 @@ object PaginatorSuite extends ParametrizedSuite:
 
   pureTest("Going to previous page when at first page loops back to end") {
 
-    /** Pages:
-      *   - 1: (1, 2)
-      *   - 2: (3, 4)
-      *   - 3: (5)
-      */
+    /**
+     * Pages:
+     *   - 1: (1, 2)
+     *   - 2: (3, 4)
+     *   - 3: (5)
+     */
 
     val items = Array(1, 2, 3, 4, 5)
     val pagination =

@@ -4,23 +4,21 @@ import java.util.Date
 
 import cats.effect.IO
 import cats.effect.unsafe.IORuntime
-import cats.implicits._
-import com.github.nscala_time.time.Imports._
+import cats.implicits.*
+import com.github.nscala_time.time.Imports.*
 import library.domain.chapter.DateReleased
 import org.joda.time.DateTime
-import tui._
+import tui.*
 import tui.crossterm.KeyCode
-import tui.widgets.{BlockWidget, ListWidget}
+import tui.widgets.{ BlockWidget, ListWidget }
 import ui.components.KeybindsNav
-import ui.core._
+import ui.core.*
 import ui.views.assetmanagement.AssetManagementView
 import ui.views.common.DateInputView
 import ui.views.crawlresults.CrawlResultsView
 
-class MainMenuView(context: Context[IO])(using
-    IORuntime
-) extends View:
-  import MainMenuView._
+class MainMenuView(context: Context[IO])(using IORuntime) extends View:
+  import MainMenuView.*
   private var state: ViewState = ViewState.Ready
 
   private val actions = List(
@@ -71,8 +69,8 @@ class MainMenuView(context: Context[IO])(using
       case ViewState.Ready =>
         key match
           case char: tui.crossterm.KeyCode.Char if char.c() == 'q' => Exit
-          case _: tui.crossterm.KeyCode.Down => items.next(); Keep
-          case _: tui.crossterm.KeyCode.Up   => items.previous(); Keep
+          case _: tui.crossterm.KeyCode.Down                       => items.next(); Keep
+          case _: tui.crossterm.KeyCode.Up                         => items.previous(); Keep
           case _: tui.crossterm.KeyCode.Enter =>
             items.state.selected
               .flatMap(actions.get)
@@ -91,15 +89,16 @@ class MainMenuView(context: Context[IO])(using
 
   private def renderMenu(frame: Frame, area: Rect): Unit =
     val items0 = items.items
-      .map { case (action) =>
-        val header = Spans.styled(
-          action.label,
-          Style(fg = Some(Color.Gray))
-        )
+      .map {
+        case (action) =>
+          val header = Spans.styled(
+            action.label,
+            Style(fg = Some(Color.Gray))
+          )
 
-        val lines = Array(header)
+          val lines = Array(header)
 
-        ListWidget.Item(Text(lines))
+          ListWidget.Item(Text(lines))
       }
 
     val widget = ListWidget(
@@ -151,4 +150,4 @@ object MainMenuView:
   sealed trait ViewState
   object ViewState:
     object Loading extends ViewState
-    object Ready extends ViewState
+    object Ready   extends ViewState

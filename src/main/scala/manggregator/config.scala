@@ -1,12 +1,12 @@
 package manggregator
 
-import api.config.{ServerConfig, _}
-import cats._
-import cats.effect._
-import cats.implicits._
-import ciris._
-import com.comcast.ip4s._
-import library.config.types._
+import api.config.{ ServerConfig, * }
+import cats.*
+import cats.effect.*
+import cats.implicits.*
+import ciris.*
+import com.comcast.ip4s.*
+import library.config.types.*
 
 object config:
   case class ApplicationConfig(

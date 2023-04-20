@@ -2,20 +2,20 @@ package library.persistence
 
 import java.sql.Timestamp
 import java.text.SimpleDateFormat
-import java.util.{Date, UUID}
+import java.util.{ Date, UUID }
 
-import cats._
+import cats.*
 import cats.data.NonEmptyList
-import cats.effect._
+import cats.effect.*
 import cats.effect.std.UUIDGen
 import cats.effect.std.UUIDGen.randomUUID
-import cats.implicits._
-import cats.syntax._
-import doobie._
-import doobie.implicits._
-import doobie.util.query._
-import library.domain.asset._
-import library.domain.chapter._
+import cats.implicits.*
+import cats.syntax.*
+import doobie.*
+import doobie.implicits.*
+import doobie.util.query.*
+import library.domain.asset.*
+import library.domain.chapter.*
 
 trait Chapters[F[_]]:
   def create(chapters: List[CreateChapter]): F[List[ChapterId]]
@@ -24,7 +24,7 @@ trait Chapters[F[_]]:
   def findRecentReleases(minDateReleased: DateReleased): F[List[Chapter]]
 
 object Chapters:
-  import ChaptersSQL._
+  import ChaptersSQL.*
 
   def makeSQL[F[_]: MonadCancelThrow: UUIDGen](
       xa: Transactor[F]

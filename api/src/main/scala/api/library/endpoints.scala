@@ -1,21 +1,21 @@
 package api.library
 
 import java.text.SimpleDateFormat
-import java.util.{Date, UUID}
+import java.util.{ Date, UUID }
 
 import api.library.codecs.given
-import api.library.params._
-import api.library.responses._
+import api.library.params.*
+import api.library.responses.*
 import api.library.schemas.given
-import api.utils.DateCodec.{decodeDate, encodeDate}
-import cats.implicits._
-import io.circe.generic.auto._
-import library.domain.asset.{Asset, AssetSummary}
+import api.utils.DateCodec.{ decodeDate, encodeDate }
+import cats.implicits.*
+import io.circe.generic.auto.*
+import library.domain.asset.{ Asset, AssetSummary }
 import sttp.model.StatusCode
 import sttp.tapir.EndpointInput.Query
-import sttp.tapir._
-import sttp.tapir.generic.auto._
-import sttp.tapir.json.circe._
+import sttp.tapir.*
+import sttp.tapir.generic.auto.*
+import sttp.tapir.json.circe.*
 
 object endpoints:
   private val pathPrefix = "library"
@@ -34,12 +34,11 @@ object endpoints:
       .map(optionalStringToUuids)(uuidsToString(_).some)
 
   private val formatStr = "yyyy-MM-dd"
-  private val format = new SimpleDateFormat(formatStr)
+  private val format    = new SimpleDateFormat(formatStr)
   private def dateQuery(date: String): Query[Date] =
     query[String](date).map(str => format.parse(str))(_.toString)
 
-  val getAssetsChaptersEndpoint
-      : PublicEndpoint[List[UUID], String, List[AssetSummaryResponse], Any] =
+  val getAssetsChaptersEndpoint: PublicEndpoint[List[UUID], String, List[AssetSummaryResponse], Any] =
     endpoint.get
       .in(pathPrefix / "assets-chapters")
       .in(
@@ -49,8 +48,7 @@ object endpoints:
       .errorOut(stringBody)
       .description("Get the assets (by ids) and their chapters")
 
-  val getAssetsWithRecentChapterReleasesEndpoint
-      : PublicEndpoint[Date, String, List[AssetSummaryResponse], Any] =
+  val getAssetsWithRecentChapterReleasesEndpoint: PublicEndpoint[Date, String, List[AssetSummaryResponse], Any] =
     endpoint.get
       .in(pathPrefix / "recent-assets-chapters")
       .in(
@@ -60,8 +58,7 @@ object endpoints:
       .errorOut(stringBody)
       .description("Get the assets with recently released chapters")
 
-  val createAssetEndpoint
-      : PublicEndpoint[CreateAssetParam, (StatusCode, String),  CreateAssetResponse, Any] =
+  val createAssetEndpoint: PublicEndpoint[CreateAssetParam, (StatusCode, String), CreateAssetResponse, Any] =
     endpoint.post
       .in(pathPrefix / "assets")
       .in(jsonBody[CreateAssetParam])

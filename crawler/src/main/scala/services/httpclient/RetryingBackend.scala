@@ -1,19 +1,19 @@
 package crawler.services.httpclient
 
-import cats._
+import cats.*
 import cats.effect.kernel.Async
-import cats.implicits._
-import retry.RetryPolicies._
-import retry._
+import cats.implicits.*
+import retry.RetryPolicies.*
+import retry.*
 import sttp.capabilities.Effect
-import sttp.client3._
+import sttp.client3.*
 
 import concurrent.duration.DurationInt
 
 class RetryingBackend[F[_]: Async, P](
     delegate: SttpBackend[F, P]
 ) extends DelegateSttpBackend[F, P](delegate):
-  import RetryingBackend._
+  import RetryingBackend.*
 
   override def send[T, R >: P with Effect[F]](
       request: Request[T, R]

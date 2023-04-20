@@ -2,9 +2,9 @@ package library
 
 import java.util.UUID
 
-import doobie._
-import doobie.implicits._
-import doobie.util.query._
+import doobie.*
+import doobie.implicits.*
+import doobie.util.query.*
 
 package object persistence:
   case class Storage[F[_]](

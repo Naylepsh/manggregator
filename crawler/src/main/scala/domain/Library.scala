@@ -2,9 +2,9 @@ package crawler.domain
 
 import java.util.UUID
 
-import cats.effect._
+import cats.effect.*
 import core.Url
-import crawler.domain.Crawl.CrawlResult._
+import crawler.domain.Crawl.CrawlResult.*
 import crawler.domain.Library.AssetToCrawl
 
 trait Library[F[_]]:

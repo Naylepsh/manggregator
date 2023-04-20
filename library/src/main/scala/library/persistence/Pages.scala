@@ -4,18 +4,18 @@ import java.util.UUID
 
 import scala.collection.mutable.ListBuffer
 
-import cats._
+import cats.*
 import cats.data.NonEmptyList
-import cats.effect._
+import cats.effect.*
 import cats.effect.std.UUIDGen
 import cats.effect.std.UUIDGen.randomUUID
-import cats.implicits._
-import cats.syntax._
-import doobie._
-import doobie.implicits._
-import doobie.util.query._
+import cats.implicits.*
+import cats.syntax.*
+import doobie.*
+import doobie.implicits.*
+import doobie.util.query.*
 import library.domain.asset.AssetId
-import library.domain.page._
+import library.domain.page.*
 
 trait Pages[F[_]]:
   def create(page: CreateChaptersPage): F[PageId]
@@ -25,7 +25,7 @@ trait Pages[F[_]]:
   def findByAssetIds(assetIds: List[AssetId]): F[List[ChaptersPage]]
 
 object Pages:
-  import PagesSQL._
+  import PagesSQL.*
 
   def makeSQL[F[_]: MonadCancelThrow: UUIDGen](
       xa: Transactor[F]
@@ -66,7 +66,7 @@ object PagesSQL:
       id: UUID,
       assetId: UUID,
       site: String,
-      url: String,
+      url: String
   )
   object ChaptersPageRecord:
     def toDomain(record: ChaptersPageRecord): ChaptersPage =

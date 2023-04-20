@@ -1,15 +1,15 @@
 package ui.views.crawlresults
 
 import cats.effect.IO
-import cats.implicits._
+import cats.implicits.*
 import library.domain.asset.Asset
 import library.domain.chapter.Chapter
-import tui._
+import tui.*
 import tui.crossterm.KeyCode
 import tui.widgets.ListWidget.State
-import tui.widgets.{BlockWidget, ListWidget}
-import ui.components.{KeybindsNav, Pagination}
-import ui.core._
+import tui.widgets.{ BlockWidget, ListWidget }
+import ui.components.{ KeybindsNav, Pagination }
+import ui.core.*
 
 class ChaptersView(
     context: Context[IO],
@@ -18,7 +18,7 @@ class ChaptersView(
     previousView: Option[View]
 ) extends View:
 
-  private val results = chapters.sortBy(_.dateReleased)
+  private val results       = chapters.sortBy(_.dateReleased)
   private val paginatedList = PaginatedList(results.toArray)
   private val keyBindsNav = KeybindsNav(
     List(
@@ -95,17 +95,18 @@ class ChaptersView(
   ): Unit =
     val padding = " " * 3
     val chapterListItems = chaptersSubset
-      .map { case (chapter) =>
-        val lines = Array(
-          Spans.nostyle(""),
-          Spans.styled(
-            s"$padding${chapter.no.value}",
-            Style(fg = Some(Color.White))
-          ),
-          Spans.nostyle(s"$padding${chapter.url.value}")
-        )
+      .map {
+        case (chapter) =>
+          val lines = Array(
+            Spans.nostyle(""),
+            Spans.styled(
+              s"$padding${chapter.no.value}",
+              Style(fg = Some(Color.White))
+            ),
+            Spans.nostyle(s"$padding${chapter.url.value}")
+          )
 
-        ListWidget.Item(Text(lines))
+          ListWidget.Item(Text(lines))
       }
 
     val chapterWidget = ListWidget(

@@ -1,15 +1,15 @@
 package crawler.services.site_crawlers
 
-import munit.CatsEffectSuite
 import java.util.Date
-import org.joda.time.DateTime
-import com.github.nscala_time.time.Imports._
-import org.joda.time.DateTimeComparator
 import java.util.UUID.randomUUID
+
+import com.github.nscala_time.time.Imports.*
 import core.Url
+import munit.CatsEffectSuite
+import org.joda.time.{DateTime, DateTimeComparator}
 
 class MangakakalotCrawlerSuite extends CatsEffectSuite:
-  import MangakakalotCrawler._
+  import MangakakalotCrawler.*
 
   test(
     "parsing release date of chapter released minutes ago should return matching date"
@@ -71,14 +71,15 @@ class MangakakalotCrawlerSuite extends CatsEffectSuite:
       ("Chapter 2: Hello, world!", "2")
     )
 
-    inputs.foreach { case (chapterName, expectedChapterNo) =>
-      val no = MangakakalotCrawler.parseChapterNoFromName(chapterName)
-      assertEquals(no, Some(expectedChapterNo))
+    inputs.foreach {
+      case (chapterName, expectedChapterNo) =>
+        val no = MangakakalotCrawler.parseChapterNoFromName(chapterName)
+        assertEquals(no, Some(expectedChapterNo))
     }
   }
 
   test("parse chapters extracts chapters from HTML") {
-    import MangakakalotCrawlerSuite._
+    import MangakakalotCrawlerSuite.*
 
     MangakakalotCrawler
       .parseChapters(
@@ -86,9 +87,7 @@ class MangakakalotCrawlerSuite extends CatsEffectSuite:
         id = randomUUID,
         selectors = Selectors.mangakakalotSelectors
       )(html)
-      .foreach { chapters =>
-        assertEquals(chapters.length, 4)
-      }
+      .foreach { chapters => assertEquals(chapters.length, 4) }
 
   }
 
@@ -103,10 +102,11 @@ class MangakakalotCrawlerSuite extends CatsEffectSuite:
     val actualDate =
       MangakakalotCrawler.parseDateReleasedFromTimeUploaded(timeUploaded)
 
-    /** Dates are not data classes, comparing them directly (even though their
-      * string representation looks the same) will always fail. Thus, turning
-      * them to strings.
-      */
+    /**
+     * Dates are not data classes, comparing them directly (even though their
+     * string representation looks the same) will always fail. Thus, turning
+     * them to strings.
+     */
     assertEquals(
       DateTimeComparator
         .getDateOnlyInstance()

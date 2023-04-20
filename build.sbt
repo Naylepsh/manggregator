@@ -1,10 +1,13 @@
 import Dependencies._
 
 ThisBuild / scalaVersion := "3.2.0"
-ThisBuild / version := "0.1.0-SNAPSHOT"
-ThisBuild / name := "manggregator"
+ThisBuild / version      := "0.1.0-SNAPSHOT"
+ThisBuild / name         := "manggregator"
 ThisBuild / organization := "io.naylepsh"
-ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.6.0"
+ThisBuild / scalafixDependencies += Libraries.organizeImports
+
+Global / semanticdbEnabled := true
+Global / semanticdbVersion := scalafixSemanticdb.revision
 
 lazy val root = project
   .in(file("."))
@@ -97,9 +100,9 @@ lazy val commonLibraries = Seq(
   Libraries.catsRetry,
   Libraries.slf4j,
   Libraries.woof,
-  Libraries.munit % Test,
+  Libraries.munit           % Test,
   Libraries.munitCatsEffect % Test,
-  Libraries.weaver % Test,
+  Libraries.weaver          % Test,
   // Needed for integration tests
   Libraries.weaver
 )
@@ -110,10 +113,7 @@ enablePlugins(JavaAppPackaging)
 
 addCommandAlias(
   "codeCoverage",
-  "coverage ; test ; coverageReport"
+  ";coverage ;test ;coverageReport"
 )
 
-addCommandAlias(
-  "organizeImports",
-  "scalafixEnable ; scalafix OrganizeImports"
-)
+addCommandAlias("lint", ";scalafmtAll ;scalafixAll --rules OrganizeImports")

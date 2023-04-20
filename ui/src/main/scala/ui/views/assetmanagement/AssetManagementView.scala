@@ -1,12 +1,12 @@
 package ui.views.assetmanagement
 
 import cats.effect.IO
-import cats.implicits._
-import tui._
+import cats.implicits.*
+import tui.*
 import tui.crossterm.KeyCode
-import tui.widgets.{BlockWidget, ListWidget}
+import tui.widgets.{ BlockWidget, ListWidget }
 import ui.components.KeybindsNav
-import ui.core._
+import ui.core.*
 
 class AssetManagementView(
     context: Context[IO],
@@ -73,15 +73,16 @@ class AssetManagementView(
 
   private def renderMenu(frame: Frame, area: Rect): Unit =
     val items0 = items.items
-      .map { case (action) =>
-        val header = Spans.styled(
-          action.label,
-          Style(fg = Some(Color.Gray))
-        )
+      .map {
+        case (action) =>
+          val header = Spans.styled(
+            action.label,
+            Style(fg = Some(Color.Gray))
+          )
 
-        val lines = Array(header)
+          val lines = Array(header)
 
-        ListWidget.Item(Text(lines))
+          ListWidget.Item(Text(lines))
       }
 
     val widget = ListWidget(

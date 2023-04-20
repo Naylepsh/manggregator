@@ -4,17 +4,17 @@ import java.util.UUID
 
 import scala.collection.mutable.Map as MutableMap
 
-import cats._
-import cats.data._
-import cats.effect._
+import cats.*
+import cats.data.*
+import cats.effect.*
 import cats.effect.std.UUIDGen
 import cats.effect.std.UUIDGen.randomUUID
-import cats.implicits._
-import cats.syntax._
-import doobie._
-import doobie.implicits._
-import doobie.util.query._
-import library.domain.asset._
+import cats.implicits.*
+import cats.syntax.*
+import doobie.*
+import doobie.implicits.*
+import doobie.util.query.*
+import library.domain.asset.*
 
 trait Assets[F[_]]:
   def create(asset: CreateAsset): F[AssetId]
@@ -27,7 +27,7 @@ trait Assets[F[_]]:
 object Assets:
   def makeSQL[F[_]: MonadCancelThrow: UUIDGen](xa: Transactor[F]): Assets[F] =
     new Assets[F]:
-      import AssetSQL._
+      import AssetSQL.*
 
       override def create(asset: CreateAsset): F[AssetId] =
         for

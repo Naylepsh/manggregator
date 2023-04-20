@@ -1,6 +1,6 @@
 package crawler.domain
 
-import java.util.{Date, UUID}
+import java.util.{ Date, UUID }
 
 import core.Url
 

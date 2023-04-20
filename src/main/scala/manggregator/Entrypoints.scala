@@ -2,29 +2,29 @@ package manggregator
 
 import java.util.UUID.randomUUID
 
-import api.config._
+import api.config.*
 import api.library.routes.Services
-import api.{HttpApi, HttpServer}
-import cats.data._
-import cats.effect._
+import api.{ HttpApi, HttpServer }
+import cats.data.*
+import cats.effect.*
 import core.Url
 import crawler.domain.Asset.AssetSource
-import crawler.domain.Crawl.CrawlResult._
+import crawler.domain.Crawl.CrawlResult.*
 import crawler.domain.Library
 import crawler.domain.Library.AssetToCrawl
 import crawler.resources.httpclient
-import crawler.services._
+import crawler.services.*
 import crawler.services.httpclient.RetryingBackend
 import crawler.services.site_crawlers.MangakakalotCrawler
 import crawler.services.site_crawlers.mangadex.MangadexCrawler
 import crawler.services.site_crawlers.nyaa.NyaaCrawler
 import doobie.util.transactor.Transactor
 import library.domain.asset.AssetId
-import library.domain.chapter._
+import library.domain.chapter.*
 import library.domain.page.ChaptersPageToCheck
 import library.persistence
 import library.persistence.Storage
-import library.services._
+import library.services.*
 import org.legogroup.woof.Logger
 
 object Entrypoints:
@@ -45,13 +45,15 @@ object Entrypoints:
         pages: List[ChaptersPageToCheck]
     ): List[AssetToCrawl] =
       pages
-        .map { case ChaptersPageToCheck(site, url, title) =>
-          Url
-            .valid(url.value)
-            .map(AssetToCrawl(site.value, title.value, _))
+        .map {
+          case ChaptersPageToCheck(site, url, title) =>
+            Url
+              .valid(url.value)
+              .map(AssetToCrawl(site.value, title.value, _))
         }
-        .collect { case Right(value) =>
-          value
+        .collect {
+          case Right(value) =>
+            value
         }
 
     def handleResult(result: SuccessfulResult): IO[Unit] = result match
@@ -76,8 +78,8 @@ object Entrypoints:
 
     val siteCrawlersMapping = Map(
       "mangakakalot" -> MangakakalotCrawler,
-      "mangadex" -> MangadexCrawler.make(httpClientResource),
-      "nyaa" -> NyaaCrawler(httpClientResource)
+      "mangadex"     -> MangadexCrawler.make(httpClientResource),
+      "nyaa"         -> NyaaCrawler(httpClientResource)
     )
 
     Crawler.make[IO](siteCrawlersMapping)

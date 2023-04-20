@@ -1,19 +1,16 @@
 package crawler.services.site_crawlers.mangadex
 
-import java.util.{Date, UUID}
+import java.util.{ Date, UUID }
 
 import scala.util.Try
 
-import cats._
-import cats.effect._
-import cats.syntax.all._
-import com.github.nscala_time.time.Imports._
+import cats.*
+import cats.effect.*
+import cats.syntax.all.*
+import com.github.nscala_time.time.Imports.*
 import core.Url
-import crawler.domain.Asset.{AssetSource, Chapter}
-import crawler.domain.Crawl.CrawlJob.{
-  DiscoverTitlesCrawlJob,
-  ScrapeChaptersCrawlJob
-}
+import crawler.domain.Asset.{ AssetSource, Chapter }
+import crawler.domain.Crawl.CrawlJob.{ DiscoverTitlesCrawlJob, ScrapeChaptersCrawlJob }
 import crawler.domain.SiteCrawler
 import crawler.resources.httpclient.HttpClient
 import org.joda.time.format.DateTimeFormat
@@ -44,7 +41,7 @@ class MangadexCrawler[F[_]: Monad](
       chapter: entities.Chapter
   ): Either[Throwable, Chapter] =
     for
-      url <- inferUrl(chapter)
+      url          <- inferUrl(chapter)
       dateReleased <- parseDate(chapter.attributes.createdAt)
     yield Chapter(
       assetId,

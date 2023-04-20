@@ -2,12 +2,12 @@ package ui.core
 
 import scala.reflect.ClassTag
 
-import tui._
+import tui.*
 
 case class Paginator[A: ClassTag](
     allItems: Array[A]
 ):
-  import Paginator._
+  import Paginator.*
 
   def paginate(
       area: Rect,
@@ -25,8 +25,8 @@ case class Paginator[A: ClassTag](
   ): Pagination[A] =
     val pageCount =
       Math.ceil(allItems.length / maxItemsOnScreen.doubleValue).toInt
-    val paginated = allItems.grouped(maxItemsOnScreen).toArray
-    val currentPage = currentIndex.getOrElse(0) / maxItemsOnScreen
+    val paginated            = allItems.grouped(maxItemsOnScreen).toArray
+    val currentPage          = currentIndex.getOrElse(0) / maxItemsOnScreen
     val indexAfterPagination = currentIndex.map(_ % maxItemsOnScreen)
 
     Pagination(
@@ -58,5 +58,5 @@ object Paginator:
     def absoluteIndex(): Option[Int] =
       for
         relativeIndex <- currentIndex
-        pageSize <- pages.headOption.map(_.length)
+        pageSize      <- pages.headOption.map(_.length)
       yield currentPage * pageSize + relativeIndex

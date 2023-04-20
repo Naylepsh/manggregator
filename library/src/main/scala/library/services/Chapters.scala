@@ -1,9 +1,9 @@
 package library.services
 
-import cats._
-import cats.data._
-import cats.implicits._
-import library.domain.chapter._
+import cats.*
+import cats.data.*
+import cats.implicits.*
+import library.domain.chapter.*
 import library.persistence
 
 trait Chapters[F[_]]:
@@ -17,11 +17,11 @@ object Chapters:
       override def create(
           chapters: List[CreateChapter]
       ): F[CreateChaptersResult] =
-        for {
+        for
           chaptersInStore <- storage.findByAssetIds(chapters.map(_.assetId))
           chaptersToSave = CreateChapter.discardIfIn(chapters, chaptersInStore)
           stored <- storage.create(chaptersToSave)
-        } yield CreateChaptersResult(
+        yield CreateChaptersResult(
           created = stored,
           alreadyExist = chaptersInStore.map(_.id)
         )
