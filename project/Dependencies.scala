@@ -2,23 +2,23 @@ import sbt._
 
 object Dependencies {
   object V {
-    val catsEffect = "3.3.14"
+    val catsEffect = "3.4.9"
     val catsRetry = "3.1.0"
-    val scalaScraper = "3.0.0"
+    val scalaScraper = "3.1.0"
     val scalaTime = "2.32.0"
     val ciris = "3.0.0"
-    val circe = "0.14.3"
-    val sttp = "3.8.8"
-    val http4s = "0.23.16"
-    val tapir = "1.1.3"
-    val slf4j = "1.7.36"
-    val woof = "0.4.7"
+    val circe = "0.14.5"
+    val sttp = "3.8.15"
+    val http4s = "0.23.18"
+    val tapir = "1.2.12"
+    val slf4j = "2.0.7"
+    val woof = "0.6.0"
     val doobie = "1.0.0-RC2"
-    val sqliteJDB = "3.40.0.0"
+    val sqliteJDB = "3.41.2.1"
 
     val munit = "0.7.29"
     val munitCatsEffect = "1.0.7"
-    val weaver = "0.8.1"
+    val weaver = "0.8.3"
     val tui = "0.0.5"
 
     val organizeImports = "0.6.0"
