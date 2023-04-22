@@ -71,6 +71,8 @@ object Entrypoints:
             )
           )
           .void
+      // TODO: Handle once the scrapers start supporting it
+      case TitlesResult(titles) => IO.unit
 
   def crawler()(using Logger[IO]): Crawler[IO] =
     val httpClientResource =
