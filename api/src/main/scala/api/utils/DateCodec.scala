@@ -16,4 +16,4 @@ object DateCodec:
     Try(dateFormatter.parse(dateString)).toEither.leftMap(_.toString)
   }
   given encodeDate: Encoder[Date] = new Encoder[Date]:
-    final def apply(date: Date): Json = Json.fromString(date.toGMTString())
+    final def apply(date: Date): Json = Json.fromString(s"${dateFormatter.format(date)} GMT")
